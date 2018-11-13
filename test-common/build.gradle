@@ -1,0 +1,44 @@
+
+
+buildscript {
+    ext.kotlin_version = rootProject.kotlinVersion
+    repositories {
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.kotlinVersion}"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath "com.lightningkite:mirror-plugin:0.0.1"
+    }
+}
+
+apply plugin: 'kotlin-platform-common'
+apply plugin: 'com.lightningkite.mirror'
+
+sourceSets {
+    main.kotlin.srcDirs += 'build/gen/reflect'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    mavenLocal()
+
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common:${rootProject.kotlinVersion}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${rootProject.coroutinesVersion}"
+    implementation project(':koolui-metadata')
+    api "com.lightningkite:kommunicate-mirror-metadata:0.0.1"
+    api "com.lightningkite:mirror-runtime-metadata:0.0.1"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-common:${rootProject.kotlinVersion}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:${rootProject.kotlinVersion}"
+}
+

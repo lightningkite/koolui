@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="CrossPlatformThemeDefaultHeaderStyle">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="CrossPlatformThemeDefaultSubheaderStyle">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CrossPlatformThemeDefaultBodyStyle">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="CrossPlatformTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="headerStyle">
+            @style/CrossPlatformThemeDefaultHeaderStyle
+        </item>
+        <item name="subheaderStyle">
+            @style/CrossPlatformThemeDefaultSubheaderStyle
+        </item>
+        <item name="bodyStyle">
+            @style/CrossPlatformThemeDefaultBodyStyle
+        </item>
+    </style>
+
+    <style name="TransparentDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+</resources>

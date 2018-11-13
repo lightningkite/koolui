@@ -1,0 +1,73 @@
+buildscript {
+
+    repositories {
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+        mavenCentral()
+        google()
+
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.kotlinVersion}"
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-platform-android'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        applicationId "desktop.kotlin.lk.test_android"
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/kommon.kotlin_module'
+        exclude 'META-INF/lokalize.kotlin_module'
+        exclude 'META-INF/kommunicate.kotlin_module'
+        exclude 'META-INF/reacktive.kotlin_module'
+        exclude 'META-INF/recktangle.kotlin_module'
+        exclude 'META-INF/mirror-runtime.kotlin_module'
+        exclude 'META-INF/kommunicate-mirror.kotlin_module'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+repositories {
+    mavenCentral()
+    google()
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.kotlinVersion}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.coroutinesVersion}"
+    testImplementation 'junit:junit:4.12'
+    api "com.lightningkite:kommunicate-mirror-jvm:0.0.1"
+    api "com.lightningkite:mirror-runtime-jvm:0.0.1"
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation "com.android.support:appcompat-v7:27.1.1"
+    expectedBy project(':test-common')
+    implementation project(':koolui-android')
+}

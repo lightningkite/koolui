@@ -1,0 +1,4 @@
+com.lightningkite.koolui.test.models
+configureModels
+
+com.lightningkite.koolui.test.models.Post

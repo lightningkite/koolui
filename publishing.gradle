@@ -1,0 +1,62 @@
+buildscript {
+    ext.kotlin_version = rootProject.kotlinVersion
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+    }
+}
+
+//Bintray
+
+task sourceJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact tasks.sourceJar
+//            artifact tasks.dokkaJar
+            groupId project.group.toString()
+            artifactId project.name
+            version project.version
+        }
+    }
+}
+
+def bintrayPropertiesFile = rootProject.file("bintray.properties")
+if (bintrayPropertiesFile.exists()) {
+    def bintrayProperties = new Properties()
+    bintrayProperties.load(new FileInputStream(bintrayPropertiesFile))
+
+    apply plugin: 'com.jfrog.bintray'
+    bintray {
+        user = bintrayProperties['bintrayUser']
+        key = bintrayProperties['bintrayKey']
+        publications = ['mavenJava']
+        publish = bintrayProperties['bintrayPublish']
+        pkg {
+            repo = project.group.toString()
+            name = project.name
+            userOrg = bintrayProperties['bintrayOrganization']
+            licenses = [bintrayProperties['bintrayLicense']]
+            vcsUrl = bintrayProperties['bintrayVcs']
+            websiteUrl = bintrayProperties['bintrayWebsite']
+            issueTrackerUrl = bintrayProperties['bintrayIssues']
+            version {
+                name = project.version
+                released = new Date()
+            }
+        }
+    }
+}

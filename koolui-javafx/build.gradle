@@ -1,0 +1,63 @@
+buildscript {
+    ext.kotlin_version = rootProject.kotlinVersion
+
+    repositories {
+
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+    }
+}
+
+group 'com.lightningkite'
+version '0.0.1'
+
+apply plugin: 'kotlin-platform-jvm'
+apply from: '../publishing.gradle'
+
+repositories {
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.0.0"
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
+
+    expectedBy project(':koolui-metadata')
+
+    api "com.lightningkite:kommon-jvm:${project.version}"
+    api "com.lightningkite:kommunicate-jvm:${project.version}"
+    api "com.lightningkite:lokalize-jvm:${project.version}"
+    api "com.lightningkite:reacktive-jvm:${project.version}"
+    api "com.lightningkite:recktangle-jvm:${project.version}"
+
+
+    implementation 'com.jfoenix:jfoenix:9.0.3' // Java 9
+
+    //SVGs
+
+    implementation 'org.apache.xmlgraphics:batik-dom:1.10'
+    implementation 'org.apache.xmlgraphics:batik-anim:1.10'
+    implementation 'org.apache.xmlgraphics:batik-bridge:1.10'
+    implementation 'org.apache.xmlgraphics:batik-transcoder:1.10'
+    implementation 'xalan:xalan:2.7.2'
+    implementation 'org.apache.logging.log4j:log4j-api:2.5'
+
+    api 'org.apache.xmlgraphics:xmlgraphics-commons:2.1'
+    api 'org.apache.logging.log4j:log4j-core:2.5'
+
+    testImplementation 'junit:junit:4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

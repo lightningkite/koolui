@@ -1,0 +1,44 @@
+
+
+buildscript {
+    ext.kotlin_version = rootProject.kotlinVersion
+    repositories {
+
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+    }
+}
+
+apply plugin: 'kotlin-platform-common'
+apply from: '../publishing.gradle'
+
+group 'com.lightningkite'
+version '0.0.1'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-common:${kotlin_version}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:${kotlin_version}"
+
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.0"
+
+    compile "com.lightningkite:kommon-metadata:${project.version}"
+    compile "com.lightningkite:kommunicate-metadata:${project.version}"
+    compile "com.lightningkite:lokalize-metadata:${project.version}"
+    compile "com.lightningkite:reacktive-metadata:${project.version}"
+    compile "com.lightningkite:recktangle-metadata:${project.version}"
+}

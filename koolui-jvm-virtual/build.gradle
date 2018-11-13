@@ -1,0 +1,48 @@
+buildscript {
+    ext.kotlin_version = rootProject.kotlinVersion
+
+    repositories {
+
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+    }
+}
+
+group 'com.lightningkite'
+version '0.0.1'
+
+apply plugin: 'kotlin-platform-jvm'
+apply from: '../publishing.gradle'
+
+repositories {
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
+
+    expectedBy project(':koolui-metadata')
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0"
+
+    api "com.lightningkite:kommon-jvm:${project.version}"
+    api "com.lightningkite:kommunicate-jvm:${project.version}"
+    api "com.lightningkite:lokalize-jvm:${project.version}"
+    api "com.lightningkite:reacktive-jvm:${project.version}"
+    api "com.lightningkite:recktangle-jvm:${project.version}"
+
+    testImplementation 'junit:junit:4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

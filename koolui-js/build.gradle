@@ -1,0 +1,61 @@
+buildscript {
+    ext.kotlin_version = rootProject.kotlinVersion
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+        maven { url "http://dl.bintray.com/kotlin/kotlin-dev" }
+
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+    }
+}
+
+apply plugin: 'kotlin-platform-js'
+apply from: '../publishing.gradle'
+
+group 'com.lightningkite'
+version '0.0.1'
+
+repositories {
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    mavenCentral()
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:${kotlin_version}"
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:${kotlin_version}"
+    testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
+
+    expectedBy project(':koolui-metadata')
+
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.0"
+
+    api "com.lightningkite:kommon-js:${project.version}"
+    api "com.lightningkite:kommunicate-js:${project.version}"
+    api "com.lightningkite:lokalize-js:${project.version}"
+    api "com.lightningkite:reacktive-js:${project.version}"
+    api "com.lightningkite:recktangle-js:${project.version}"
+}
+
+
+compileKotlin2Js {
+    kotlinOptions.metaInfo = true
+    kotlinOptions.sourceMap = true
+    kotlinOptions.suppressWarnings = true
+    kotlinOptions.verbose = true
+    kotlinOptions.main = "call"
+    kotlinOptions.moduleKind = "umd"
+}
+
+compileTestKotlin2Js {
+    kotlinOptions.metaInfo = true
+    kotlinOptions.outputFile = "$project.buildDir.path/js-tests/${project.name}-tests.js"
+    kotlinOptions.sourceMap = true
+    kotlinOptions.moduleKind = 'umd'
+    kotlinOptions.main = "call"
+}
