@@ -9,6 +9,7 @@ yarn-error.log*
 .idea/
 *.iml
 build/
+*.jar
 
 
 # Runtime data
