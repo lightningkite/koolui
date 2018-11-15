@@ -13,7 +13,7 @@ buildscript {
 }
 
 group 'com.lightningkite'
-version '0.0.1'
+version '0.0.2'
 
 apply plugin: 'kotlin-platform-jvm'
 apply from: '../publishing.gradle'
@@ -29,7 +29,7 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
 
     expectedBy project(':koolui-metadata')
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
 
     api "com.lightningkite:kommon-jvm:${project.version}"
     api "com.lightningkite:kommunicate-jvm:${project.version}"
@@ -37,7 +37,7 @@ dependencies {
     api "com.lightningkite:reacktive-jvm:${project.version}"
     api "com.lightningkite:recktangle-jvm:${project.version}"
 
-    testImplementation 'junit:junit:4.12'
+    testApi 'junit:junit:4.12'
 }
 
 compileKotlin {

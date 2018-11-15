@@ -13,7 +13,7 @@ buildscript {
 }
 
 group 'com.lightningkite.kotlin.crossplatform'
-version '0.0.1'
+version '0.0.2'
 
 apply plugin: 'org.jetbrains.kotlin.frontend'
 apply plugin: 'kotlin-platform-js'
@@ -29,12 +29,12 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:${rootProject.kotlinVersion}"
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${rootProject.coroutinesVersion}"
     expectedBy project(':test-common')
-    compile "com.lightningkite:kommunicate-mirror-js:0.0.1"
-    compile "com.lightningkite:mirror-runtime-js:0.0.1"
+    compile "com.lightningkite:kommunicate-mirror-js:0.0.2"
+    compile "com.lightningkite:mirror-runtime-js:0.0.2"
 //  compileestCompile "org.jetbrains.kotlin:kotlin-test-js:${rootProject.kotlinVersion}"
 //  compileestCompile "org.jetbrains.kotlin:kotlin-test:${rootProject.kotlinVersion}"
 
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.0"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
 
     compile "com.lightningkite:kommon-js:${project.version}"
     compile "com.lightningkite:kommunicate-js:${project.version}"

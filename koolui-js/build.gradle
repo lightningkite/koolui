@@ -17,7 +17,7 @@ apply plugin: 'kotlin-platform-js'
 apply from: '../publishing.gradle'
 
 group 'com.lightningkite'
-version '0.0.1'
+version '0.0.2'
 
 repositories {
     maven { url "https://kotlin.bintray.com/kotlinx" }
@@ -33,7 +33,8 @@ dependencies {
 
     expectedBy project(':koolui-metadata')
 
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.0"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
+    api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.0-beta-1"
 
     api "com.lightningkite:kommon-js:${project.version}"
     api "com.lightningkite:kommunicate-js:${project.version}"

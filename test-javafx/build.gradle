@@ -29,12 +29,12 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${rootProject.kotlinVersion}"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.coroutinesVersion}"
     testCompile "org.jetbrains.kotlin:kotlin-reflect:${rootProject.kotlinVersion}"
-    api "com.lightningkite:kommunicate-mirror-jvm:0.0.1"
-    api "com.lightningkite:mirror-runtime-jvm:0.0.1"
+    api "com.lightningkite:kommunicate-mirror-jvm:0.0.2"
+    api "com.lightningkite:mirror-runtime-jvm:0.0.2"
     expectedBy project(':test-common')
-    implementation project(':koolui-javafx')
+    api project(':koolui-javafx')
 
-    testImplementation 'junit:junit:4.12'
+    testApi 'junit:junit:4.12'
 }
 
 compileKotlin {

@@ -26,7 +26,7 @@ apply plugin: 'kotlin-platform-android'
 apply from: '../publishing-android.gradle'
 
 group 'com.lightningkite'
-version '0.0.1'
+version '0.0.2'
 
 android {
     compileSdkVersion 27
@@ -65,16 +65,15 @@ dependencies {
     def compatVersion = '27.1.1'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.0"
-    androidTestImplementation "com.android.support:support-annotations:${compatVersion}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
+    androidTestApi "com.android.support:support-annotations:${compatVersion}"
 //    androidTestCompile 'com.android.support.test:runner:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}"
+    testApi 'junit:junit:4.12'
+    testApi "org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}"
 
 
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api fileTree(include: ['*.jar'], dir: 'libs')
     expectedBy project(':koolui-metadata')
-
 
     api "com.lightningkite:kommon-jvm:${project.version}"
     api "com.lightningkite:kommunicate-jvm:${project.version}"
@@ -82,11 +81,11 @@ dependencies {
     api "com.lightningkite:reacktive-jvm:${project.version}"
     api "com.lightningkite:recktangle-jvm:${project.version}"
 
-    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    api 'com.squareup.okhttp3:okhttp:3.11.0'
 
-    implementation "com.android.support:appcompat-v7:${compatVersion}"
-    implementation "com.android.support:cardview-v7:${compatVersion}"
-    implementation "com.android.support:gridlayout-v7:${compatVersion}"
-    implementation "com.android.support:recyclerview-v7:${compatVersion}"
-    implementation "com.android.support:design:${compatVersion}"
+    api "com.android.support:appcompat-v7:${compatVersion}"
+    api "com.android.support:cardview-v7:${compatVersion}"
+    api "com.android.support:gridlayout-v7:${compatVersion}"
+    api "com.android.support:recyclerview-v7:${compatVersion}"
+    api "com.android.support:design:${compatVersion}"
 }

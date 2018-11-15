@@ -4,8 +4,8 @@ group = 'com.lightningkite'
 
 buildscript {
 
-    ext.kotlinVersion = '1.3.0'
-    ext.coroutinesVersion = '1.0.0'
+    ext.kotlinVersion = '1.3.10'
+    ext.coroutinesVersion = '1.0.1'
 
     repositories {
         mavenCentral()

@@ -19,7 +19,7 @@ apply plugin: 'kotlin-platform-common'
 apply from: '../publishing.gradle'
 
 group 'com.lightningkite'
-version '0.0.1'
+version '0.0.2'
 
 repositories {
     mavenLocal()
@@ -30,15 +30,15 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-common:${kotlin_version}"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:${kotlin_version}"
+    api "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
+    testApi "org.jetbrains.kotlin:kotlin-test-common:${kotlin_version}"
+    testApi "org.jetbrains.kotlin:kotlin-test-annotations-common:${kotlin_version}"
 
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.0"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.1"
 
-    compile "com.lightningkite:kommon-metadata:${project.version}"
-    compile "com.lightningkite:kommunicate-metadata:${project.version}"
-    compile "com.lightningkite:lokalize-metadata:${project.version}"
-    compile "com.lightningkite:reacktive-metadata:${project.version}"
-    compile "com.lightningkite:recktangle-metadata:${project.version}"
+    api "com.lightningkite:kommon-metadata:${project.version}"
+    api "com.lightningkite:kommunicate-metadata:${project.version}"
+    api "com.lightningkite:lokalize-metadata:${project.version}"
+    api "com.lightningkite:reacktive-metadata:${project.version}"
+    api "com.lightningkite:recktangle-metadata:${project.version}"
 }
