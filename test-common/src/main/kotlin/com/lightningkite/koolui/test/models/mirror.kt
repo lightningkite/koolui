@@ -1,8 +1,10 @@
 package com.lightningkite.koolui.test.models
 
+import com.lightningkite.kommon.native.SharedImmutable
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
-fun configureModels(){
-    ClassInfo.register(com.lightningkite.koolui.test.models.PostClassInfo)
-}
+@SharedImmutable
+val TestRegistry = ClassInfoRegistry(
+    com.lightningkite.koolui.test.models.PostClassInfo
+)

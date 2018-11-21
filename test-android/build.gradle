@@ -70,4 +70,10 @@ dependencies {
     api "com.android.support:appcompat-v7:27.1.1"
     expectedBy project(':test-common')
     api project(':koolui-android')
+
+    api "com.lightningkite:kommon-jvm:${project.version}"
+    api "com.lightningkite:kommunicate-jvm:${project.version}"
+    api "com.lightningkite:lokalize-jvm:${project.version}"
+    api "com.lightningkite:reacktive-jvm:${project.version}"
+    api "com.lightningkite:recktangle-jvm:${project.version}"
 }

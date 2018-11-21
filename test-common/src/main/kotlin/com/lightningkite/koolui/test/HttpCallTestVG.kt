@@ -11,10 +11,13 @@ import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.test.models.Post
+import com.lightningkite.koolui.test.models.TestRegistry
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.mirror.info.list
 import com.lightningkite.mirror.info.type
+import com.lightningkite.mirror.serialization.DefaultRegistry
+import com.lightningkite.mirror.serialization.json.JsonSerializer
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -31,6 +34,7 @@ class HttpCallTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
                 val results = HttpClient.callSerializer(
                         url = "https://jsonplaceholder.typicode.com/posts",
                         method = HttpMethod.GET,
+                        serializer = JsonSerializer(DefaultRegistry + TestRegistry),
                         type = Post::class.type.list
                 )
                 println(results)

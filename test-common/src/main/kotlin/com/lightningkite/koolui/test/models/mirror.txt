@@ -1,4 +1,4 @@
 com.lightningkite.koolui.test.models
-configureModels
+TestRegistry
 
 com.lightningkite.koolui.test.models.Post

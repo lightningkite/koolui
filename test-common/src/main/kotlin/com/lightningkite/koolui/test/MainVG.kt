@@ -1,7 +1,6 @@
 package com.lightningkite.koolui.test
 
 import com.lightningkite.kommon.collection.*
-import com.lightningkite.koolui.test.models.configureModels
 import com.lightningkite.reacktive.list.observableListOf
 import com.lightningkite.reacktive.list.WrapperObservableList
 import com.lightningkite.koolui.views.ViewFactory
@@ -14,8 +13,6 @@ class MainVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
 
     init {
         //Startup
-        configureModels()
-
         stack.push(SelectorVG(stack))
     }
 

@@ -12,7 +12,7 @@ buildscript {
 }
 
 group 'com.lightningkite.kotlin.crossplatform'
-version '1.0-SNAPSHOT'
+version '0.0.2'
 
 apply plugin: 'application'
 apply plugin: 'kotlin-platform-jvm'
@@ -33,6 +33,12 @@ dependencies {
     api "com.lightningkite:mirror-runtime-jvm:0.0.2"
     expectedBy project(':test-common')
     api project(':koolui-javafx')
+
+    api "com.lightningkite:kommon-jvm:${project.version}"
+    api "com.lightningkite:kommunicate-jvm:${project.version}"
+    api "com.lightningkite:lokalize-jvm:${project.version}"
+    api "com.lightningkite:reacktive-jvm:${project.version}"
+    api "com.lightningkite:recktangle-jvm:${project.version}"
 
     testApi 'junit:junit:4.12'
 }

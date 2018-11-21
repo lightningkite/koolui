@@ -4861,11 +4861,6 @@ enum class MaterialIcon(val data: String) {
     ),
 }
 
-private val REGEXS = listOf(
-    Regex("<path ([^>]+)>") to "<path ",
-    Regex("<circle ([^>]+)>") to "<circle "
-)
-
 fun MaterialIcon.color(color: Color): Displayable {
     return Displayable.fromSvgString(
         data.substringBefore('g') + """g fill="${color.toAlphalessWeb()}"""" + data.substringAfter('g')
