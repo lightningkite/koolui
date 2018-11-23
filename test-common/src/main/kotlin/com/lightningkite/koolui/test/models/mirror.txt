@@ -1,4 +1,3 @@
-com.lightningkite.koolui.test.models
-TestRegistry
+name = com.lightningkite.koolui.test.models.TestRegistry
 
 com.lightningkite.koolui.test.models.Post
