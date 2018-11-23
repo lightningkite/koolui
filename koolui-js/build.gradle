@@ -10,11 +10,50 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
 }
 
 apply plugin: 'kotlin-platform-js'
-apply from: '../publishing.gradle'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+task sourceJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact tasks.sourceJar
+            groupId project.group.toString()
+            artifactId project.name
+            version project.version
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publish = true
+    pkg {
+        repo = project.group.toString()
+        name = project.name
+        userOrg = "lightningkite"
+        licenses = ["MIT"]
+        def github = "https://github.com/lightningkite/${project.name}"
+        vcsUrl = github
+        websiteUrl = github
+        issueTrackerUrl = github + "/issues"
+        version {
+            name = project.version
+            released = new Date()
+        }
+    }
+}
 
 group 'com.lightningkite'
 version '0.0.2'

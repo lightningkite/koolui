@@ -16,6 +16,8 @@ buildscript {
         classpath "digital.wup:android-maven-publish:3.6.2"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+        classpath "digital.wup:android-maven-publish:3.6.2"
     }
 }
 
@@ -23,7 +25,45 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-platform-android'
-apply from: '../publishing-android.gradle'
+apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+task sourceJar(type: Jar) {
+    classifier 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+publishing {
+    publications {
+        mavenAar(MavenPublication){
+            from components.android
+            artifact tasks.sourceJar
+            groupId project.group.toString()
+            artifactId project.name
+            version project.version
+        }
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publish = true
+    pkg {
+        repo = project.group.toString()
+        name = project.name
+        userOrg = "lightningkite"
+        licenses = ["MIT"]
+        def github = "https://github.com/lightningkite/${project.name}"
+        vcsUrl = github
+        websiteUrl = github
+        issueTrackerUrl = github + "/issues"
+        version {
+            name = project.version
+            released = new Date()
+        }
+    }
+}
 
 group 'com.lightningkite'
 version '0.0.2'
