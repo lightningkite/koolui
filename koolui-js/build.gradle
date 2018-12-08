@@ -73,7 +73,7 @@ dependencies {
     expectedBy project(':koolui-metadata')
 
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
-    api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.0-beta-1"
+    api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.1"
 
     api "com.lightningkite:kommon-js:${project.version}"
     api "com.lightningkite:kommunicate-js:${project.version}"
