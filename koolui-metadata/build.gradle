@@ -75,9 +75,9 @@ dependencies {
 
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.1"
 
-    api "com.lightningkite:kommon-metadata:${project.version}"
-    api "com.lightningkite:kommunicate-metadata:${project.version}"
-    api "com.lightningkite:lokalize-metadata:${project.version}"
-    api "com.lightningkite:reacktive-metadata:${project.version}"
-    api "com.lightningkite:recktangle-metadata:${project.version}"
+    api 'com.lightningkite:kommon-metadata:0.0.2'
+    api 'com.lightningkite:kommunicate-metadata:0.0.2'
+    api 'com.lightningkite:lokalize-metadata:0.0.2'
+    api 'com.lightningkite:reacktive-metadata:0.0.2'
+    api 'com.lightningkite:recktangle-metadata:0.0.2'
 }

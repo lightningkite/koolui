@@ -70,11 +70,11 @@ dependencies {
 
     expectedBy project(':koolui-metadata')
 
-    api "com.lightningkite:kommon-jvm:${project.version}"
-    api "com.lightningkite:kommunicate-jvm:${project.version}"
-    api "com.lightningkite:lokalize-jvm:${project.version}"
-    api "com.lightningkite:reacktive-jvm:${project.version}"
-    api "com.lightningkite:recktangle-jvm:${project.version}"
+    api 'com.lightningkite:kommon-jvm:0.0.2'
+    api 'com.lightningkite:kommunicate-jvm:0.0.2'
+    api 'com.lightningkite:lokalize-jvm:0.0.2'
+    api 'com.lightningkite:reacktive-jvm:0.0.2'
+    api 'com.lightningkite:recktangle-jvm:0.0.2'
 
 
     api 'com.jfoenix:jfoenix:9.0.3' // Java 9
