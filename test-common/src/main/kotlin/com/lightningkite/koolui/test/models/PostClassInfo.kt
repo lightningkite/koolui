@@ -2,7 +2,6 @@
 //AUTOMATICALLY GENERATED AND WILL BE OVERRIDDEN IF THIS MESSAGE IS PRESENT
 package com.lightningkite.koolui.test.models
 
-
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
@@ -22,14 +21,12 @@ object PostClassInfo: ClassInfo<Post> {
    override val annotations: List<AnnotationInfo> = listOf()
    override val enumValues: List<Post>? = null
 
-   object Fields {
-       val id = FieldInfo<Post, Long?>(PostClassInfo, "id", Type<Long?>(Long::class, listOf(), true), true, { it.id as Long?}, listOf())
-        val userId = FieldInfo<Post, Long>(PostClassInfo, "userId", Type<Long>(Long::class, listOf(), false), true, { it.userId as Long}, listOf())
-        val title = FieldInfo<Post, String>(PostClassInfo, "title", Type<String>(String::class, listOf(), false), true, { it.title as String}, listOf())
-        val body = FieldInfo<Post, String>(PostClassInfo, "body", Type<String>(String::class, listOf(), false), true, { it.body as String}, listOf())
-   }
+   val fieldId = FieldInfo<Post, Long?>(this, "id", Type<Long?>(Long::class, listOf(), true), true, { it.id as Long?}, listOf())
+    val fieldUserId = FieldInfo<Post, Long>(this, "userId", Type<Long>(Long::class, listOf(), false), true, { it.userId as Long}, listOf())
+    val fieldTitle = FieldInfo<Post, String>(this, "title", Type<String>(String::class, listOf(), false), true, { it.title as String}, listOf())
+    val fieldBody = FieldInfo<Post, String>(this, "body", Type<String>(String::class, listOf(), false), true, { it.body as String}, listOf())
 
-   override val fields:List<FieldInfo<Post, *>> = listOf(Fields.id, Fields.userId, Fields.title, Fields.body)
+   override val fields:List<FieldInfo<Post, *>> = listOf(fieldId, fieldUserId, fieldTitle, fieldBody)
 
    override fun construct(map: Map<String, Any?>): Post {
        //Gather variables
