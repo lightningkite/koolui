@@ -1,7 +1,6 @@
 package com.lightningkite.koolui.image
 
 import com.lightningkite.kommunicate.*
-import kotlinx.io.core.readBytes
 import org.w3c.dom.HTMLImageElement
 import org.w3c.dom.HTMLParagraphElement
 import org.w3c.dom.url.URL
@@ -39,7 +38,6 @@ actual suspend fun HttpClient.callImageDetail(
         when (body) {
             is HttpBody.BString -> body.value
             is HttpBody.BByteArray -> body.value
-            is HttpBody.BInput -> body.value.readBytes()
         }
     )
 }
