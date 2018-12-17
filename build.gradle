@@ -1,24 +1,270 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-group = 'com.lightningkite'
-
 buildscript {
-
     ext.kotlinVersion = '1.3.10'
     ext.coroutinesVersion = '1.0.1'
-
     repositories {
-        mavenCentral()
         google()
+        mavenLocal()
         jcenter()
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
         classpath 'com.android.tools.build:gradle:3.2.1'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath "digital.wup:android-maven-publish:3.6.2"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
 }
+apply plugin: 'kotlin-multiplatform'
+apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'idea'
+apply plugin: 'com.android.library'
+apply plugin: 'digital.wup.android-maven-publish'
+
+task androidSourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            artifactId = project.name + "-android"
+            from components.android
+            artifacts.removeAll { it.file.name.endsWith('jar') }
+            artifact androidSourceJar
+        }
+    }
+}
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    lintOptions {
+        warning('InvalidPackage', 'NewApi')
+    }
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publish = true
+    pkg {
+        repo = project.group.toString()
+        name = project.name
+        userOrg = "lightningkite"
+        licenses = ["MIT"]
+        def github = "https://github.com/lightningkite/${project.name}"
+        vcsUrl = github
+        websiteUrl = github
+        issueTrackerUrl = github + "/issues"
+        version {
+            name = project.version
+            released = new Date()
+        }
+    }
+}
+
+
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+}
+group 'com.lightningkite'
+version '0.0.2'
+
+kotlin {
+    targets {
+        fromPreset(presets.android, 'android')
+        fromPreset(presets.jvm, 'javafx')
+        fromPreset(presets.jvm, 'jvmVirtual')
+        fromPreset(presets.js, 'js')
+//        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+//            fromPreset(presets.iosX64, 'iosx64')
+//            fromPreset(presets.iosArm64, 'ios')
+//        }
+    }
+    sourceSets {
+        commonMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-common'
+
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.1"
+
+                api 'com.lightningkite:kommon-metadata:0.0.2'
+                api 'com.lightningkite:kommunicate-metadata:0.0.2'
+                api 'com.lightningkite:lokalize-metadata:0.0.2'
+                api 'com.lightningkite:reacktive-metadata:0.0.2'
+                api 'com.lightningkite:recktangle-metadata:0.0.2'
+            }
+        }
+        commonTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-common'
+                api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+            }
+        }
+        jvmVirtualMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+                api 'com.squareup.okhttp3:okhttp:3.11.0'
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+
+                api 'com.lightningkite:kommon-jvm:0.0.2'
+                api 'com.lightningkite:kommunicate-jvm:0.0.2'
+                api 'com.lightningkite:lokalize-jvm:0.0.2'
+                api 'com.lightningkite:reacktive-jvm:0.0.2'
+                api 'com.lightningkite:recktangle-jvm:0.0.2'
+            }
+        }
+        jvmVirtualTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test'
+                api 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        javafxMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+                api 'com.jfoenix:jfoenix:9.0.3' // Java 9
+                api 'org.apache.xmlgraphics:batik-dom:1.10'
+                api 'org.apache.xmlgraphics:batik-anim:1.10'
+                api 'org.apache.xmlgraphics:batik-bridge:1.10'
+                api 'org.apache.xmlgraphics:batik-transcoder:1.10'
+                api 'xalan:xalan:2.7.2'
+                api 'org.apache.logging.log4j:log4j-api:2.5'
+
+                api 'org.apache.xmlgraphics:xmlgraphics-commons:2.1'
+                api 'org.apache.logging.log4j:log4j-core:2.5'
+
+                api 'com.squareup.okhttp3:okhttp:3.11.0'
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+
+                api 'com.lightningkite:kommon-jvm:0.0.2'
+                api 'com.lightningkite:kommunicate-jvm:0.0.2'
+                api 'com.lightningkite:lokalize-jvm:0.0.2'
+                api 'com.lightningkite:reacktive-jvm:0.0.2'
+                api 'com.lightningkite:recktangle-jvm:0.0.2'
+            }
+        }
+        javafxTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test'
+                api 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        androidMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
+                api 'com.squareup.okhttp3:okhttp:3.11.0'
+
+                def compatVersion = '27.1.1'
+                api "com.android.support:appcompat-v7:${compatVersion}"
+                api "com.android.support:cardview-v7:${compatVersion}"
+                api "com.android.support:gridlayout-v7:${compatVersion}"
+                api "com.android.support:recyclerview-v7:${compatVersion}"
+                api "com.android.support:design:${compatVersion}"
+
+                api 'com.lightningkite:kommon-jvm:0.0.2'
+                api 'com.lightningkite:kommunicate-jvm:0.0.2'
+                api 'com.lightningkite:lokalize-jvm:0.0.2'
+                api 'com.lightningkite:reacktive-jvm:0.0.2'
+                api 'com.lightningkite:recktangle-jvm:0.0.2'
+            }
+        }
+        androidTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test'
+                api 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        jsMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-js'
+
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
+
+                api 'com.lightningkite:kommon-js:0.0.2'
+                api 'com.lightningkite:kommunicate-js:0.0.2'
+                api 'com.lightningkite:lokalize-js:0.0.2'
+                api 'com.lightningkite:reacktive-js:0.0.2'
+                api 'com.lightningkite:recktangle-js:0.0.2'
+
+            }
+        }
+        jsTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-js'
+            }
+        }
+
+//        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+//            iosMain {
+//                dependencies {
+//                }
+//            }
+//            iosTest {
+//                dependencies {
+//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.1'
+//                }
+//            }
+//            iosx64Main {
+//                dependencies {
+//                    kotlin.srcDir('src/iosMain/kotlin')
+//                }
+//            }
+//            iosx64Test {
+//                dependencies {
+//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.1'
+//                    kotlin.srcDir('src/iosTest/kotlin')
+//                }
+//            }
+//        }
+    }
+}
+tasks.withType(compileKotlinJs.getClass()) {
+    kotlinOptions {
+        moduleKind = "umd"
+        sourceMap = true
+        metaInfo = true
+    }
+}
+
+//if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+//    task iosTest {
+//        def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+//        dependsOn 'linkTestDebugExecutableIosx64'
+//        group = JavaBasePlugin.VERIFICATION_GROUP
+//        description = "Runs tests for target 'ios' on an iOS simulator"
+//
+//        doLast {
+//            def binary = kotlin.targets.iosx64.compilations.test.getBinary('EXECUTABLE', 'DEBUG')
+//            exec {
+//                commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
+//            }
+//        }
+//    }
+//    tasks.check.dependsOn(tasks.iosTest)
+//}
