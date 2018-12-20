@@ -11,6 +11,9 @@ yarn-error.log*
 build/
 *.jar
 
+*.iml
+local.properties
+
 
 # Runtime data
 pids
