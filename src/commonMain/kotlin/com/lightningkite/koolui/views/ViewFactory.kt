@@ -48,23 +48,20 @@ interface ViewFactory<VIEW> {
 
     /**
      * The main window of the program - provides a stack and tabs, also hosting the actions for the given view generator.
-     * Do we need constantly available actions as well?  Seems like it might be a good idea...  Mobile would never use it though.
-     * I want to be able to do suspended functions as well
-     *
      */
     fun <DEPENDENCY> window(
-        dependency: DEPENDENCY,
-        stack: MutableObservableList<ViewGenerator<DEPENDENCY, VIEW>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
+            dependency: DEPENDENCY,
+            stack: MutableObservableList<ViewGenerator<DEPENDENCY, VIEW>>,
+            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
     ): VIEW
 
     /**
      * A set of ordered pages you can swap through with the built-in navigator.
      */
     fun <DEPENDENCY> pages(
-        dependency: DEPENDENCY,
-        page: MutableObservableProperty<Int>,
-        vararg pageGenerator: ViewGenerator<DEPENDENCY, VIEW>
+            dependency: DEPENDENCY,
+            page: MutableObservableProperty<Int>,
+            vararg pageGenerator: ViewGenerator<DEPENDENCY, VIEW>
     ): VIEW
 
     /**
@@ -72,8 +69,8 @@ interface ViewFactory<VIEW> {
      * Does not modify any views outside of it - hook it up to a [swap] for that functionality.
      */
     fun tabs(
-        options: ObservableList<TabItem>,
-        selected: MutableObservableProperty<TabItem>
+            options: ObservableList<TabItem>,
+            selected: MutableObservableProperty<TabItem>
     ): VIEW
 
 
@@ -83,11 +80,11 @@ interface ViewFactory<VIEW> {
      * Shows a list of items and notifies you when it's scrolled to the end.
      */
     fun <T> list(
-        data: ObservableList<T>,
-        firstIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
-        lastIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
-        direction: Direction = Direction.Down,
-        makeView: (obs: ObservableProperty<T>) -> VIEW
+            data: ObservableList<T>,
+            firstIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
+            lastIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
+            direction: Direction = Direction.Down,
+            makeView: (obs: ObservableProperty<T>) -> VIEW
     ): VIEW
 
 
@@ -97,11 +94,11 @@ interface ViewFactory<VIEW> {
      * Shows a piece of text at the given size.
      */
     fun text(
-        text: ObservableProperty<String>,
-        importance: Importance = Importance.Normal,
-        size: TextSize = TextSize.Body,
-        align: AlignPair = AlignPair.CenterLeft,
-        maxLines: Int = Int.MAX_VALUE
+            text: ObservableProperty<String>,
+            importance: Importance = Importance.Normal,
+            size: TextSize = TextSize.Body,
+            align: AlignPair = AlignPair.CenterLeft,
+            maxLines: Int = Int.MAX_VALUE
     ): VIEW
 
     /**
@@ -109,7 +106,7 @@ interface ViewFactory<VIEW> {
      * While loading, it will show a loading indicator.
      */
     fun image(
-        image: ObservableProperty<Image>
+            image: ObservableProperty<Image>
     ): VIEW
 
     /**
@@ -118,7 +115,7 @@ interface ViewFactory<VIEW> {
      * Otherwise, it will be interpreted as non-interactive HTML content.
      */
     fun web(
-        content: ObservableProperty<String>
+            content: ObservableProperty<String>
     ): VIEW
 
     /**
@@ -133,10 +130,10 @@ interface ViewFactory<VIEW> {
      * A button with the given image and label.  Runs [onClick] when the button is interacted with.
      */
     fun button(
-        label: ObservableProperty<String>,
-        image: ObservableProperty<Image?> = ConstantObservableProperty(null),
-        importance: Importance = Importance.Normal,
-        onClick: () -> Unit
+            label: ObservableProperty<String>,
+            image: ObservableProperty<Image?> = ConstantObservableProperty(null),
+            importance: Importance = Importance.Normal,
+            onClick: () -> Unit
     ): VIEW
 
     /**
@@ -144,10 +141,10 @@ interface ViewFactory<VIEW> {
      * Attempts to use image over text.
      */
     fun imageButton(
-        image: ObservableProperty<Image>,
-        label: ObservableProperty<String?> = ConstantObservableProperty(null),
-        importance: Importance = Importance.Normal,
-        onClick: () -> Unit
+            image: ObservableProperty<Image>,
+            label: ObservableProperty<String?> = ConstantObservableProperty(null),
+            importance: Importance = Importance.Normal,
+            onClick: () -> Unit
     ): VIEW
 
 
@@ -162,84 +159,84 @@ interface ViewFactory<VIEW> {
      * @param field The field itself.
      */
     fun entryContext(
-        label: String,
-        help: String? = null,
-        icon: Image? = null,
-        feedback: ObservableProperty<Pair<Importance, String>?> = ConstantObservableProperty(null),
-        field: VIEW
+            label: String,
+            help: String? = null,
+            icon: Image? = null,
+            feedback: ObservableProperty<Pair<Importance, String>?> = ConstantObservableProperty(null),
+            field: VIEW
     ): VIEW
 
     /**
      * An element that allows the untypedUser to select an item from a list.
      */
     fun <T> picker(
-        options: ObservableList<T>,
-        selected: MutableObservableProperty<T>,
-        makeView: (obs: ObservableProperty<T>) -> VIEW = { obs -> text(obs.transform { it.toString() }) }
+            options: ObservableList<T>,
+            selected: MutableObservableProperty<T>,
+            makeView: (obs: ObservableProperty<T>) -> VIEW = { obs -> text(obs.transform { it.toString() }) }
     ): VIEW
 
     /**
      * An element that allows the untypedUser to enter a small piece of text.
      */
     fun textField(
-        text: MutableObservableProperty<String>,
-        placeholder: String = "",
-        type: TextInputType = TextInputType.Name
+            text: MutableObservableProperty<String>,
+            placeholder: String = "",
+            type: TextInputType = TextInputType.Name
     ): VIEW
 
     /**
      * An element that allows the untypedUser to enter a large piece of text.
      */
     fun textArea(
-        text: MutableObservableProperty<String>,
-        placeholder: String = "",
-        type: TextInputType = TextInputType.Paragraph
+            text: MutableObservableProperty<String>,
+            placeholder: String = "",
+            type: TextInputType = TextInputType.Paragraph
     ): VIEW
 
     /**
      * An element that allows the untypedUser to enter a number.
      */
     fun numberField(
-        value: MutableObservableProperty<Number?>,
-        placeholder: String = "",
-        type: NumberInputType = NumberInputType.PositiveInteger,
-        decimalPlaces: Int = 0
+            value: MutableObservableProperty<Number?>,
+            placeholder: String = "",
+            type: NumberInputType = NumberInputType.PositiveInteger,
+            decimalPlaces: Int = 0
     ): VIEW
 
     /**
      * An element that allows the untypedUser to enter a date.
      */
     fun datePicker(
-        observable: MutableObservableProperty<Date>
+            observable: MutableObservableProperty<Date>
     ): VIEW
 
     /**
      * An element that allows the untypedUser to enter a date and time.
      */
     fun dateTimePicker(
-        observable: MutableObservableProperty<DateTime>
+            observable: MutableObservableProperty<DateTime>
     ): VIEW
 
     /**
      * An element that allows the untypedUser to enter a time.
      */
     fun timePicker(
-        observable: MutableObservableProperty<Time>
+            observable: MutableObservableProperty<Time>
     ): VIEW
 
     /**
      * A slider that lets the untypedUser pick a value within the given range.
      */
     fun slider(
-        range: IntRange,
-        observable: MutableObservableProperty<Int>
+            range: IntRange,
+            observable: MutableObservableProperty<Int>
     ): VIEW
 
     /**
      * A switch or checkbox (depending on platform) that the untypedUser can turn on or off.
      */
     fun toggle(
-        observable: MutableObservableProperty<Boolean>
+            observable: MutableObservableProperty<Boolean>
     ): VIEW
 
 
@@ -250,17 +247,17 @@ interface ViewFactory<VIEW> {
      * On mobile, enables a "swipe to refresh" gesture.
      */
     fun refresh(
-        contains: VIEW,
-        working: ObservableProperty<Boolean>,
-        onRefresh: () -> Unit
+            contains: VIEW,
+            working: ObservableProperty<Boolean>,
+            onRefresh: () -> Unit
     ): VIEW
 
     /**
      * Shows the given view if not working, otherwise shows a working indicator.
      */
     fun work(
-        view: VIEW,
-        isWorking: ObservableProperty<Boolean>
+            view: VIEW,
+            isWorking: ObservableProperty<Boolean>
     ): VIEW
 
     /**
@@ -268,40 +265,40 @@ interface ViewFactory<VIEW> {
      * @param progress A number 0-1 showing the amount of progress made on a task.  When the value is 1,
      */
     fun progress(
-        view: VIEW,
-        progress: ObservableProperty<Float>
+            view: VIEW,
+            progress: ObservableProperty<Float>
     ): VIEW
 
     /**
      * Wraps content to make it scroll vertically.
      */
     fun scrollVertical(
-        view: VIEW,
-        amount: MutableObservableProperty<Float> = StandardObservableProperty(0f)
+            view: VIEW,
+            amount: MutableObservableProperty<Float> = StandardObservableProperty(0f)
     ): VIEW = scrollBoth(view, amountY = amount)
 
     /**
      * Wraps content to make it scroll horizontally.
      */
     fun scrollHorizontal(
-        view: VIEW,
-        amount: MutableObservableProperty<Float> = StandardObservableProperty(0f)
+            view: VIEW,
+            amount: MutableObservableProperty<Float> = StandardObservableProperty(0f)
     ): VIEW = scrollBoth(view, amountX = amount)
 
     /**
      * Wraps content to make it scroll both directions.
      */
     fun scrollBoth(
-        view: VIEW,
-        amountX: MutableObservableProperty<Float> = StandardObservableProperty(0f),
-        amountY: MutableObservableProperty<Float> = StandardObservableProperty(0f)
+            view: VIEW,
+            amountX: MutableObservableProperty<Float> = StandardObservableProperty(0f),
+            amountY: MutableObservableProperty<Float> = StandardObservableProperty(0f)
     ): VIEW
 
     /**
      * Shows a single view at a time, which can be switched out with another through animation.
      */
     fun swap(
-        view: ObservableProperty<Pair<VIEW, Animation>>
+            view: ObservableProperty<Pair<VIEW, Animation>>
     ): VIEW
 
     /**
@@ -309,7 +306,7 @@ interface ViewFactory<VIEW> {
      * The placement pairs determine whether or not the elements are stretched or shifted around.
      */
     fun horizontal(
-        vararg views: Pair<LinearPlacement, VIEW>
+            vararg views: Pair<LinearPlacement, VIEW>
     ): VIEW
 
     /**
@@ -317,7 +314,7 @@ interface ViewFactory<VIEW> {
      * The placement pairs determine whether or not the elements are stretched or shifted around.
      */
     fun vertical(
-        vararg views: Pair<LinearPlacement, VIEW>
+            vararg views: Pair<LinearPlacement, VIEW>
     ): VIEW
 
     /**
@@ -325,7 +322,7 @@ interface ViewFactory<VIEW> {
      * The placement pairs determine whether or not the elements are stretched or shifted around.
      */
     fun frame(
-        vararg views: Pair<AlignPair, VIEW>
+            vararg views: Pair<AlignPair, VIEW>
     ): VIEW
 
     /**
@@ -340,39 +337,39 @@ interface ViewFactory<VIEW> {
      * Adds a margin around an item.
      */
     fun VIEW.margin(
-        left: Float = 0f,
-        top: Float = 0f,
-        right: Float = 0f,
-        bottom: Float = 0f
+            left: Float = 0f,
+            top: Float = 0f,
+            right: Float = 0f,
+            bottom: Float = 0f
     ): VIEW
 
     /**
      * Adds a background to the given item.
      */
     fun VIEW.background(
-        color: ObservableProperty<Color>
+            color: ObservableProperty<Color>
     ): VIEW
 
     fun VIEW.background(
-        color: Color
+            color: Color
     ): VIEW = background(ConstantObservableProperty(color))
 
     /**
      * Changes the alpha of a view.
      */
     fun VIEW.alpha(
-        alpha: ObservableProperty<Float>
+            alpha: ObservableProperty<Float>
     ): VIEW
 
     fun VIEW.alpha(
-        alpha: Float
+            alpha: Float
     ): VIEW = alpha(ConstantObservableProperty(alpha))
 
     /**
      * Makes a normally non-clickable element clickable.
      */
     fun VIEW.clickable(
-        onClick: () -> Unit
+            onClick: () -> Unit
     ): VIEW
 
     /**
@@ -382,7 +379,7 @@ interface ViewFactory<VIEW> {
      * On web it... uh... I dunno.
      */
     fun VIEW.altClickable(
-        onAltClick: () -> Unit
+            onAltClick: () -> Unit
     ): VIEW
 
     /**
@@ -396,14 +393,14 @@ interface ViewFactory<VIEW> {
     fun VIEW.setHeight(height: Float): VIEW
 
     fun VIEW.margin(
-        horizontal: Float = 0f,
-        top: Float = 0f,
-        bottom: Float = 0f
+            horizontal: Float = 0f,
+            top: Float = 0f,
+            bottom: Float = 0f
     ) = this.margin(horizontal, top, horizontal, bottom)
 
     fun VIEW.margin(
-        horizontal: Float = 0f,
-        vertical: Float = 0f
+            horizontal: Float = 0f,
+            vertical: Float = 0f
     ) = this.margin(horizontal, vertical, horizontal, vertical)
 
     fun VIEW.margin(amount: Float) = this.margin(amount, amount, amount, amount)
@@ -420,16 +417,16 @@ interface ViewFactory<VIEW> {
      * Launches a dialog with the given view in it.
      */
     fun launchDialog(
-        dismissable: Boolean = true,
-        onDismiss: () -> Unit = {},
-        makeView: (dismissDialog: () -> Unit) -> VIEW
+            dismissable: Boolean = true,
+            onDismiss: () -> Unit = {},
+            makeView: (dismissDialog: () -> Unit) -> VIEW
     )
 
     /**
      * Launches a selector with options to choose from.
      */
     fun launchSelector(
-        title: String? = null,
-        options: List<Pair<String, () -> Unit>>
+            title: String? = null,
+            options: List<Pair<String, () -> Unit>>
     )
 }

@@ -2,7 +2,6 @@ package com.lightningkite.koolui.implementationhelpers
 
 import com.lightningkite.kommon.collection.pop
 import com.lightningkite.kommon.collection.reset
-import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.Theme
@@ -22,11 +21,9 @@ import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.list.lastOrNullObservable
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
 fun <VIEW> ViewFactory<VIEW>.defaultEntryContext(
@@ -227,20 +224,8 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
 
             +space(Point(5f, 5f))
 
-            -swap(stack.actions().transform {
-                horizontal {
-                    defaultAlign = Align.Center
-                    for (item in it) {
-                        val isWorking = StandardObservableProperty(false)
-                        -work(button(item.first.text, item.first.image) {
-                            GlobalScope.launch(Dispatchers.UI){
-                                isWorking.value = true
-                                item.second.invoke()
-                                isWorking.value = false
-                            }
-                        }, isWorking)
-                    }
-                } to com.lightningkite.koolui.concepts.Animation.Fade
+            -swap(stack.lastOrNullObservable().transform {
+                (it?.generateActions(dependency) ?: space(1f)) to com.lightningkite.koolui.concepts.Animation.Fade
             })
         }.background(theme.bar.background)
     }
@@ -291,20 +276,8 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
 
             +space(Point(5f, 5f))
 
-            -swap(stack.actions().transform {
-                horizontal {
-                    defaultAlign = Align.Center
-                    for (item in it) {
-                        val isWorking = StandardObservableProperty(false)
-                        -work(button(item.first.text, item.first.image) {
-                            GlobalScope.launch(Dispatchers.UI){
-                                isWorking.value = true
-                                item.second.invoke()
-                                isWorking.value = false
-                            }
-                        }, isWorking)
-                    }
-                } to com.lightningkite.koolui.concepts.Animation.Fade
+            -swap(stack.lastOrNullObservable().transform {
+                (it?.generateActions(dependency) ?: space(1f)) to com.lightningkite.koolui.concepts.Animation.Fade
             })
         }.background(theme.bar.background)
     }

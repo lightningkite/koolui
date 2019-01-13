@@ -32,10 +32,9 @@ import com.lightningkite.kommon.collection.pop
 import com.lightningkite.kommon.collection.reset
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.android.access.ActivityAccess
-import com.lightningkite.koolui.async.UI
-import com.lightningkite.koolui.builders.button
 import com.lightningkite.koolui.builders.frame
 import com.lightningkite.koolui.builders.horizontal
+import com.lightningkite.koolui.builders.space
 import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
@@ -53,18 +52,12 @@ import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.*
 import com.lightningkite.lokalize.Date
 import com.lightningkite.lokalize.Locale
-import com.lightningkite.reacktive.list.MutableObservableList
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.list.ObservableListListenerSet
-import com.lightningkite.reacktive.list.WrapperObservableList
+import com.lightningkite.reacktive.list.*
 import com.lightningkite.reacktive.list.lifecycle.bind
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.recktangle.Point
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.util.*
@@ -139,20 +132,8 @@ open class AndroidMaterialViewFactory(
                 -text(text = stack.onListUpdate.transform { it.lastOrNull()?.title ?: "" }, size = com.lightningkite.koolui.concepts.TextSize.Header)
 
                 +space(Point(5f, 5f))
-                -swap(stack.actions().transform {
-                    horizontal {
-                        defaultAlign = Align.Center
-                        for (item in it) {
-                            val isWorking = StandardObservableProperty(false)
-                            -work(button(item.first.text, item.first.image) {
-                                GlobalScope.launch(Dispatchers.UI){
-                                    isWorking.value = true
-                                    item.second.invoke()
-                                    isWorking.value = false
-                                }
-                            }, isWorking)
-                        }
-                    } to com.lightningkite.koolui.concepts.Animation.Fade
+                -swap(stack.lastOrNullObservable().transform {
+                    (it?.generateActions(dependency) ?: space(1f)) to com.lightningkite.koolui.concepts.Animation.Fade
                 })
             }.background(theme.bar.background).apply {
                 ViewCompat.setElevation(this, dip * 4f)
