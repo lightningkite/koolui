@@ -1,29 +1,37 @@
 package com.lightningkite.koolui.views
 
-import com.lightningkite.lokalize.*
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.list.MutableObservableList
-import com.lightningkite.reacktive.property.*
-import com.lightningkite.reacktive.property.lifecycle.bind
-import com.lightningkite.reacktive.property.lifecycle.listen
-import com.lightningkite.reacktive.property.lifecycle.openCloseBinding
-import com.lightningkite.koolui.*
+import com.lightningkite.koolui.ApplicationAccess
+import com.lightningkite.koolui.appendLifecycled
 import com.lightningkite.koolui.builders.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
-import com.lightningkite.koolui.color.ThemedViewFactory
 import com.lightningkite.koolui.concepts.*
-import com.lightningkite.koolui.geometry.*
+import com.lightningkite.koolui.geometry.Align
+import com.lightningkite.koolui.geometry.AlignPair
+import com.lightningkite.koolui.geometry.Direction
+import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.*
 import com.lightningkite.koolui.implementationhelpers.*
+import com.lightningkite.koolui.removeLifecycled
+import com.lightningkite.koolui.toWeb
+import com.lightningkite.lokalize.Date
+import com.lightningkite.lokalize.DateTime
+import com.lightningkite.lokalize.Time
+import com.lightningkite.reacktive.list.MutableObservableList
+import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.property.MutableObservableProperty
+import com.lightningkite.reacktive.property.ObservableProperty
+import com.lightningkite.reacktive.property.StandardObservableProperty
+import com.lightningkite.reacktive.property.lifecycle.bind
+import com.lightningkite.reacktive.property.lifecycle.listen
+import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
 import org.w3c.dom.*
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
+import kotlin.collections.set
 import kotlin.dom.addClass
-import kotlin.dom.appendElement
-import kotlin.dom.removeClass
 
 
 /**
@@ -34,7 +42,7 @@ import kotlin.dom.removeClass
 class HtmlViewFactory(
     override val theme: Theme,
     override val colorSet: ColorSet = theme.main
-) : ViewFactory<HTMLElement>, ThemedViewFactory<HtmlViewFactory> {
+) : ViewFactory<HTMLElement> {
 
     /*
     LISTING OF CSS SELECTORS THAT WILL BE GENERATED
@@ -162,9 +170,8 @@ class HtmlViewFactory(
     override fun <DEPENDENCY> window(
         dependency: DEPENDENCY,
         stack: MutableObservableList<ViewGenerator<DEPENDENCY, HTMLElement>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, HTMLElement>>>,
-        actions: ObservableList<Pair<TabItem, () -> Unit>>
-    ): HTMLElement = defaultLargeWindow(theme, withColorSet(theme.bar), dependency, stack, tabs, actions)
+        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, HTMLElement>>>
+    ): HTMLElement = defaultLargeWindow(theme, withColorSet(theme.bar), dependency, stack, tabs)
 
     override fun <DEPENDENCY> pages(
         dependency: DEPENDENCY,
@@ -209,7 +216,8 @@ class HtmlViewFactory(
         text: ObservableProperty<String>,
         importance: Importance,
         size: TextSize,
-        align: AlignPair
+        align: AlignPair,
+        maxLines: Int
     ): HTMLElement = when (size) {
         TextSize.Tiny -> makeElement<HTMLParagraphElement>("p") {
             addClass("TinyText")
@@ -263,6 +271,12 @@ class HtmlViewFactory(
             Align.Center -> "middle"
             Align.End -> "bottom"
             Align.Fill -> "middle"
+        }
+        style.textOverflow = "ellipsis"
+        if(maxLines != Int.MAX_VALUE) {
+            val em = style.lineHeight.removeSuffix("em").toDoubleOrNull() ?: 1.2
+            style.lineHeight = "${em}em"
+            style.maxHeight = "${em * maxLines}em"
         }
     }
 

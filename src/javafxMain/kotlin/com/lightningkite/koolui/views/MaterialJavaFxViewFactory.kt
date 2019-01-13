@@ -1,25 +1,24 @@
 package com.lightningkite.koolui.views
 
 import com.jfoenix.controls.*
-import com.lightningkite.kommunicate.*
-import com.lightningkite.lokalize.*
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.list.MutableObservableList
-import com.lightningkite.reacktive.list.mapping
-import com.lightningkite.reacktive.property.*
-import com.lightningkite.reacktive.property.lifecycle.bind
+import com.lightningkite.kommunicate.HttpClient
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.MousePosition
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
-import com.lightningkite.koolui.color.ThemedViewFactory
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.*
 import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.implementationhelpers.*
-import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
+import com.lightningkite.lokalize.Date
+import com.lightningkite.lokalize.DateTime
+import com.lightningkite.lokalize.Time
+import com.lightningkite.reacktive.list.MutableObservableList
+import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.list.mapping
+import com.lightningkite.reacktive.property.*
+import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.recktangle.Point
 import javafx.application.Platform
 import javafx.beans.property.Property
@@ -39,18 +38,18 @@ import javafx.scene.web.WebView
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
 import javafx.util.StringConverter
-import java.awt.PopupMenu
 import java.io.InputStream
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalTime
+import kotlin.collections.set
 
 data class MaterialJavaFxViewFactory(
     override val theme: Theme,
     override val colorSet: ColorSet = theme.main,
     val resourceFetcher: (String) -> InputStream,
     val scale: Double = 1.0
-) : ViewFactory<Node>, ThemedViewFactory<MaterialJavaFxViewFactory> {
+) : ViewFactory<Node> {
 
     init {
         HttpClient.resultThread = { Platform.runLater(it) }
@@ -118,21 +117,29 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun text(
-        text: ObservableProperty<String>,
-        style: Importance,
-        size: TextSize,
-        align: AlignPair
+            text: ObservableProperty<String>,
+            importance: Importance,
+            size: TextSize,
+            align: AlignPair,
+            maxLines: Int
     ): Node = Label().apply {
         font = Font.font(size.javafx)
-        textFill = when (style) {
+        textFill = when (importance) {
             Importance.Low -> colorSet.foregroundDisabled.toJavaFX()
             Importance.Normal -> colorSet.foreground.toJavaFX()
             Importance.High -> colorSet.foregroundHighlighted.toJavaFX()
             Importance.Danger -> Color.red.toJavaFX()
         }
         alignment = align.javafx
+        isWrapText = true
+
         lifecycle.bind(text) {
-            this.text = it
+            if(maxLines != Int.MAX_VALUE) {
+                val cap = maxLines * 80
+                this.text = if(it.length > cap) it.take(cap) + "..." else it
+            } else {
+                this.text = it
+            }
         }
     }
 
@@ -238,15 +245,13 @@ data class MaterialJavaFxViewFactory(
     override fun <DEPENDENCY> window(
         dependency: DEPENDENCY,
         stack: MutableObservableList<ViewGenerator<DEPENDENCY, Node>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Node>>>,
-        actions: ObservableList<Pair<TabItem, () -> Unit>>
+        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Node>>>
     ): Node = defaultLargeWindow(
         theme = theme,
         barBuilder = withColorSet(theme.bar),
         dependency = dependency,
         stack = stack,
-        tabs = tabs,
-        actions = actions
+        tabs = tabs
     )
 
     override fun <DEPENDENCY> pages(

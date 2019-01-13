@@ -30,17 +30,9 @@ import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.kommon.collection.pop
 import com.lightningkite.kommon.collection.reset
-import com.lightningkite.lokalize.*
-import com.lightningkite.lokalize.Date
-import com.lightningkite.lokalize.Locale
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.list.ObservableListListenerSet
-import com.lightningkite.reacktive.list.WrapperObservableList
-import com.lightningkite.reacktive.list.lifecycle.bind
-import com.lightningkite.reacktive.property.*
-import com.lightningkite.reacktive.property.lifecycle.bind
-import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.koolui.ApplicationAccess
+import com.lightningkite.koolui.android.access.ActivityAccess
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.button
 import com.lightningkite.koolui.builders.frame
 import com.lightningkite.koolui.builders.horizontal
@@ -48,31 +40,42 @@ import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
-import com.lightningkite.koolui.color.ThemedViewFactory
 import com.lightningkite.koolui.concepts.*
+import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
-import com.lightningkite.recktangle.Point
 import com.lightningkite.koolui.image.*
 import com.lightningkite.koolui.implementationhelpers.*
+import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
-import com.lightningkite.koolui.android.access.ActivityAccess
-import com.lightningkite.koolui.android.dialog.dialog
-import com.lightningkite.koolui.geometry.Align
-import com.lightningkite.koolui.lastOrNullObservableWithAnimations
+import com.lightningkite.lokalize.*
+import com.lightningkite.lokalize.Date
+import com.lightningkite.lokalize.Locale
 import com.lightningkite.reacktive.list.MutableObservableList
+import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.list.ObservableListListenerSet
+import com.lightningkite.reacktive.list.WrapperObservableList
+import com.lightningkite.reacktive.list.lifecycle.bind
+import com.lightningkite.reacktive.property.*
+import com.lightningkite.reacktive.property.lifecycle.bind
+import com.lightningkite.reacktive.property.lifecycle.listen
+import com.lightningkite.recktangle.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 open class AndroidMaterialViewFactory(
     val access: ActivityAccess,
     override val theme: Theme,
     override val colorSet: ColorSet = theme.main
-) : ViewFactory<View>, ThemedViewFactory<AndroidMaterialViewFactory> {
+) : ViewFactory<View> {
 
     val context = access.context
 
@@ -115,8 +118,7 @@ open class AndroidMaterialViewFactory(
     override fun <DEPENDENCY> window(
         dependency: DEPENDENCY,
         stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>,
-        actions: ObservableList<Pair<TabItem, () -> Unit>>
+        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>
     ): View = vertical {
         -with(withColorSet(theme.bar)) {
             horizontal {
@@ -137,12 +139,18 @@ open class AndroidMaterialViewFactory(
                 -text(text = stack.onListUpdate.transform { it.lastOrNull()?.title ?: "" }, size = com.lightningkite.koolui.concepts.TextSize.Header)
 
                 +space(Point(5f, 5f))
-
-                -swap(actions.onListUpdate.transform {
+                -swap(stack.actions().transform {
                     horizontal {
                         defaultAlign = Align.Center
                         for (item in it) {
-                            -button(item.first.text, item.first.image) { item.second.invoke() }
+                            val isWorking = StandardObservableProperty(false)
+                            -work(button(item.first.text, item.first.image) {
+                                GlobalScope.launch(Dispatchers.UI){
+                                    isWorking.value = true
+                                    item.second.invoke()
+                                    isWorking.value = false
+                                }
+                            }, isWorking)
                         }
                     } to com.lightningkite.koolui.concepts.Animation.Fade
                 })
@@ -356,7 +364,8 @@ open class AndroidMaterialViewFactory(
         text: ObservableProperty<String>,
         importance: Importance,
         size: TextSize,
-        align: AlignPair
+        align: AlignPair,
+        maxLines: Int
     ): View = TextView(context).apply {
         textSize = size.sp()
         lifecycle.bind(text) {
@@ -364,6 +373,7 @@ open class AndroidMaterialViewFactory(
         }
         setTextColor(colorSet.importance(importance).toInt())
         gravity = align.android()
+        setMaxLines(maxLines)
     }
 
     override fun image(
@@ -654,6 +664,12 @@ open class AndroidMaterialViewFactory(
 
         val format = if (decimalPlaces == 0) DecimalFormat("#") else DecimalFormat("#." + "#".repeat(decimalPlaces))
 
+        infix fun Number?.basicallyDifferent(other: Number?): Boolean {
+            if(this == null) return false
+            if(other == null) return false
+            return abs(this.toDouble() - other.toDouble()) > 0.00001
+        }
+
         var lastValue: Double? = null
         addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -675,14 +691,14 @@ open class AndroidMaterialViewFactory(
                     }
                 }
 
-                if (value.value != lastValue) {
+                if (value.value basicallyDifferent lastValue) {
                     value.value = (lastValue)
                 }
             }
         })
 
         lifecycle.bind(value) {
-            if (it != lastValue) {
+            if (it basicallyDifferent lastValue) {
                 if (it == null) this.setText("")
                 else this.setText(format.format(it))
             }

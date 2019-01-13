@@ -1,8 +1,8 @@
 package com.lightningkite.koolui.views
 
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.property.*
 import com.lightningkite.koolui.color.Color
+import com.lightningkite.koolui.color.ColorSet
+import com.lightningkite.koolui.color.Theme
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
@@ -12,6 +12,8 @@ import com.lightningkite.lokalize.Date
 import com.lightningkite.lokalize.DateTime
 import com.lightningkite.lokalize.Time
 import com.lightningkite.reacktive.list.MutableObservableList
+import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
 
 /**
@@ -37,16 +39,23 @@ import com.lightningkite.recktangle.Point
  */
 interface ViewFactory<VIEW> {
 
+    val theme: Theme
+    val colorSet: ColorSet
+
+    fun withColorSet(colorSet: ColorSet): ViewFactory<VIEW>
+
     //Navigation
 
     /**
-     * The main window of the program - provides a stack, navigation, tab navigation, and actions.
+     * The main window of the program - provides a stack and tabs, also hosting the actions for the given view generator.
+     * Do we need constantly available actions as well?  Seems like it might be a good idea...  Mobile would never use it though.
+     * I want to be able to do suspended functions as well
+     *
      */
     fun <DEPENDENCY> window(
         dependency: DEPENDENCY,
         stack: MutableObservableList<ViewGenerator<DEPENDENCY, VIEW>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>,
-        actions: ObservableList<Pair<TabItem, () -> Unit>>
+        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
     ): VIEW
 
     /**
@@ -91,7 +100,8 @@ interface ViewFactory<VIEW> {
         text: ObservableProperty<String>,
         importance: Importance = Importance.Normal,
         size: TextSize = TextSize.Body,
-        align: AlignPair = AlignPair.CenterLeft
+        align: AlignPair = AlignPair.CenterLeft,
+        maxLines: Int = Int.MAX_VALUE
     ): VIEW
 
     /**
@@ -165,7 +175,7 @@ interface ViewFactory<VIEW> {
     fun <T> picker(
         options: ObservableList<T>,
         selected: MutableObservableProperty<T>,
-        makeView: (obs: ObservableProperty<T>) -> VIEW
+        makeView: (obs: ObservableProperty<T>) -> VIEW = { obs -> text(obs.transform { it.toString() }) }
     ): VIEW
 
     /**

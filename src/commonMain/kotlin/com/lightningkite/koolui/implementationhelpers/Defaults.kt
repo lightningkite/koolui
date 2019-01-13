@@ -2,12 +2,14 @@ package com.lightningkite.koolui.implementationhelpers
 
 import com.lightningkite.kommon.collection.pop
 import com.lightningkite.kommon.collection.reset
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.property.*
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.Theme
-import com.lightningkite.koolui.concepts.*
+import com.lightningkite.koolui.concepts.Animation
+import com.lightningkite.koolui.concepts.Importance
+import com.lightningkite.koolui.concepts.TabItem
+import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
@@ -19,7 +21,12 @@ import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.reacktive.list.MutableObservableList
+import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
 fun <VIEW> ViewFactory<VIEW>.defaultEntryContext(
@@ -198,8 +205,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
     barBuilder: ViewFactory<VIEW>,
     dependency: DEPENDENCY,
     stack: MutableObservableList<ViewGenerator<DEPENDENCY, VIEW>>,
-    tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>,
-    actions: ObservableList<Pair<TabItem, () -> Unit>>
+    tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
 ) = vertical {
     -with(barBuilder) {
         horizontal {
@@ -221,13 +227,20 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
 
             +space(Point(5f, 5f))
 
-            -swap(actions.onListUpdate.transform {
+            -swap(stack.actions().transform {
                 horizontal {
                     defaultAlign = Align.Center
                     for (item in it) {
-                        -button(item.first.text, item.first.image) { item.second.invoke() }
+                        val isWorking = StandardObservableProperty(false)
+                        -work(button(item.first.text, item.first.image) {
+                            GlobalScope.launch(Dispatchers.UI){
+                                isWorking.value = true
+                                item.second.invoke()
+                                isWorking.value = false
+                            }
+                        }, isWorking)
                     }
-                } to Animation.Fade
+                } to com.lightningkite.koolui.concepts.Animation.Fade
             })
         }.background(theme.bar.background)
     }
@@ -256,8 +269,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
         barBuilder: ViewFactory<VIEW>,
         dependency: DEPENDENCY,
         stack: MutableObservableList<ViewGenerator<DEPENDENCY, VIEW>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>,
-        actions: ObservableList<Pair<TabItem, () -> Unit>>
+        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
 ) = vertical {
     -with(barBuilder) {
         horizontal {
@@ -279,13 +291,20 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
 
             +space(Point(5f, 5f))
 
-            -swap(actions.onListUpdate.transform {
+            -swap(stack.actions().transform {
                 horizontal {
                     defaultAlign = Align.Center
                     for (item in it) {
-                        -button(item.first.text, item.first.image) { item.second.invoke() }
+                        val isWorking = StandardObservableProperty(false)
+                        -work(button(item.first.text, item.first.image) {
+                            GlobalScope.launch(Dispatchers.UI){
+                                isWorking.value = true
+                                item.second.invoke()
+                                isWorking.value = false
+                            }
+                        }, isWorking)
                     }
-                } to Animation.Fade
+                } to com.lightningkite.koolui.concepts.Animation.Fade
             })
         }.background(theme.bar.background)
     }

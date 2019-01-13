@@ -2,18 +2,9 @@
 
 package com.lightningkite.koolui.views.virtual
 
-import com.lightningkite.lokalize.Date
-import com.lightningkite.lokalize.DateTime
-import com.lightningkite.lokalize.Time
-import com.lightningkite.recktangle.Point
-import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.property.*
-import com.lightningkite.reacktive.property.lifecycle.bind
-import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
-import com.lightningkite.koolui.color.ThemedViewFactory
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
@@ -21,13 +12,23 @@ import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
+import com.lightningkite.lokalize.Date
+import com.lightningkite.lokalize.DateTime
+import com.lightningkite.lokalize.Time
 import com.lightningkite.reacktive.list.MutableObservableList
+import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.list.lastOrNullObservable
+import com.lightningkite.reacktive.property.ConstantObservableProperty
+import com.lightningkite.reacktive.property.MutableObservableProperty
+import com.lightningkite.reacktive.property.ObservableProperty
+import com.lightningkite.reacktive.property.lifecycle.bind
+import com.lightningkite.reacktive.property.lifecycle.listen
+import com.lightningkite.recktangle.Point
 
 open class VirtualViewFactory(
         override val theme: Theme = Theme(),
         override val colorSet: ColorSet = theme.main
-) : ViewFactory<View>, ThemedViewFactory<VirtualViewFactory> {
+) : ViewFactory<View> {
     override fun withColorSet(colorSet: ColorSet): VirtualViewFactory = VirtualViewFactory(theme, colorSet)
 
     override val View.lifecycle: ObservableProperty<Boolean> get() = this.attached
@@ -190,8 +191,8 @@ open class VirtualViewFactory(
     override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): TabsView = TabsView(options, selected)
     class TabsView(var options: ObservableList<TabItem>, var selected: MutableObservableProperty<TabItem>) : View()
 
-    override fun text(text: ObservableProperty<String>, importance: Importance, size: TextSize, align: AlignPair): TextView = TextView(text, importance, size, align)
-    class TextView(var text: ObservableProperty<String>, var importance: Importance, var size: TextSize, var align: AlignPair) : View()
+    override fun text(text: ObservableProperty<String>, importance: Importance, size: TextSize, align: AlignPair, maxLines: Int): TextView = TextView(text, importance, size, align, maxLines)
+    class TextView(var text: ObservableProperty<String>, var importance: Importance, var size: TextSize, var align: AlignPair, var maxLines: Int) : View()
 
     override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): TextAreaView = TextAreaView(text, placeholder, type)
     class TextAreaView(var text: MutableObservableProperty<String>, var placeholder: String, var type: TextInputType) : View()
@@ -214,8 +215,8 @@ open class VirtualViewFactory(
     override fun web(content: ObservableProperty<String>): WebView = WebView(content)
     class WebView(var content: ObservableProperty<String>) : View()
 
-    override fun <DEPENDENCY> window(dependency: DEPENDENCY, stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>, tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>, actions: ObservableList<Pair<TabItem, () -> Unit>>): WindowView<DEPENDENCY> = WindowView(dependency, stack, tabs, actions)
-    class WindowView<DEPENDENCY>(var dependency: DEPENDENCY, var stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>, var tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>, var actions: ObservableList<Pair<TabItem, () -> Unit>>): ContainerView(){
+    override fun <DEPENDENCY> window(dependency: DEPENDENCY, stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>, tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>): WindowView<DEPENDENCY> = WindowView(dependency, stack, tabs)
+    class WindowView<DEPENDENCY>(var dependency: DEPENDENCY, var stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>, var tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>): ContainerView(){
         var current = stack.lastOrNull()?.generate(dependency)
         init{
             current?.attached?.parent = attached
