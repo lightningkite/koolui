@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.test
 
 import com.lightningkite.lokalize.*
+import com.lightningkite.lokalize.time.*
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.Notification

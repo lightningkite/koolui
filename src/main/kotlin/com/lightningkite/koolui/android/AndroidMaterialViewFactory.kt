@@ -50,7 +50,8 @@ import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.*
-import com.lightningkite.lokalize.Date
+import com.lightningkite.lokalize.time.*
+import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.Locale
 import com.lightningkite.reacktive.list.*
 import com.lightningkite.reacktive.list.lifecycle.bind

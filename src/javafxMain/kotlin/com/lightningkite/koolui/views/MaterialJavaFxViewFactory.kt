@@ -11,9 +11,9 @@ import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.*
 import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.implementationhelpers.*
-import com.lightningkite.lokalize.Date
-import com.lightningkite.lokalize.DateTime
-import com.lightningkite.lokalize.Time
+import com.lightningkite.lokalize.time.Date
+import com.lightningkite.lokalize.time.DateTime
+import com.lightningkite.lokalize.time.Time
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.list.mapping

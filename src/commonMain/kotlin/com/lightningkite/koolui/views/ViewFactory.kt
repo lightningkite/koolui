@@ -8,9 +8,9 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.Image
-import com.lightningkite.lokalize.Date
-import com.lightningkite.lokalize.DateTime
-import com.lightningkite.lokalize.Time
+import com.lightningkite.lokalize.time.Date
+import com.lightningkite.lokalize.time.DateTime
+import com.lightningkite.lokalize.time.Time
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.*

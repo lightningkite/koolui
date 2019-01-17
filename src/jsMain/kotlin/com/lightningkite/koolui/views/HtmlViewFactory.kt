@@ -15,9 +15,9 @@ import com.lightningkite.koolui.image.*
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.koolui.removeLifecycled
 import com.lightningkite.koolui.toWeb
-import com.lightningkite.lokalize.Date
-import com.lightningkite.lokalize.DateTime
-import com.lightningkite.lokalize.Time
+import com.lightningkite.lokalize.time.Date
+import com.lightningkite.lokalize.time.DateTime
+import com.lightningkite.lokalize.time.Time
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.MutableObservableProperty

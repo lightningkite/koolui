@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.test
 
 import com.lightningkite.lokalize.*
+import com.lightningkite.lokalize.time.*
 import com.lightningkite.recktangle.Point
 import com.lightningkite.reacktive.list.observableListOf
 import com.lightningkite.reacktive.property.ConstantObservableProperty
