@@ -4,6 +4,7 @@ import com.jfoenix.controls.*
 import com.lightningkite.kommunicate.HttpClient
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.MousePosition
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -38,6 +39,9 @@ import javafx.scene.web.WebView
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
 import javafx.util.StringConverter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -52,7 +56,7 @@ data class MaterialJavaFxViewFactory(
 ) : ViewFactory<Node> {
 
     init {
-        HttpClient.resultThread = { Platform.runLater(it) }
+        HttpClient.resultThread = { GlobalScope.launch(Dispatchers.UI) { it() } }
     }
 
     var Node.desiredMargins: DesiredMargins
@@ -343,14 +347,12 @@ data class MaterialJavaFxViewFactory(
 
     override fun image(image: ObservableProperty<Image>) = ImageView().apply {
         lifecycle.bind(image) {
-            Thread {
-                Platform.runLater {
-                    it.defaultSize?.x?.times(scale)?.let { this.fitWidth = it }
-                    it.defaultSize?.y?.times(scale)?.let { this.fitHeight = it }
-                    //TODO: Scale type
-                    this.image = it.displayable.get(scale.toFloat(), it.defaultSize)
-                }
-            }.start()
+            GlobalScope.launch(Dispatchers.UI) {
+                it.defaultSize?.x?.times(scale)?.let { this@apply.fitWidth = it }
+                it.defaultSize?.y?.times(scale)?.let { this@apply.fitHeight = it }
+                //TODO: Scale type
+                this@apply.image = it.displayable.get(scale.toFloat(), it.defaultSize)
+            }
         }
     }
 
@@ -658,7 +660,7 @@ data class MaterialJavaFxViewFactory(
         clip = clipRect
 
         lifecycle.bind(view) { (view, animation) ->
-            Platform.runLater {
+            GlobalScope.launch(Dispatchers.UI) {
                 val containerSize = Point(
                     width.toFloat(),
                     height.toFloat()

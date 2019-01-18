@@ -52,15 +52,6 @@ actual object ApplicationAccess {
         access?.context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri)))
     }
 
-    val handler = Handler(Looper.getMainLooper())
-    actual fun runLater(action: () -> Unit) {
-        handler.post(action)
-    }
-
-    actual fun runAfterDelay(delayMilliseconds: Long, action: () -> Unit) {
-        handler.postDelayed(action, delayMilliseconds)
-    }
-
     val defaultChannelId = "default_channel"
     var channelCreated = false
 

@@ -19,17 +19,6 @@ actual object ApplicationAccess {
         println("Opening URI $uri")
     }
 
-    actual fun runLater(action: () -> Unit) {
-        GlobalScope.launch { action() }
-    }
-
-    actual fun runAfterDelay(delayMilliseconds: Long, action: () -> Unit) {
-        GlobalScope.launch {
-            delay(delayMilliseconds)
-            action()
-        }
-    }
-
     actual fun showNotification(notification: Notification) {
         println("show notification $notification")
     }
