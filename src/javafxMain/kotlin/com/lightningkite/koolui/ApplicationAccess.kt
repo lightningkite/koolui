@@ -49,20 +49,6 @@ actual object ApplicationAccess {
         }
     }
 
-    actual fun runLater(action: () -> Unit) {
-        Platform.runLater(action)
-    }
-
-    actual fun runAfterDelay(delayMilliseconds: Long, action: () -> Unit) {
-        Timer().apply {
-            schedule(object : TimerTask() {
-                override fun run() {
-                    Platform.runLater(action)
-                }
-            }, delayMilliseconds)
-        }
-    }
-
     //TODO: JavaFX notifications
     actual fun showNotification(notification: Notification) {}
 

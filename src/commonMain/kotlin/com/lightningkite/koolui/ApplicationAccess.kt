@@ -14,9 +14,6 @@ expect object ApplicationAccess {
 
     fun openUri(uri: String)
 
-    fun runLater(action: () -> Unit)
-    fun runAfterDelay(delayMilliseconds: Long, action: () -> Unit)
-
     fun showNotification(notification: Notification)
     /**
      * Event for when a notification action is fired.

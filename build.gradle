@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlinVersion = '1.3.20'
-    ext.coroutinesVersion = '1.0.1'
+    ext.coroutinesVersion = '1.1.0'
     repositories {
         google()
         mavenLocal()
@@ -108,7 +108,7 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
 
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.1.0"
 
                 api 'com.lightningkite:kommon-metadata:0.0.2'
                 api 'com.lightningkite:kommunicate-metadata:0.0.2'
@@ -128,7 +128,7 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
                 api 'com.squareup.okhttp3:okhttp:3.11.0'
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0"
 
                 api 'com.lightningkite:kommon-jvm:0.0.2'
                 api 'com.lightningkite:kommunicate-jvm:0.0.2'
@@ -159,7 +159,7 @@ kotlin {
                 api 'org.apache.logging.log4j:log4j-core:2.5'
 
                 api 'com.squareup.okhttp3:okhttp:3.11.0'
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0"
 
                 api 'com.lightningkite:kommon-jvm:0.0.2'
                 api 'com.lightningkite:kommunicate-jvm:0.0.2'
@@ -177,7 +177,7 @@ kotlin {
         androidMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.0"
                 api 'com.squareup.okhttp3:okhttp:3.11.0'
 
                 def compatVersion = '27.1.1'
@@ -204,7 +204,7 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
 
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.1.0"
 
                 api 'com.lightningkite:kommon-js:0.0.2'
                 api 'com.lightningkite:kommunicate-js:0.0.2'
@@ -220,28 +220,38 @@ kotlin {
             }
         }
 
-//        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-//            iosMain {
-//                dependencies {
-//                }
-//            }
-//            iosTest {
-//                dependencies {
-//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.1'
-//                }
-//            }
-//            iosx64Main {
-//                dependencies {
-//                    kotlin.srcDir('src/iosMain/kotlin')
-//                }
-//            }
-//            iosx64Test {
-//                dependencies {
-//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.1'
-//                    kotlin.srcDir('src/iosTest/kotlin')
-//                }
-//            }
-//        }
+        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+            iosMain {
+                dependencies {
+                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.1.0'
+                    api 'com.lightningkite:kommon-ios:0.0.2'
+                    api 'com.lightningkite:kommunicate-ios:0.0.2'
+                    api 'com.lightningkite:lokalize-ios:0.0.2'
+                    api 'com.lightningkite:reacktive-ios:0.0.2'
+                    api 'com.lightningkite:recktangle-ios:0.0.2'
+                }
+            }
+            iosTest {
+                dependencies {
+                }
+            }
+            iosx64Main {
+                kotlin.srcDir('src/iosMain/kotlin')
+                dependencies {
+                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.1.0'
+                    api 'com.lightningkite:kommon-iosx64:0.0.2'
+                    api 'com.lightningkite:kommunicate-iosx64:0.0.2'
+                    api 'com.lightningkite:lokalize-iosx64:0.0.2'
+                    api 'com.lightningkite:reacktive-iosx64:0.0.2'
+                    api 'com.lightningkite:recktangle-iosx64:0.0.2'
+                }
+            }
+            iosx64Test {
+                kotlin.srcDir('src/iosTest/kotlin')
+                dependencies {
+                }
+            }
+        }
     }
 }
 tasks.withType(compileKotlinJs.getClass()) {

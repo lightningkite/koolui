@@ -2,6 +2,7 @@ package com.lightningkite.koolui.views
 
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.appendLifecycled
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
@@ -27,6 +28,9 @@ import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.w3c.dom.*
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
@@ -754,7 +758,7 @@ class HtmlViewFactory(
 
             var currentView: HTMLElement? = null
             lifecycle.bind(view) { (view, animation) ->
-                ApplicationAccess.runLater {
+                GlobalScope.launch(Dispatchers.UI) {
                     try {
                         removeLifecycled(currentView!!)
                     } catch (e: dynamic) {/*squish*/

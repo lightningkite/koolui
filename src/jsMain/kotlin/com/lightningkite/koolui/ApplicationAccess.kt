@@ -26,14 +26,6 @@ actual object ApplicationAccess {
         window.location.href = uri
     }
 
-    actual fun runLater(action: () -> Unit) {
-        window.setTimeout(action, 1)
-    }
-
-    actual fun runAfterDelay(delayMilliseconds: Long, action: () -> Unit) {
-        window.setTimeout(action, delayMilliseconds.toInt())
-    }
-
     //TODO: Web notifications
     actual fun showNotification(notification: Notification) {}
 

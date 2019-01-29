@@ -34,7 +34,7 @@ dependencies {
 //  compileestCompile "org.jetbrains.kotlin:kotlin-test-js:${rootProject.kotlinVersion}"
 //  compileestCompile "org.jetbrains.kotlin:kotlin-test:${rootProject.kotlinVersion}"
 
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.1.0"
 
     compile "com.lightningkite:kommon-js:${project.version}"
     compile "com.lightningkite:kommunicate-js:${project.version}"
