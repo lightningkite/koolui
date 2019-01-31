@@ -98,10 +98,10 @@ kotlin {
         fromPreset(presets.jvm, 'javafx')
         fromPreset(presets.jvm, 'jvmVirtual')
         fromPreset(presets.js, 'js')
-//        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
-//            fromPreset(presets.iosX64, 'iosx64')
-//            fromPreset(presets.iosArm64, 'ios')
-//        }
+        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+            fromPreset(presets.iosX64, 'iosx64')
+            fromPreset(presets.iosArm64, 'ios')
+        }
     }
     sourceSets {
         commonMain {
