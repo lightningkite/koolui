@@ -25,17 +25,6 @@ task androidSourceJar(type: Jar) {
     classifier "sources"
 }
 
-publishing {
-    publications {
-        mavenAar(MavenPublication) {
-            artifactId = project.name + "-android"
-            from components.android
-            artifacts.removeAll { it.file.name.endsWith('jar') }
-            artifact androidSourceJar
-        }
-    }
-}
-
 android {
     compileSdkVersion 27
 
