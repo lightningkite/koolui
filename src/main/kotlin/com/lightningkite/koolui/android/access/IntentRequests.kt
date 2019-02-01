@@ -46,7 +46,7 @@ fun ActivityAccess.intentCamera(
 ) {
 
     val file = folder
-        .let { File.createTempFile("image", ".jpg", it) }
+        .let { File.createTempFile("imageWithSizing", ".jpg", it) }
         .let { FileProvider.getUriForFile(context, fileProviderAuthority, it) }
     intentCameraRaw(file, callback)
 }
@@ -61,12 +61,12 @@ fun ActivityAccess.intentGallery(
     requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE) {
         if (it) {
             val getIntent = Intent(Intent.ACTION_GET_CONTENT)
-            getIntent.type = "image/*"
+            getIntent.type = "imageWithSizing/*"
 
             val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            pickIntent.type = "image/*"
+            pickIntent.type = "imageWithSizing/*"
 
-            val chooserIntent = Intent.createChooser(getIntent, "Select Displayable")
+            val chooserIntent = Intent.createChooser(getIntent, "Select Image")
             chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
 
             this.startIntent(chooserIntent) { code, result ->

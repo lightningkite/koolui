@@ -30,7 +30,6 @@ import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.kommon.collection.pop
 import com.lightningkite.kommon.collection.reset
-import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.frame
@@ -50,7 +49,6 @@ import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
-import com.lightningkite.lokalize.*
 import com.lightningkite.lokalize.time.*
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.Locale
@@ -123,8 +121,8 @@ open class AndroidMaterialViewFactory(
                 defaultAlign = Align.Center
                 -imageButton(
                         importance = Importance.Low,
-                        image = ConstantObservableProperty(
-                                MaterialIcon.arrowBack.color(theme.bar.foreground).asImage(
+                        imageWithSizing = ConstantObservableProperty(
+                                MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
                                         Point(
                                                 24f,
                                                 24f
@@ -218,7 +216,7 @@ open class AndroidMaterialViewFactory(
                     for (item in it) {
                         addTab(newTab().apply {
                             this.text = item.text
-                            this.icon = item.image.android()
+                            this.icon = item.imageWithSizing.android()
                             this.tag = item
                             if (selected.value == item) {
                                 uiSet = true
@@ -367,9 +365,9 @@ open class AndroidMaterialViewFactory(
     }
 
     override fun image(
-            image: ObservableProperty<Image>
+            imageWithSizing: ObservableProperty<ImageWithSizing>
     ): View = ImageView(context).apply {
-        lifecycle.bind(image) {
+        lifecycle.bind(imageWithSizing) {
             this.scaleType = when (it.scaleType) {
                 ImageScaleType.Crop -> ImageView.ScaleType.CENTER_CROP
                 ImageScaleType.Fill -> ImageView.ScaleType.FIT_CENTER
@@ -395,7 +393,7 @@ open class AndroidMaterialViewFactory(
 
     override fun button(
             label: ObservableProperty<String>,
-            image: ObservableProperty<Image?>,
+            imageWithSizing: ObservableProperty<ImageWithSizing?>,
             importance: Importance,
             onClick: () -> Unit
     ): View = Button(context).apply {
@@ -409,26 +407,26 @@ open class AndroidMaterialViewFactory(
         lifecycle.bind(label) {
             this.text = it
         }
-        lifecycle.bind(image) {
+        lifecycle.bind(imageWithSizing) {
             setCompoundDrawablesWithIntrinsicBounds(it?.android(), null, null, null)
         }
         setOnClickListener { onClick.invoke() }
     }
 
     override fun imageButton(
-            image: ObservableProperty<Image>,
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
     ): View = when (importance) {
-        Importance.Low -> imageButtonEmbedded(image, label, importance, onClick)
-        Importance.Normal -> imageButtonFAB(image, label, importance, onClick)
-        Importance.High -> imageButtonFAB(image, label, importance, onClick)
-        Importance.Danger -> imageButtonFAB(image, label, importance, onClick)
+        Importance.Low -> imageButtonEmbedded(imageWithSizing, label, importance, onClick)
+        Importance.Normal -> imageButtonFAB(imageWithSizing, label, importance, onClick)
+        Importance.High -> imageButtonFAB(imageWithSizing, label, importance, onClick)
+        Importance.Danger -> imageButtonFAB(imageWithSizing, label, importance, onClick)
     }
 
     fun imageButtonEmbedded(
-            image: ObservableProperty<Image>,
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
@@ -438,7 +436,7 @@ open class AndroidMaterialViewFactory(
                 this.tooltipText = it
             }
         }
-        lifecycle.bind(image) {
+        lifecycle.bind(imageWithSizing) {
             setBackgroundResource(selectableItemBackgroundResource)
             setImageDrawable(it.android())
         }
@@ -446,7 +444,7 @@ open class AndroidMaterialViewFactory(
     }
 
     fun imageButtonRect(
-            image: ObservableProperty<Image>,
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
@@ -456,7 +454,7 @@ open class AndroidMaterialViewFactory(
                 this.tooltipText = it
             }
         }
-        lifecycle.bind(image) {
+        lifecycle.bind(imageWithSizing) {
             if (importance == Importance.Low) {
                 setBackgroundResource(selectableItemBackgroundResource)
                 setImageDrawable(it.android())
@@ -482,7 +480,7 @@ open class AndroidMaterialViewFactory(
     }
 
     fun imageButtonFAB(
-            image: ObservableProperty<Image>,
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
@@ -494,7 +492,7 @@ open class AndroidMaterialViewFactory(
                 this.tooltipText = it
             }
         }
-        lifecycle.bind(image) {
+        lifecycle.bind(imageWithSizing) {
             setImageDrawable(it.android())
         }
         setOnClickListener { onClick.invoke() }
@@ -503,7 +501,7 @@ open class AndroidMaterialViewFactory(
     override fun entryContext(
             label: String,
             help: String?,
-            icon: Image?,
+            icon: ImageWithSizing?,
             feedback: ObservableProperty<Pair<Importance, String>?>,
             field: View
     ): View = defaultEntryContext(label, help, icon, feedback, field)

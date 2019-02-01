@@ -5,14 +5,14 @@ import android.graphics.drawable.Drawable
 import com.larvalabs.svgandroid.SVG
 import com.larvalabs.svgandroid.SVGBuilder
 
-actual class Displayable(val drawable: Drawable) {
+actual class Image(val drawable: Drawable) {
 
     actual companion object {
         private val SVGCache = HashMap<String, SVG>()
-        actual fun fromSvgString(svg: String): Displayable = Displayable(SVGCache.getOrPut(svg) {
+        actual fun fromSvgString(svg: String): Image = Image(SVGCache.getOrPut(svg) {
             SVGBuilder().readFromString(svg).build()
         }.drawable)
 
-        actual val blank: Displayable = Displayable(ColorDrawable(0x0))
+        actual val blank: Image = Image(ColorDrawable(0x0))
     }
 }

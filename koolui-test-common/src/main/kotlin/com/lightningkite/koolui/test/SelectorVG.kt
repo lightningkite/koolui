@@ -21,11 +21,11 @@ class SelectorVG<VIEW>(
             "Vertical" to { VerticalTestVG<VIEW>() },
             "Pages" to { PagesVG<VIEW>() },
             "Frame" to { FrameVG<VIEW>() },
-            "Http Call Test" to { HttpCallTestVG<VIEW>() },
+//            "Http Call Test" to { HttpCallTestVG<VIEW>() },
             "Controls" to { ControlsVG<VIEW>() },
             "Notifications" to { NotificationTestVG<VIEW>() },
             "Icons" to { IconsTestVG<VIEW>() },
-            "URL Displayable Test" to { UrlImageTestVG<VIEW>() },
+            "URL Image Test" to { UrlImageTestVG<VIEW>() },
             "Dialog" to { DialogTestVG<VIEW>() }
     )
 

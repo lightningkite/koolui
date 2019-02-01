@@ -7,7 +7,7 @@ import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
-import com.lightningkite.koolui.image.Image
+import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
@@ -106,7 +106,7 @@ interface ViewFactory<VIEW> {
      * While loading, it will show a loading indicator.
      */
     fun image(
-            image: ObservableProperty<Image>
+            imageWithSizing: ObservableProperty<ImageWithSizing>
     ): VIEW
 
     /**
@@ -131,7 +131,7 @@ interface ViewFactory<VIEW> {
      */
     fun button(
             label: ObservableProperty<String>,
-            image: ObservableProperty<Image?> = ConstantObservableProperty(null),
+            imageWithSizing: ObservableProperty<ImageWithSizing?> = ConstantObservableProperty(null),
             importance: Importance = Importance.Normal,
             onClick: () -> Unit
     ): VIEW
@@ -141,7 +141,7 @@ interface ViewFactory<VIEW> {
      * Attempts to use image over text.
      */
     fun imageButton(
-            image: ObservableProperty<Image>,
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
             label: ObservableProperty<String?> = ConstantObservableProperty(null),
             importance: Importance = Importance.Normal,
             onClick: () -> Unit
@@ -161,7 +161,7 @@ interface ViewFactory<VIEW> {
     fun entryContext(
             label: String,
             help: String? = null,
-            icon: Image? = null,
+            icon: ImageWithSizing? = null,
             feedback: ObservableProperty<Pair<Importance, String>?> = ConstantObservableProperty(null),
             field: VIEW
     ): VIEW

@@ -10,7 +10,7 @@ import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.*
-import com.lightningkite.koolui.image.Image
+import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
@@ -21,7 +21,6 @@ import com.lightningkite.reacktive.list.mapping
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.recktangle.Point
-import javafx.application.Platform
 import javafx.beans.property.Property
 import javafx.beans.property.ReadOnlyProperty
 import javafx.geometry.Insets
@@ -230,14 +229,14 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun imageButton(
-        image: ObservableProperty<Image>,
-        label: ObservableProperty<String?>,
-        importance: Importance,
-        onClick: () -> Unit
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
+            label: ObservableProperty<String?>,
+            importance: Importance,
+            onClick: () -> Unit
     ) = JFXButton().apply {
         val parent = this
         contentDisplay = ContentDisplay.GRAPHIC_ONLY
-        graphic = image(image).apply {
+        graphic = image(imageWithSizing).apply {
             this.lifecycle.parent = parent.lifecycle
         }
         setOnAction {
@@ -281,7 +280,7 @@ data class MaterialJavaFxViewFactory(
             Tab(
                 it.text,
                 image(
-                    ConstantObservableProperty(it.image)
+                    ConstantObservableProperty(it.imageWithSizing)
                 )
             )
         }.bindToJavaFX(lifecycle, tabs)
@@ -345,22 +344,22 @@ data class MaterialJavaFxViewFactory(
         )
     }
 
-    override fun image(image: ObservableProperty<Image>) = ImageView().apply {
-        lifecycle.bind(image) {
+    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>) = ImageView().apply {
+        lifecycle.bind(imageWithSizing) {
             GlobalScope.launch(Dispatchers.UI) {
                 it.defaultSize?.x?.times(scale)?.let { this@apply.fitWidth = it }
                 it.defaultSize?.y?.times(scale)?.let { this@apply.fitHeight = it }
                 //TODO: Scale type
-                this@apply.image = it.displayable.get(scale.toFloat(), it.defaultSize)
+                this@apply.image = it.image.get(scale.toFloat(), it.defaultSize)
             }
         }
     }
 
     override fun button(
-        label: ObservableProperty<String>,
-        image: ObservableProperty<Image?>,
-        importance: Importance,
-        onClick: () -> Unit
+            label: ObservableProperty<String>,
+            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            importance: Importance,
+            onClick: () -> Unit
     ) = JFXButton().apply {
         this.buttonType = if (importance == Importance.Low) JFXButton.ButtonType.FLAT else JFXButton.ButtonType.RAISED
 
@@ -378,17 +377,17 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun entryContext(
-        label: String,
-        help: String?,
-        icon: Image?,
-        feedback: ObservableProperty<Pair<Importance, String>?>,
-        field: Node
+            label: String,
+            help: String?,
+            icon: ImageWithSizing?,
+            feedback: ObservableProperty<Pair<Importance, String>?>,
+            field: Node
     ): Node = defaultEntryContext(label, help, icon, feedback, field)
 
     fun toggleButton(
-        image: ObservableProperty<Image?>,
-        label: ObservableProperty<String?>,
-        value: MutableObservableProperty<Boolean>
+            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            label: ObservableProperty<String?>,
+            value: MutableObservableProperty<Boolean>
     ) = JFXButton().apply {
         this.buttonType = JFXButton.ButtonType.RAISED
         textFill = colorSet.foreground.toJavaFX()

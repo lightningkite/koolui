@@ -1,16 +1,8 @@
 package com.lightningkite.koolui.image
 
-import com.lightningkite.koolui.image.Displayable
-import com.lightningkite.koolui.image.ImageScaleType
-import com.lightningkite.recktangle.Point
-
-class Image(
-    val displayable: Displayable,
-    val defaultSize: Point? = null,
-    val scaleType: ImageScaleType = ImageScaleType.Fill
-) {
+expect class Image {
     companion object {
-        val none = Image(Displayable.blank)
+        fun fromSvgString(svg: String): Image
+        val blank: Image
     }
 }
-

@@ -1,4 +1,7 @@
 buildscript {
+    ext.repositoryName = project.name
+    ext.versionsProperties = new Properties()
+    file("versions.properties").withInputStream { versionsProperties.load(it) }
 
     repositories {
         maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
@@ -9,7 +12,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.kotlinVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.kotlin}"
     }
 }
 
@@ -59,21 +62,19 @@ repositories {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.kotlinVersion}"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.coroutinesVersion}"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versionsProperties.kotlin}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versionsProperties.kotlinx_coroutines}"
     testApi 'junit:junit:4.12'
     androidTestApi 'com.android.support.test:runner:1.0.2'
     androidTestApi 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     api "com.android.support:appcompat-v7:27.1.1"
-    expectedBy project(':test-common')
-    api project(':koolui-android')
+    expectedBy project(':koolui-test-common')
+    api project(':koolui')
 
-    api 'com.lightningkite:kommon-jvm:0.0.2'
-    api 'com.lightningkite:kommunicate-jvm:0.0.2'
-    api 'com.lightningkite:lokalize-jvm:0.0.2'
-    api 'com.lightningkite:reacktive-jvm:0.0.2'
-    api 'com.lightningkite:recktangle-jvm:0.0.2'
-    api "com.lightningkite:kommunicate-mirror-jvm:0.0.2"
-    api "com.lightningkite:mirror-runtime-jvm:0.0.2"
+    api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
+    api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
+    api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
+    api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
+    api "com.lightningkite:mirror-runtime-jvm:${versionsProperties.mirror}"
 }

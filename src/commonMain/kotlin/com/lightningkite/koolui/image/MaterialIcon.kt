@@ -4861,8 +4861,8 @@ enum class MaterialIcon(val data: String) {
     ),
 }
 
-fun MaterialIcon.color(color: Color): Displayable {
-    return Displayable.fromSvgString(
+fun MaterialIcon.color(color: Color): Image {
+    return Image.fromSvgString(
         data.substringBefore('g') + """g fill="${color.toAlphalessWeb()}"""" + data.substringAfter('g')
     )
 }

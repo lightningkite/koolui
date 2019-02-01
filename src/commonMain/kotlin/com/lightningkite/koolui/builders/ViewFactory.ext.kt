@@ -3,7 +3,7 @@ package com.lightningkite.koolui.builders
 import com.lightningkite.koolui.concepts.Importance
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
-import com.lightningkite.koolui.image.Image
+import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.reacktive.property.ConstantObservableProperty
@@ -27,32 +27,32 @@ fun <VIEW> ViewFactory<VIEW>.text(
 )
 
 fun <VIEW> ViewFactory<VIEW>.image(
-        image: Image
-): VIEW = image(ConstantObservableProperty(image))
+        imageWithSizing: ImageWithSizing
+): VIEW = image(ConstantObservableProperty(imageWithSizing))
 
 fun <VIEW> ViewFactory<VIEW>.space(size: Float): VIEW = space(Point(size, size))
 fun <VIEW> ViewFactory<VIEW>.space(width: Float, height: Float): VIEW = space(Point(width, height))
 
 fun <VIEW> ViewFactory<VIEW>.button(
         label: String,
-        image: Image? = null,
+        imageWithSizing: ImageWithSizing? = null,
         importance: Importance = Importance.Normal,
         onClick: () -> Unit
 ): VIEW = button(
         label = ConstantObservableProperty(label),
-        image = ConstantObservableProperty(image),
+        imageWithSizing = ConstantObservableProperty(imageWithSizing),
         importance = importance,
         onClick = onClick
 )
 
 fun <VIEW> ViewFactory<VIEW>.imageButton(
-        image: Image,
+        imageWithSizing: ImageWithSizing,
         label: String? = null,
         importance: Importance = Importance.Normal,
         onClick: () -> Unit
 ): VIEW = imageButton(
         label = ConstantObservableProperty(label),
-        image = ConstantObservableProperty(image),
+        imageWithSizing = ConstantObservableProperty(imageWithSizing),
         importance = importance,
         onClick = onClick
 )
@@ -64,8 +64,8 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.pagesEmbedded(
 ) = pages(dependency, page, *pageGenerators.map { ViewGenerator.make("", it) }.toTypedArray())
 
 fun <VIEW> ViewFactory<VIEW>.loadingImage(
-        imageObservable: ObservableProperty<Image?>
-) = work(image(image = imageObservable.transform { it ?: Image.none }), imageObservable.transform { it == null })
+        imageWithSizingObservable: ObservableProperty<ImageWithSizing?>
+) = work(image(imageWithSizing = imageWithSizingObservable.transform { it ?: ImageWithSizing.none }), imageWithSizingObservable.transform { it == null })
 
 fun <VIEW> ViewFactory<VIEW>.launchConfirmationDialog(
         title: String = "",

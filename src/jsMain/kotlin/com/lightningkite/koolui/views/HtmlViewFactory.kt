@@ -1,6 +1,5 @@
 package com.lightningkite.koolui.views
 
-import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.appendLifecycled
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.*
@@ -192,7 +191,7 @@ class HtmlViewFactory(
         return swap(options.onListUpdate.transform {
             horizontal {
                 for (option in it) {
-                    +button(label = option.text, image = option.image) {
+                    +button(label = option.text, imageWithSizing = option.imageWithSizing) {
                         selected.value = option
                     }
                 }
@@ -318,7 +317,7 @@ class HtmlViewFactory(
 
         val imageNode: HTMLElement by lazy {
             image(image.transform {
-                it ?: MaterialIcon.android.color(Color.white).asImage()
+                it ?: MaterialIcon.android.color(Color.white).withSizing()
             })
         }
         var isImageAdded = false
@@ -612,7 +611,7 @@ class HtmlViewFactory(
         AlignPair.FillFill to contains,
         AlignPair.TopRight to work(
             imageButton(
-                image = MaterialIcon.refresh.color(theme.main.foreground).asImage(
+                imageWithSizing = MaterialIcon.refresh.color(theme.main.foreground).withSizing(
                     Point(
                         24f,
                         24f
@@ -627,7 +626,7 @@ class HtmlViewFactory(
     override fun work(view: HTMLElement, isWorking: ObservableProperty<Boolean>): HTMLElement {
         //<!-- By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL -->
         val spinner = image(
-            Displayable.fromSvgString(
+            Image.fromSvgString(
                 """
 <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="${colorSet.foreground.toWeb()}">
     <g fill="none" fill-rule="evenodd">
@@ -645,7 +644,7 @@ class HtmlViewFactory(
         </g>
     </g>
 </svg>"""
-            ).asImage(defaultSize = Point(24f, 24f))
+            ).withSizing(defaultSize = Point(24f, 24f))
         )
 
         fun calc(loading: Boolean) = if (loading) spinner else view

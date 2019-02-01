@@ -1,11 +1,7 @@
-//include ':koolui-metadata'
-//include ':koolui-android'
-//include ':koolui-javafx'
-//include ':koolui-js'
-//include ':koolui-jvm-virtual'
-//include ':test-common'
-//include ':test-javafx'
-//include ':test-js'
-//include ':test-android'
+
+include ':koolui-test-common'
+include ':koolui-test-javafx'
+include ':koolui-test-js'
+include ':koolui-test-android'
 
 enableFeaturePreview('GRADLE_METADATA')

@@ -14,13 +14,13 @@ import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
 class UrlImageTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
-    override val title: String = "URL Image Test"
+    override val title: String = "URL ImageWithSizing Test"
 
     override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
         vertical {
-            -text(text = "An image will be loaded here from 'https://picsum.photos/200/300'.")
+            -text(text = "An imageWithSizing will be loaded here from 'https://picsum.photos/200/300'.")
             //TODO
-//            -loadingImage(suspend { HttpClient.callImage("https://picsum.photos/200/300", HttpMethod.GET).asImage() }
+//            -loadingImage(suspend { HttpClient.callImage("https://picsum.photos/200/300", HttpMethod.GET).withSizing() }
 //                    .invokeObservable())
         }
     }

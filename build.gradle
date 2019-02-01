@@ -20,12 +20,9 @@ apply plugin: 'kotlin-multiplatform'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.android.library'
-apply plugin: 'digital.wup.android-maven-publish'
 
-task androidSourceJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier "sources"
-}
+group 'com.lightningkite'
+version versionsProperties.getProperty(repositoryName)
 
 android {
     compileSdkVersion 27
@@ -59,9 +56,8 @@ repositories {
     mavenCentral()
     mavenLocal()
     maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url 'https://dl.bintray.com/lightningkite/com.lightningkite.krosslin' }
 }
-group 'com.lightningkite'
-version '0.0.2'
 
 kotlin {
     targets {
@@ -81,11 +77,10 @@ kotlin {
 
                 api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${versionsProperties.kotlinx_coroutines}"
 
-                api 'com.lightningkite:kommon-metadata:0.0.2'
-                api 'com.lightningkite:kommunicate-metadata:0.0.2'
-                api 'com.lightningkite:lokalize-metadata:0.0.2'
-                api 'com.lightningkite:reacktive-metadata:0.0.2'
-                api 'com.lightningkite:recktangle-metadata:0.0.2'
+                api "com.lightningkite:kommon-metadata:${versionsProperties.kommon}"
+                api "com.lightningkite:lokalize-metadata:${versionsProperties.lokalize}"
+                api "com.lightningkite:reacktive-metadata:${versionsProperties.reacktive}"
+                api "com.lightningkite:recktangle-metadata:${versionsProperties.recktangle}"
             }
         }
         commonTest {
@@ -98,14 +93,12 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-                api 'com.squareup.okhttp3:okhttp:3.11.0'
                 api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versionsProperties.kotlinx_coroutines}"
 
-                api 'com.lightningkite:kommon-jvm:0.0.2'
-                api 'com.lightningkite:kommunicate-jvm:0.0.2'
-                api 'com.lightningkite:lokalize-jvm:0.0.2'
-                api 'com.lightningkite:reacktive-jvm:0.0.2'
-                api 'com.lightningkite:recktangle-jvm:0.0.2'
+                api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
+                api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
+                api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
+                api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
             }
         }
         jvmVirtualTest {
@@ -129,14 +122,12 @@ kotlin {
                 api 'org.apache.xmlgraphics:xmlgraphics-commons:2.1'
                 api 'org.apache.logging.log4j:log4j-core:2.5'
 
-                api 'com.squareup.okhttp3:okhttp:3.11.0'
                 api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versionsProperties.kotlinx_coroutines}"
 
-                api 'com.lightningkite:kommon-jvm:0.0.2'
-                api 'com.lightningkite:kommunicate-jvm:0.0.2'
-                api 'com.lightningkite:lokalize-jvm:0.0.2'
-                api 'com.lightningkite:reacktive-jvm:0.0.2'
-                api 'com.lightningkite:recktangle-jvm:0.0.2'
+                api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
+                api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
+                api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
+                api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
             }
         }
         javafxTest {
@@ -158,11 +149,10 @@ kotlin {
                 api "com.android.support:recyclerview-v7:${compatVersion}"
                 api "com.android.support:design:${compatVersion}"
 
-                api 'com.lightningkite:kommon-jvm:0.0.2'
-                api 'com.lightningkite:kommunicate-jvm:0.0.2'
-                api 'com.lightningkite:lokalize-jvm:0.0.2'
-                api 'com.lightningkite:reacktive-jvm:0.0.2'
-                api 'com.lightningkite:recktangle-jvm:0.0.2'
+                api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
+                api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
+                api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
+                api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
             }
         }
         androidTest {
@@ -177,11 +167,11 @@ kotlin {
 
                 api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${versionsProperties.kotlinx_coroutines}"
 
-                api 'com.lightningkite:kommon-js:0.0.2'
-                api 'com.lightningkite:kommunicate-js:0.0.2'
-                api 'com.lightningkite:lokalize-js:0.0.2'
-                api 'com.lightningkite:reacktive-js:0.0.2'
-                api 'com.lightningkite:recktangle-js:0.0.2'
+
+                api "com.lightningkite:kommon-js:${versionsProperties.kommon}"
+                api "com.lightningkite:lokalize-js:${versionsProperties.lokalize}"
+                api "com.lightningkite:reacktive-js:${versionsProperties.reacktive}"
+                api "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
 
             }
         }
@@ -239,3 +229,6 @@ tasks.withType(compileKotlinJs.getClass()) {
 //    }
 //    tasks.check.dependsOn(tasks.iosTest)
 //}
+
+
+apply from: rootProject.file("gradle/publish.gradle")

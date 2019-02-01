@@ -12,9 +12,9 @@ import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
-import com.lightningkite.koolui.image.Image
+import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.image.MaterialIcon
-import com.lightningkite.koolui.image.asImage
+import com.lightningkite.koolui.image.withSizing
 import com.lightningkite.koolui.image.color
 import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.views.ViewFactory
@@ -27,11 +27,11 @@ import com.lightningkite.recktangle.Point
 import kotlin.math.ceil
 
 fun <VIEW> ViewFactory<VIEW>.defaultEntryContext(
-    label: String,
-    help: String?,
-    icon: Image?,
-    feedback: ObservableProperty<Pair<Importance, String>?>,
-    field: VIEW
+        label: String,
+        help: String?,
+        icon: ImageWithSizing?,
+        feedback: ObservableProperty<Pair<Importance, String>?>,
+        field: VIEW
 ) = horizontal {
 
     defaultAlign = Align.Center
@@ -149,8 +149,8 @@ fun <VIEW, T> ViewFactory<VIEW>.defaultList(
         })
         -frame {
             AlignPair.BottomLeft - imageButton(
-                image = ConstantObservableProperty(
-                    MaterialIcon.chevronLeft.color(buttonColor).asImage(
+                imageWithSizing = ConstantObservableProperty(
+                    MaterialIcon.chevronLeft.color(buttonColor).withSizing(
                         Point(
                             24f,
                             24f
@@ -175,8 +175,8 @@ fun <VIEW, T> ViewFactory<VIEW>.defaultList(
                 size = TextSize.Tiny
             )
             AlignPair.BottomRight - imageButton(
-                image = ConstantObservableProperty(
-                    MaterialIcon.chevronRight.color(buttonColor).asImage(
+                imageWithSizing = ConstantObservableProperty(
+                    MaterialIcon.chevronRight.color(buttonColor).withSizing(
                         Point(
                             24f,
                             24f
@@ -208,8 +208,8 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
         horizontal {
             defaultAlign = Align.Center
             -imageButton(
-                image = ConstantObservableProperty(
-                    MaterialIcon.arrowBack.color(theme.bar.foreground).asImage(
+                imageWithSizing = ConstantObservableProperty(
+                    MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
                         Point(
                             24f,
                             24f
@@ -237,7 +237,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
         +horizontal {
             -scrollVertical(vertical {
                 for (tab in tabs) {
-                    -button(tab.first.text, tab.first.image) {
+                    -button(tab.first.text, tab.first.imageWithSizing) {
                         stack.reset(tab.second)
                     }
                 }
@@ -260,8 +260,8 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
         horizontal {
             defaultAlign = Align.Center
             -imageButton(
-                image = ConstantObservableProperty(
-                    MaterialIcon.arrowBack.color(theme.bar.foreground).asImage(
+                imageWithSizing = ConstantObservableProperty(
+                    MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
                         Point(
                             24f,
                             24f
@@ -288,7 +288,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
     if (!tabs.isEmpty()) {
         -horizontal {
             for (tab in tabs) {
-                +button(tab.first.text, tab.first.image) {
+                +button(tab.first.text, tab.first.imageWithSizing) {
                     stack.reset(tab.second)
                 }
             }
@@ -315,8 +315,8 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultPages(
     })
     -frame {
         AlignPair.BottomLeft - imageButton(
-            image = ConstantObservableProperty(
-                MaterialIcon.chevronLeft.color(buttonColor).asImage(
+            imageWithSizing = ConstantObservableProperty(
+                MaterialIcon.chevronLeft.color(buttonColor).withSizing(
                     Point(24f, 24f)
                 )
             ), onClick = {
@@ -327,10 +327,10 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultPages(
             size = TextSize.Tiny
         )
         AlignPair.BottomRight - imageButton(
-            image = ConstantObservableProperty(
+            imageWithSizing = ConstantObservableProperty(
                 MaterialIcon.chevronRight.color(
                     buttonColor
-                ).asImage(Point(24f, 24f))
+                ).withSizing(Point(24f, 24f))
             ), onClick = {
                 page.value = page.value.plus(1).coerceIn(pageGenerator.indices)
             })
