@@ -1,6 +1,8 @@
 buildscript {
-    ext.kotlinVersion = '1.3.20'
-    ext.coroutinesVersion = '1.0.1'
+    ext.repositoryName = project.name
+    ext.versionsProperties = new Properties()
+    file("versions.properties").withInputStream { versionsProperties.load(it) }
+    
     repositories {
         google()
         mavenLocal()
@@ -8,7 +10,7 @@ buildscript {
         maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.kotlin}"
         classpath 'com.android.tools.build:gradle:3.2.1'
         classpath "digital.wup:android-maven-publish:3.6.2"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
@@ -50,26 +52,6 @@ android {
     }
 }
 
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    publish = true
-    pkg {
-        repo = project.group.toString()
-        name = project.name
-        userOrg = "lightningkite"
-        licenses = ["MIT"]
-        def github = "https://github.com/lightningkite/${project.name}"
-        vcsUrl = github
-        websiteUrl = github
-        issueTrackerUrl = github + "/issues"
-        version {
-            name = project.version
-            released = new Date()
-        }
-    }
-}
-
 
 repositories {
     google()
@@ -97,7 +79,7 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
 
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${versionsProperties.kotlinx_coroutines}"
 
                 api 'com.lightningkite:kommon-metadata:0.0.2'
                 api 'com.lightningkite:kommunicate-metadata:0.0.2'
@@ -117,7 +99,7 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
                 api 'com.squareup.okhttp3:okhttp:3.11.0'
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versionsProperties.kotlinx_coroutines}"
 
                 api 'com.lightningkite:kommon-jvm:0.0.2'
                 api 'com.lightningkite:kommunicate-jvm:0.0.2'
@@ -148,7 +130,7 @@ kotlin {
                 api 'org.apache.logging.log4j:log4j-core:2.5'
 
                 api 'com.squareup.okhttp3:okhttp:3.11.0'
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versionsProperties.kotlinx_coroutines}"
 
                 api 'com.lightningkite:kommon-jvm:0.0.2'
                 api 'com.lightningkite:kommunicate-jvm:0.0.2'
@@ -166,7 +148,7 @@ kotlin {
         androidMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versionsProperties.kotlinx_coroutines}"
                 api 'com.squareup.okhttp3:okhttp:3.11.0'
 
                 def compatVersion = '27.1.1'
@@ -193,7 +175,7 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
 
-                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.0.1"
+                api "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${versionsProperties.kotlinx_coroutines}"
 
                 api 'com.lightningkite:kommon-js:0.0.2'
                 api 'com.lightningkite:kommunicate-js:0.0.2'
@@ -216,7 +198,7 @@ kotlin {
 //            }
 //            iosTest {
 //                dependencies {
-//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.1'
+//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${versionsProperties.kotlinx_coroutines}'
 //                }
 //            }
 //            iosx64Main {
@@ -226,7 +208,7 @@ kotlin {
 //            }
 //            iosx64Test {
 //                dependencies {
-//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.0.1'
+//                    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${versionsProperties.kotlinx_coroutines}'
 //                    kotlin.srcDir('src/iosTest/kotlin')
 //                }
 //            }
