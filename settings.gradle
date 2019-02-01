@@ -8,4 +8,4 @@
 //include ':test-js'
 //include ':test-android'
 
-//enableFeaturePreview('GRADLE_METADATA')
+enableFeaturePreview('GRADLE_METADATA')
