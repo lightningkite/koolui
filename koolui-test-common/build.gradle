@@ -29,6 +29,7 @@ repositories {
     jcenter()
     mavenLocal()
 
+    maven { url 'https://dl.bintray.com/lightningkite/com.lightningkite.krosslin' }
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 

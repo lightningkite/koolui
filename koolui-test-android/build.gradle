@@ -34,14 +34,7 @@ android {
     }
 
     packagingOptions {
-        exclude 'META-INF/main.kotlin_module'
-        exclude 'META-INF/kommon.kotlin_module'
-        exclude 'META-INF/lokalize.kotlin_module'
-        exclude 'META-INF/kommunicate.kotlin_module'
-        exclude 'META-INF/reacktive.kotlin_module'
-        exclude 'META-INF/recktangle.kotlin_module'
-        exclude 'META-INF/mirror-runtime.kotlin_module'
-        exclude 'META-INF/kommunicate-mirror.kotlin_module'
+        exclude 'META-INF/**.kotlin_module'
     }
 
     buildTypes {
@@ -58,6 +51,7 @@ repositories {
     google()
     jcenter()
     mavenLocal()
+    maven { url 'https://dl.bintray.com/lightningkite/com.lightningkite.krosslin' }
 }
 
 dependencies {

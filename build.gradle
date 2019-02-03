@@ -70,6 +70,9 @@ kotlin {
 //            fromPreset(presets.iosArm64, 'ios')
 //        }
     }
+    android {
+        publishLibraryVariants("release")
+    }
     sourceSets {
         commonMain {
             dependencies {
