@@ -1,7 +1,6 @@
 package com.lightningkite.koolui.views
 
 import com.jfoenix.controls.*
-import com.lightningkite.kommunicate.HttpClient
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.MousePosition
 import com.lightningkite.koolui.async.UI
@@ -53,10 +52,6 @@ data class MaterialJavaFxViewFactory(
     val resourceFetcher: (String) -> InputStream,
     val scale: Double = 1.0
 ) : ViewFactory<Node> {
-
-    init {
-        HttpClient.resultThread = { GlobalScope.launch(Dispatchers.UI) { it() } }
-    }
 
     var Node.desiredMargins: DesiredMargins
         get() = AnyDesiredMargins.getOrPut(this) {

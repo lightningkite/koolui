@@ -10,7 +10,7 @@ import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.concepts.Importance
 import com.lightningkite.koolui.image.MaterialIcon
-import com.lightningkite.koolui.image.asImage
+import com.lightningkite.koolui.image.withSizing
 import com.lightningkite.koolui.image.color
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
@@ -24,19 +24,19 @@ class ControlsVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
 
             -entryContext(
                     label = "imageButton",
-                    field = imageButton(image = ConstantObservableProperty(MaterialIcon.android.color(Color.gray).asImage(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.Low, onClick = {})
+                    field = imageButton(imageWithSizing = ConstantObservableProperty(MaterialIcon.android.color(Color.gray).withSizing(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.Low, onClick = {})
             )
             -entryContext(
                     label = "imageButton",
-                    field = imageButton(image = ConstantObservableProperty(MaterialIcon.android.color(Color.white).asImage(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.Normal, onClick = {})
+                    field = imageButton(imageWithSizing = ConstantObservableProperty(MaterialIcon.android.color(Color.white).withSizing(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.Normal, onClick = {})
             )
             -entryContext(
                     label = "imageButton",
-                    field = imageButton(image = ConstantObservableProperty(MaterialIcon.android.color(Color.white).asImage(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.High, onClick = {})
+                    field = imageButton(imageWithSizing = ConstantObservableProperty(MaterialIcon.android.color(Color.white).withSizing(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.High, onClick = {})
             )
             -entryContext(
                     label = "imageButton",
-                    field = imageButton(image = ConstantObservableProperty(MaterialIcon.android.color(Color.white).asImage(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.Danger, onClick = {})
+                    field = imageButton(imageWithSizing = ConstantObservableProperty(MaterialIcon.android.color(Color.white).withSizing(Point(24f, 24f))), label = ConstantObservableProperty("Button"), importance = Importance.Danger, onClick = {})
             )
 
             -entryContext(

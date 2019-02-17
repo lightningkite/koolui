@@ -14,12 +14,12 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.kotlin}"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-//        classpath "com.lightningkite:mirror-plugin:0.0.2"
+        classpath "com.lightningkite:mirror-plugin:${versionsProperties.mirror}"
     }
 }
 
 apply plugin: 'kotlin-platform-common'
-//apply plugin: 'com.lightningkite.mirror'
+apply plugin: 'com.lightningkite.mirror'
 
 group 'com.lightningkite'
 version '0.0.2'
@@ -36,13 +36,13 @@ repositories {
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-common:${versionsProperties.kotlin}"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${versionsProperties.kotlinx_coroutines}"
-    api project(':koolui')
 
     api "com.lightningkite:kommon-metadata:${versionsProperties.kommon}"
     api "com.lightningkite:lokalize-metadata:${versionsProperties.lokalize}"
     api "com.lightningkite:reacktive-metadata:${versionsProperties.reacktive}"
     api "com.lightningkite:recktangle-metadata:${versionsProperties.recktangle}"
     api "com.lightningkite:mirror-runtime-metadata:${versionsProperties.mirror}"
+    api "com.lightningkite:koolui-metadata:${versionsProperties.koolui}"
 
     testApi "org.jetbrains.kotlin:kotlin-test-common:${versionsProperties.kotlin}"
     testApi "org.jetbrains.kotlin:kotlin-test-annotations-common:${versionsProperties.kotlin}"

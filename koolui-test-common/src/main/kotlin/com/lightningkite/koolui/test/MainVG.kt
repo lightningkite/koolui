@@ -20,8 +20,7 @@ class MainVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
         window(
                 dependency = dependency,
                 stack = stack,
-                tabs = listOf(),
-                actions = observableListOf()
+                tabs = listOf()
         )
     }
 }

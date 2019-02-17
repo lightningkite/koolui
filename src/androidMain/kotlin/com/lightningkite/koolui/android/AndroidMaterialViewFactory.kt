@@ -28,8 +28,6 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebView
 import android.widget.*
-import com.lightningkite.kommon.collection.pop
-import com.lightningkite.kommon.collection.reset
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.frame
@@ -54,6 +52,8 @@ import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.Locale
 import com.lightningkite.reacktive.list.*
 import com.lightningkite.reacktive.list.lifecycle.bind
+import com.lightningkite.reacktive.mapping.pop
+import com.lightningkite.reacktive.mapping.reset
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen

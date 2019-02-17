@@ -12,6 +12,7 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.*
+import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.koolui.removeLifecycled
 import com.lightningkite.koolui.toWeb
@@ -283,9 +284,9 @@ class HtmlViewFactory(
         }
     }
 
-    override fun image(image: ObservableProperty<Image>): HTMLImageElement = makeElement<HTMLImageElement>("img") {
+    override fun image(image: ObservableProperty<ImageWithSizing>): HTMLImageElement = makeElement<HTMLImageElement>("img") {
         lifecycle.bind(image) {
-            src = it.displayable.image
+            src = it.image.image
             style.objectFit = when (it.scaleType) {
                 ImageScaleType.Crop -> "cover"
                 ImageScaleType.Fill -> "scale-down"
@@ -302,10 +303,10 @@ class HtmlViewFactory(
     }
 
     override fun button(
-        label: ObservableProperty<String>,
-        image: ObservableProperty<Image?>,
-        importance: Importance,
-        onClick: () -> Unit
+            label: ObservableProperty<String>,
+            image: ObservableProperty<ImageWithSizing?>,
+            importance: Importance,
+            onClick: () -> Unit
     ): HTMLButtonElement = makeElement<HTMLButtonElement>("button") {
 
         addClass(importance.toCssClass())
@@ -340,10 +341,10 @@ class HtmlViewFactory(
     }
 
     override fun imageButton(
-        image: ObservableProperty<Image>,
-        label: ObservableProperty<String?>,
-        importance: Importance,
-        onClick: () -> Unit
+            image: ObservableProperty<ImageWithSizing>,
+            label: ObservableProperty<String?>,
+            importance: Importance,
+            onClick: () -> Unit
     ): HTMLButtonElement = makeElement<HTMLButtonElement>("button") {
         addClass(importance.toCssClass(), "ImageFocused")
         type = "button"
@@ -379,11 +380,11 @@ class HtmlViewFactory(
     }
 
     override fun entryContext(
-        label: String,
-        help: String?,
-        icon: Image?,
-        feedback: ObservableProperty<Pair<Importance, String>?>,
-        field: HTMLElement
+            label: String,
+            help: String?,
+            icon: ImageWithSizing?,
+            feedback: ObservableProperty<Pair<Importance, String>?>,
+            field: HTMLElement
     ): HTMLElement = defaultEntryContext(label, help, icon, feedback, field)
 
     override fun <T> picker(

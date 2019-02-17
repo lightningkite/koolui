@@ -11,7 +11,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.kotlin}"
     }
 }
@@ -64,11 +64,11 @@ dependencies {
 
     api "com.android.support:appcompat-v7:27.1.1"
     expectedBy project(':koolui-test-common')
-    api project(':koolui')
 
     api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
     api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
     api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
     api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
     api "com.lightningkite:mirror-runtime-jvm:${versionsProperties.mirror}"
+    api "com.lightningkite:koolui-android:${versionsProperties.mirror}"
 }

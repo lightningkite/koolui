@@ -25,7 +25,7 @@ class SelectorVG<VIEW>(
             "Controls" to { ControlsVG<VIEW>() },
             "Notifications" to { NotificationTestVG<VIEW>() },
             "Icons" to { IconsTestVG<VIEW>() },
-            "URL Image Test" to { UrlImageTestVG<VIEW>() },
+//            "URL Image Test" to { UrlImageTestVG<VIEW>() },
             "Dialog" to { DialogTestVG<VIEW>() }
     )
 

@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.37"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.kotlinVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.getProperty("kotlin")}"
     }
 }
 
@@ -30,18 +30,18 @@ repositories {
 
 dependencies {
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:${rootProject.kotlinVersion}"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${rootProject.coroutinesVersion}"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:${versionsProperties.getProperty("kotlin")}"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${versionsProperties.getProperty("kotlinx_coroutines")}"
     expectedBy project(':koolui-test-common')
-    api project(':koolui')
-//  testCompile "org.jetbrains.kotlin:kotlin-test-js:${rootProject.kotlinVersion}"
-//  testCompile "org.jetbrains.kotlin:kotlin-test:${rootProject.kotlinVersion}"
+//  testCompile "org.jetbrains.kotlin:kotlin-test-js:${versionsProperties.getProperty("kotlin")}"
+//  testCompile "org.jetbrains.kotlin:kotlin-test:${versionsProperties.getProperty("kotlin")}"
 
     api "com.lightningkite:kommon-js:${versionsProperties.kommon}"
     api "com.lightningkite:lokalize-js:${versionsProperties.lokalize}"
     api "com.lightningkite:reacktive-js:${versionsProperties.reacktive}"
     api "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
     api "com.lightningkite:mirror-runtime-js:${versionsProperties.mirror}"
+    api "com.lightningkite:koolui-js:${versionsProperties.koolui}"
 }
 
 

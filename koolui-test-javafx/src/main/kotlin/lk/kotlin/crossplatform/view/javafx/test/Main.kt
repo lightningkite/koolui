@@ -1,6 +1,5 @@
 package lk.kotlin.crossplatform.view.javafx.test
 
-import com.lightningkite.kommunicate.HttpClient
 import com.lightningkite.koolui.color.Theme
 import com.lightningkite.koolui.configureUi
 import com.lightningkite.koolui.test.MainVG

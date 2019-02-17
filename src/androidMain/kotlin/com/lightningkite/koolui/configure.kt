@@ -1,7 +1,6 @@
 package com.lightningkite.koolui
 
 import android.support.annotation.DrawableRes
-import com.lightningkite.kommunicate.HttpClient
 import com.lightningkite.koolui.android.access.ActivityAccess
 import java.io.File
 
