@@ -19,6 +19,7 @@ version '0.0.2'
 
 apply plugin: 'application'
 apply plugin: 'kotlin'
+apply plugin: 'idea'
 
 mainClassName = "lk.kotlin.crossplatform.view.javafx.test.MainKt"
 

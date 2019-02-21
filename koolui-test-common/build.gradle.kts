@@ -34,7 +34,7 @@ val versions = Properties().apply {
 
 group = "com.lightningkite"
 version = versions.getProperty("koolui")
-project.doNotPublishMetadata()
+//project.doNotPublishMetadata()
 
 android {
     compileSdkVersion(27)
