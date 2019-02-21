@@ -18,7 +18,7 @@ group 'com.lightningkite.kotlin.crossplatform'
 version '0.0.2'
 
 apply plugin: 'application'
-apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'kotlin'
 
 mainClassName = "lk.kotlin.crossplatform.view.javafx.test.MainKt"
 
@@ -29,19 +29,26 @@ repositories {
     maven { url 'https://dl.bintray.com/lightningkite/com.lightningkite.krosslin' }
 }
 
+def attributeUI = Attribute.of("com.lightningkite.konvenience.ui", String)
+
+configurations {
+    forEach {
+        it.attributes {
+            attribute(attributeUI, "javafx")
+        }
+    }
+}
+
+dependencies.attributesSchema {
+    attribute(attributeUI)
+}
+
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versionsProperties.kotlin}"
+
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versionsProperties.kotlin}"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versionsProperties.kotlinx_coroutines}"
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:${versionsProperties.kotlin}"
-    expectedBy project(':koolui-test-common')
-
-    api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
-    api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
-    api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
-    api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
-    api "com.lightningkite:mirror-runtime-jvm:${versionsProperties.mirror}"
-    api "com.lightningkite:koolui-javafx:${versionsProperties.koolui}"
-
+    testApi "org.jetbrains.kotlin:kotlin-reflect:${versionsProperties.kotlin}"
+    api project(":koolui-test-common")
     testApi 'junit:junit:4.12'
 }
 

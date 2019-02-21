@@ -49,7 +49,7 @@ android {
 
 kotlin {
     android {
-        publishLibraryVariants("release")
+//        publishLibraryVariants("release")
     }
 
     val jvmVirtual = KTarget(
@@ -60,7 +60,7 @@ kotlin {
             configure = {
                 jvm("jvmVirtual") {
                     attributes {
-                        attribute(KTarget.detailed, "jvmVirtual")
+                        attribute(KTarget.attributeUI, "jvmVirtual")
                     }
                 }
             }
