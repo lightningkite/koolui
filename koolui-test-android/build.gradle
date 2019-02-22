@@ -17,7 +17,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-platform-android'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
@@ -63,7 +63,6 @@ dependencies {
     androidTestApi 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     api "com.android.support:appcompat-v7:27.1.1"
-    expectedBy project(':koolui-test-common')
 
     api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
     api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
@@ -71,4 +70,5 @@ dependencies {
     api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
     api "com.lightningkite:mirror-runtime-jvm:${versionsProperties.mirror}"
     api "com.lightningkite:koolui-android:${versionsProperties.mirror}"
+    api project(":koolui-test-common")
 }

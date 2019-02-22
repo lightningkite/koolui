@@ -11,14 +11,13 @@ plugins {
 buildscript {
     repositories {
         mavenLocal()
-//        maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
+        maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     }
     dependencies {
         classpath("com.lightningkite:konvenience:+")
     }
 }
 apply(plugin = "com.lightningkite.konvenience")
-//apply(plugin = "com.android.library")
 
 repositories {
     mavenLocal()
@@ -44,14 +43,18 @@ android {
         minSdkVersion(16)
         targetSdkVersion(27)
     }
+
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFile(getDefaultProguardFile("proguard-android-optimize.txt"))
+            proguardFile("proguard-rules.pro")
+        }
+    }
 }
 
 
 kotlin {
-    android {
-//        publishLibraryVariants("release")
-    }
-
     val jvmVirtual = KTarget(
             name = "jvmVirtual",
             platformType = KotlinPlatformType.jvm,
@@ -127,6 +130,15 @@ kotlin {
         }
         jvmVirtual.sources {}
         isJs.sources {}
+    }
+
+    android {
+        println("COMPILATIONS SIZE: " +compilations.size)
+        compilations.forEach { println("COMPILATION: " + it) }
+        compilations.create("release"){
+            println("HELLO $this")
+        }
+        publishLibraryVariants("release")//, "debug")
     }
 }
 
