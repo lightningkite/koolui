@@ -34,7 +34,6 @@ val versions = Properties().apply {
 
 group = "com.lightningkite"
 version = versions.getProperty("koolui")
-//project.doNotPublishMetadata()
 
 android {
     compileSdkVersion(27)
@@ -47,9 +46,6 @@ android {
 
 
 kotlin {
-    android {
-//        publishLibraryVariants("release")
-    }
 
     val jvmVirtual = KTarget(
             name = "jvmVirtual",
@@ -95,5 +91,8 @@ kotlin {
             dependency(testing)
             dependency(testingAnnotations)
         }
+    }
+    android {
+        publishLibraryVariants("release")
     }
 }

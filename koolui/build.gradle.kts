@@ -1,4 +1,5 @@
 import com.lightningkite.konvenience.gradle.*
+import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.util.*
 
@@ -34,7 +35,6 @@ val versions = Properties().apply {
 
 group = "com.lightningkite"
 version = versions.getProperty(project.name)
-project.doNotPublishMetadata()
 
 android {
     compileSdkVersion(27)
@@ -101,7 +101,7 @@ kotlin {
         KTarget.android.sources {
             main {
                 dependencies {
-                    api("com.squareup.okhttp3:okhttp:3.11.0")
+                    api("com.squareup.okhttp3:okhttp:3.13.1")
 
                     val compatVersion = "27.1.1"
                     api("com.android.support:appcompat-v7:$compatVersion")
@@ -123,7 +123,7 @@ kotlin {
                     api("xalan:xalan:2.7.2")
                     api("org.apache.logging.log4j:log4j-api:2.5")
 
-                    api("org.apache.xmlgraphics:xmlgraphics-commons:2.1")
+                    api("org.apache.xmlgraphics:xmlgraphics-commons:2.2")
                     api("org.apache.logging.log4j:log4j-core:2.5")
                 }
             }
@@ -133,16 +133,17 @@ kotlin {
     }
 
     android {
-        println("COMPILATIONS SIZE: " +compilations.size)
-        compilations.forEach { println("COMPILATION: " + it) }
-        compilations.create("release"){
-            println("HELLO $this")
-        }
+//        println("COMPILATIONS SIZE: " +compilations.size)
+//        compilations.forEach { println("COMPILATION: " + it) }
+//        compilations.create("release"){
+//            println("HELLO $this")
+//        }
         publishLibraryVariants("release")//, "debug")
     }
 }
 
 publishing {
+    doNotPublishMetadata()
     repositories {
         bintray(
                 project = project,
