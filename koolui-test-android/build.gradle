@@ -24,13 +24,22 @@ android {
 
     defaultConfig {
         applicationId "desktop.kotlin.lk.test_android"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+    }
+
+    lintOptions {
+        tasks.lint.enabled = false
+    }
+
+    compileOptions {
+        targetCompatibility = "8"
+        sourceCompatibility = "8"
     }
 
     packagingOptions {
@@ -64,11 +73,11 @@ dependencies {
 
     api "com.android.support:appcompat-v7:27.1.1"
 
-    api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
-    api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
-    api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
-    api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
-    api "com.lightningkite:mirror-runtime-jvm:${versionsProperties.mirror}"
-    api "com.lightningkite:koolui-android:${versionsProperties.mirror}"
+//    api "com.lightningkite:kommon-jvm:${versionsProperties.kommon}"
+//    api "com.lightningkite:lokalize-jvm:${versionsProperties.lokalize}"
+//    api "com.lightningkite:reacktive-jvm:${versionsProperties.reacktive}"
+//    api "com.lightningkite:recktangle-jvm:${versionsProperties.recktangle}"
+//    api "com.lightningkite:mirror-runtime-jvm:${versionsProperties.mirror}"
+//    api "com.lightningkite:koolui-android:${versionsProperties.koolui}"
     api project(":koolui-test-common")
 }

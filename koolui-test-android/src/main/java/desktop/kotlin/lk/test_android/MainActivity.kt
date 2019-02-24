@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import com.lightningkite.kommunicate.HttpClient
 import com.lightningkite.koolui.android.AndroidMaterialViewFactory
 import com.lightningkite.koolui.android.access.AccessibleActivity
 import com.lightningkite.koolui.android.lifecycle

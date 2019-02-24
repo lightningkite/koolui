@@ -6,7 +6,7 @@ import java.util.*
 plugins {
     kotlin("multiplatform") version "1.3.21"
     `maven-publish`
-    id("com.android.library") version "3.3.1"
+    id("com.android.library")// version "3.3.1"
 }
 
 buildscript {
@@ -133,11 +133,6 @@ kotlin {
     }
 
     android {
-//        println("COMPILATIONS SIZE: " +compilations.size)
-//        compilations.forEach { println("COMPILATION: " + it) }
-//        compilations.create("release"){
-//            println("HELLO $this")
-//        }
         publishLibraryVariants("release")//, "debug")
     }
 }
