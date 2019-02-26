@@ -35,12 +35,12 @@ dependencies {
 //  testCompile "org.jetbrains.kotlin:kotlin-test-js:${versionsProperties.getProperty("kotlin")}"
 //  testCompile "org.jetbrains.kotlin:kotlin-test:${versionsProperties.getProperty("kotlin")}"
 
-    api "com.lightningkite:kommon-js:${versionsProperties.kommon}"
-    api "com.lightningkite:lokalize-js:${versionsProperties.lokalize}"
-    api "com.lightningkite:reacktive-js:${versionsProperties.reacktive}"
-    api "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
-    api "com.lightningkite:mirror-runtime-js:${versionsProperties.mirror}"
-    api "com.lightningkite:koolui-js:${versionsProperties.koolui}"
+//    api "com.lightningkite:kommon-js:${versionsProperties.kommon}"
+//    api "com.lightningkite:lokalize-js:${versionsProperties.lokalize}"
+//    api "com.lightningkite:reacktive-js:${versionsProperties.reacktive}"
+//    api "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
+//    api "com.lightningkite:mirror-runtime-js:${versionsProperties.mirror}"
+//    api "com.lightningkite:koolui-js:${versionsProperties.koolui}"
     api project(":koolui-test-common")
 }
 
