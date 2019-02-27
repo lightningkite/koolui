@@ -1,4 +1,4 @@
-# ReacKtive
+# KoolUI
 
 By [Lightning Kite](https://lightningkite.com)
 
