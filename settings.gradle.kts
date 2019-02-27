@@ -17,9 +17,10 @@ pluginManagement {
 }
 
 include("koolui")
-//include("koolui-test-common")
-//include("koolui-test-android")
-//include("koolui-test-javafx")
-//include("koolui-test-js")
+include("koolui-test-common")
+include("koolui-test-android")
+include("koolui-test-javafx")
+include("koolui-test-common-indirect")
+include("koolui-test-js")
 
 enableFeaturePreview("GRADLE_METADATA")

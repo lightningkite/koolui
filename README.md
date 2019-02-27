@@ -6,6 +6,7 @@ Maven: [![Download](https://api.bintray.com/packages/lightningkite/com.lightning
 
 Abstracts view creation for multiplatform projects, allowing you to write a short description of your UI and have it be implemented on all platforms according to how the given platform renders it.
 
+[Video by Imgur](https://i.imgur.com/G0a0yM9.mp4)
 
 ## Design Philosophy
 
@@ -82,7 +83,7 @@ class MainVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
 }
 ```
 
-### Android
+### Android Setup
 
 Use this code for your main activity:
 
@@ -93,32 +94,35 @@ class MainActivity : AccessibleActivity() {
         val main = MainVG<View>()
     }
 
+    class Factory(
+            activity: AccessibleActivity
+    ) : MyViewFactory<View>, ViewFactory<View> by AndroidMaterialViewFactory(activity, Theme.dark()) {}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        configureUi(this, R.drawable.ic_notifications)
+        ApplicationAccess.init(this, R.drawable.ic_notifications)
 
-        val factory = AndroidMaterialViewFactory(this, Theme.dark())
-        val view = factory.contentRoot(main.generate(factory))
-        view.lifecycle.alwaysOn = true
-        setContentView(view)
+        setContentView(Factory(this).contentRoot(main))
     }
 }
 ```
 
 ### JS Setup
 
-Add this to your main function:
+Add this to your main file:
 
 ```kotlin
-window.onload = {
-    with(HtmlViewFactory(Theme.dark())){
-        applyDefaultCss()
-        val view = rootContainer(MainVG<HTMLElement>().generate(this))
-        view.lifecycle.alwaysOn = true
-        document.body!!.appendChild(view)
+class Factory() : MyViewFactory<HTMLElement>, ViewFactory<HTMLElement> by HtmlViewFactory(Theme.dark()) {}
+
+fun main(args: Array<String>) {
+    window.onload = {
+        document.body!!.appendChild(
+                Factory().contentRoot(MainVG<HTMLElement>())
+        )
     }
 }
+
 ```
 
 ## JavaFX Setup
@@ -129,17 +133,14 @@ Use this for your application:
 class Main : Application() {
 
     companion object {
-        val view = MainVG<Node>()
+        val mainVg = MainVG<Node>()
     }
 
+    class Factory() : MyViewFactory<Node>, ViewFactory<Node> by MaterialJavaFxViewFactory(Theme.dark(), scale = 1.0) {}
+
     override fun start(primaryStage: Stage) {
-        configureUi(Main::class.java.classLoader, primaryStage)
-        val view = with(MaterialJavaFxViewFactory(Theme.dark(), resourceFetcher = { javaClass.getResourceAsStream(it) }, scale = 1.0)) {
-            val v: Node = view.generate(this)
-            v.lifecycle.alwaysOn = true
-            v
-        }
-        primaryStage.scene = Scene(view as Parent)
+        ApplicationAccess.init(Main::class.java.classLoader, primaryStage)
+        primaryStage.scene = Scene(Factory().contentRoot(mainVg) as Parent)
         primaryStage.show()
     }
 }
@@ -147,4 +148,5 @@ class Main : Application() {
 fun main(vararg args: String) {
     Application.launch(Main::class.java)
 }
+
 ```
