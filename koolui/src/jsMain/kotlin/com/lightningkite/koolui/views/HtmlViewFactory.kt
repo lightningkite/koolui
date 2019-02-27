@@ -158,6 +158,7 @@ class HtmlViewFactory(
 
     val mousePosition = Point()
     override fun contentRoot(view: HTMLElement): HTMLElement = makeElement<HTMLDivElement>("div") {
+        applyDefaultCss()
         this.id = "root"
         this.style.width = "100%"
         this.style.height = "100%"
@@ -292,6 +293,10 @@ class HtmlViewFactory(
                 ImageScaleType.Crop -> "cover"
                 ImageScaleType.Fill -> "scale-down"
                 ImageScaleType.Center -> "none"
+            }
+            it.defaultSize?.let { pt ->
+                style.width = pt.x.toString() + "px"
+                style.height = pt.y.toString() + "px"
             }
         }
     }
@@ -626,9 +631,9 @@ class HtmlViewFactory(
     )
 
     override fun work(view: HTMLElement, isWorking: ObservableProperty<Boolean>): HTMLElement {
-        //<!-- By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL -->
         val spinner = image(
             Image.fromSvgString(
+                    //<!-- By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL -->
                 """
 <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="${colorSet.foreground.toWeb()}">
     <g fill="none" fill-rule="evenodd">

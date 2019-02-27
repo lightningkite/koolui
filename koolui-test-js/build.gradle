@@ -41,7 +41,7 @@ dependencies {
 //    compile "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
 //    compile "com.lightningkite:mirror-runtime-js:${versionsProperties.mirror}"
 //    compile "com.lightningkite:koolui-js:${versionsProperties.koolui}"
-    compile project(":koolui-test-common")
+    compile project(":koolui-test-common-indirect")
 }
 
 
