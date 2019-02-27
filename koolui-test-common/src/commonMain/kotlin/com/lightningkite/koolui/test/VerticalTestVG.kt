@@ -8,10 +8,10 @@ import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class VerticalTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class VerticalTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Vertical"
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         vertical(
                 LinearPlacement.wrapStart to text(text = "left", alignPair = AlignPair.CenterCenter).background(Color.red),
                 LinearPlacement.wrapFill to text(text = "fill", alignPair = AlignPair.CenterCenter).background(Color.red),

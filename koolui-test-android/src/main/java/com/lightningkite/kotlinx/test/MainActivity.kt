@@ -1,15 +1,19 @@
-package desktop.kotlin.lk.test_android
+package com.lightningkite.kotlinx.test
 
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.ViewSwitcher
+import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.android.AndroidMaterialViewFactory
 import com.lightningkite.koolui.android.access.AccessibleActivity
 import com.lightningkite.koolui.android.lifecycle
+import com.lightningkite.koolui.builders.contentRoot
 import com.lightningkite.koolui.color.Theme
-import com.lightningkite.koolui.configureUi
 import com.lightningkite.koolui.test.MainVG
+import com.lightningkite.koolui.test.MyViewFactory
+import com.lightningkite.koolui.views.ViewFactory
 
 class MainActivity : AccessibleActivity() {
 
@@ -17,15 +21,16 @@ class MainActivity : AccessibleActivity() {
         val main = MainVG<View>()
     }
 
+    class Factory(
+            activity: AccessibleActivity
+    ) : MyViewFactory<View>, ViewFactory<View> by AndroidMaterialViewFactory(activity, Theme.dark()) {}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        configureUi(this, R.drawable.ic_notifications)
+        ApplicationAccess.init(this, R.drawable.ic_notifications)
 
-        val factory = AndroidMaterialViewFactory(this, Theme.dark())
-        val view = factory.contentRoot(main.generate(factory))
-        view.lifecycle.alwaysOn = true
-        setContentView(view)
+        setContentView(Factory(this).contentRoot(main))
     }
 
 

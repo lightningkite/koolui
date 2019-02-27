@@ -30,10 +30,7 @@ import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
-import com.lightningkite.koolui.builders.frame
-import com.lightningkite.koolui.builders.horizontal
-import com.lightningkite.koolui.builders.space
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.builders.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -81,11 +78,12 @@ open class AndroidMaterialViewFactory(
         dip = context.resources.displayMetrics.density
     }
 
-    fun contentRoot(subview: View): View {
+    override fun contentRoot(view: View): View {
         return frame(
-                AlignPair.FillFill to subview
+                AlignPair.FillFill to view
         ).apply {
             id = frameId
+            lifecycle.alwaysOn = true
         }
     }
 
@@ -1095,18 +1093,20 @@ open class AndroidMaterialViewFactory(
                     if (!hasOnClickListeners()) {
                         setOnClickListener { /*squish*/ }
                     }
-                }
-        ).apply {
-            alpha = 0f
-            setPadding(
-                    (16 * dip).toInt(),
-                    (16 * dip).toInt(),
-                    (16 * dip).toInt(),
-                    (16 * dip).toInt()
-            )
-        }
-                .background(Color.black.copy(alpha = .5f))
+                },
+                AlignPair.TopLeft to text(text = "I'm a real boy!")
+        )
                 .clickable { dismisser() }
+                .apply {
+                    setBackgroundColor(Color.black.copy(alpha = .5f).toInt())
+                    alpha = 0f
+                    setPadding(
+                            (16 * dip).toInt(),
+                            (16 * dip).toInt(),
+                            (16 * dip).toInt(),
+                            (16 * dip).toInt()
+                    )
+                }
         frame.addView(wrapper, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         wrapper.animate().alpha(1f).setDuration(250).start()
         wrapper.lifecycle.parent = frame.lifecycle

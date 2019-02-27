@@ -6,10 +6,10 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class FrameVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class FrameVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Frame"
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         frame(
                 AlignPair.TopLeft to text(text = "Top Left", size = TextSize.Body),
                 AlignPair.CenterLeft to text(text = "Center Left", size = TextSize.Body),

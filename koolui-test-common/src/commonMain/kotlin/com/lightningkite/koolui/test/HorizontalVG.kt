@@ -6,10 +6,10 @@ import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class HorizontalVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class HorizontalVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Horizontal"
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         horizontal(
                 LinearPlacement.fillStart to text(text = "left", alignPair = AlignPair.CenterCenter),
                 LinearPlacement.fillFill to text(text = "fill", alignPair = AlignPair.CenterCenter),

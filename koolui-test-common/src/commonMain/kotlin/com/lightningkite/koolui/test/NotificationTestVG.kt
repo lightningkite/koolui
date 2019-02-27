@@ -13,7 +13,7 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class NotificationTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class NotificationTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Notifications"
 
     companion object {
@@ -26,7 +26,7 @@ class NotificationTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
         }
     }
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         vertical {
             - text(text = "Press below to fire a notification test notification off.")
             - button(label = "Get Notified!"){

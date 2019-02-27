@@ -15,11 +15,11 @@ import com.lightningkite.koolui.image.color
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class ControlsVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class ControlsVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Controls"
     val alpha = StandardObservableProperty(0f)
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         scrollVertical(vertical {
 
             -entryContext(

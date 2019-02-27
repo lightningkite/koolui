@@ -23,7 +23,7 @@ android {
     compileSdkVersion 27
 
     defaultConfig {
-        applicationId "desktop.kotlin.lk.test_android"
+        applicationId "com.lightningkite.kotlinx.test"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1

@@ -22,7 +22,7 @@
 //import kotlinx.coroutines.launch
 //
 //
-//class HttpCallTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+//class HttpCallTestVG<VIEW>() : MyViewGenerator<VIEW> {
 //    override val title: String = "Http Call Test"
 //
 //    val data = observableListOf<Post>()
@@ -45,7 +45,7 @@
 //        }
 //    }
 //
-//    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+//    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
 //        vertical {
 //            -text(text = "This is the web test.", alignPair = AlignPair.CenterCenter)
 //            +work(

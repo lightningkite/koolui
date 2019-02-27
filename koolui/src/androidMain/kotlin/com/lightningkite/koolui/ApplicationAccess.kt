@@ -22,6 +22,16 @@ import kotlin.math.roundToInt
 
 actual object ApplicationAccess {
 
+    fun init(
+            activityAccess: ActivityAccess,
+            @DrawableRes notificationIcon: Int
+    ) {
+        ApplicationAccess.init(notificationIcon)
+        ApplicationAccess.useAccess(activityAccess)
+//    Preferences.init(File(activityAccess.context.applicationContext.filesDir, "prefs.json"))
+    }
+
+
     var access: ActivityAccess? = null
     var notificationIcon: Int = 0
 

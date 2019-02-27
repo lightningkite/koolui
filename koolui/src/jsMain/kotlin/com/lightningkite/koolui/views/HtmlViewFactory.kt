@@ -157,7 +157,7 @@ class HtmlViewFactory(
     }
 
     val mousePosition = Point()
-    fun rootContainer(view: HTMLElement): HTMLElement = makeElement<HTMLDivElement>("div") {
+    override fun contentRoot(view: HTMLElement): HTMLElement = makeElement<HTMLDivElement>("div") {
         this.id = "root"
         this.style.width = "100%"
         this.style.height = "100%"
@@ -168,6 +168,7 @@ class HtmlViewFactory(
             Unit
         }
         appendLifecycled(view)
+        this.lifecycle.alwaysOn = true
     }
 
 

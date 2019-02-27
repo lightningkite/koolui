@@ -14,7 +14,7 @@ buildscript {
     }
 }
 
-group 'com.lightningkite.kotlin.crossplatform'
+group 'com.lightningkite.koolui.test'
 version '0.0.2'
 
 apply plugin: 'application'
@@ -23,7 +23,7 @@ apply plugin: 'idea'
 
 sourceCompatibility = 1.8
 
-mainClassName = "lk.kotlin.crossplatform.view.javafx.test.MainKt"
+mainClassName = "com.lightningkite.koolui.test.MainKt"
 
 repositories {
     mavenCentral()

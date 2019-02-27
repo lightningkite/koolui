@@ -44,6 +44,12 @@ interface ViewFactory<VIEW> {
 
     fun withColorSet(colorSet: ColorSet): ViewFactory<VIEW>
 
+    /**
+     * Wraps the given view in another view, if necessary for this view factory to function.
+     * Some view factories need a certain root view to be accessible to add dialogs and such.
+     */
+    fun contentRoot(view: VIEW): VIEW = view
+
     //Navigation
 
     /**

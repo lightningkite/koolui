@@ -8,10 +8,10 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class PagesVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class PagesVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Pages"
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         pagesEmbedded(
                 dependency,
                 StandardObservableProperty(0),

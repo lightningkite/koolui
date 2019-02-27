@@ -9,8 +9,8 @@ import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
 class SelectorVG<VIEW>(
-        val stack: MutableObservableList<ViewGenerator<ViewFactory<VIEW>, VIEW>>
-) : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+        val stack: MutableObservableList<MyViewGenerator<VIEW>>
+) : MyViewGenerator<VIEW> {
     override val title: String = "KotlinX UI Test"
 
     val tests = observableListOf(
@@ -29,7 +29,7 @@ class SelectorVG<VIEW>(
             "Dialog" to { DialogTestVG<VIEW>() }
     )
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         list(data = tests, makeView = { itemObs ->
             button(
                     label = itemObs.transform { item -> item.first },

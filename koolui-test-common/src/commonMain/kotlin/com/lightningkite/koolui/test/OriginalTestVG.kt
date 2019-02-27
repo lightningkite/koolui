@@ -18,7 +18,7 @@ import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.recktangle.Point
 
-class OriginalTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Original Test"
 
     val stack = StandardObservableProperty<ViewFactory<VIEW>.() -> VIEW> {
@@ -26,7 +26,7 @@ class OriginalTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
     }
     var num = 0
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
 
         vertical {
 

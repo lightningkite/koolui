@@ -42,6 +42,7 @@ android {
     defaultConfig {
         minSdkVersion(16)
         targetSdkVersion(27)
+//        applicationId("com.lightningkite.koolui")
     }
 
     buildTypes {

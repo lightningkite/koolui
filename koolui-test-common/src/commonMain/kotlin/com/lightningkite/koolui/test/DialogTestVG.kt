@@ -9,10 +9,10 @@ import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 
-class DialogTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+class DialogTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Dialogs"
 
-    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         scrollVertical(vertical {
             - button(label = "Launch Dialog"){
                 launchDialog { dismiss ->
@@ -22,6 +22,11 @@ class DialogTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
                             dismiss()
                         }
                     })
+                }
+            }
+            -button(label = "Launch Dialog B") {
+                launchDialog { dismiss ->
+                    text(text = "HELLO.")
                 }
             }
             - button(label = "Launch Selector"){

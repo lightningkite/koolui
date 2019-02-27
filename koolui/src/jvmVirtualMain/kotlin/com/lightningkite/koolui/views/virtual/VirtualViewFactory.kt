@@ -41,6 +41,11 @@ open class VirtualViewFactory(
 
     override fun launchSelector(title: String?, options: List<Pair<String, () -> Unit>>) {}
 
+    override fun contentRoot(view: View): View {
+        return super.contentRoot(view).apply {
+            attached.alwaysOn = true
+        }
+    }
 
     //GENERATED
 

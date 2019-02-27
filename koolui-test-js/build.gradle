@@ -10,7 +10,7 @@ buildscript {
 
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.37"
+        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.44"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.getProperty("kotlin")}"
     }
 }
@@ -18,8 +18,8 @@ buildscript {
 group 'com.lightningkite.kotlin.crossplatform'
 version '0.0.2'
 
-apply plugin: 'org.jetbrains.kotlin.frontend'
 apply plugin: 'kotlin2js'
+apply plugin: 'org.jetbrains.kotlin.frontend'
 
 repositories {
     mavenCentral()
@@ -35,13 +35,13 @@ dependencies {
 //  testCompile "org.jetbrains.kotlin:kotlin-test-js:${versionsProperties.getProperty("kotlin")}"
 //  testCompile "org.jetbrains.kotlin:kotlin-test:${versionsProperties.getProperty("kotlin")}"
 
-    api "com.lightningkite:kommon-js:${versionsProperties.kommon}"
-    api "com.lightningkite:lokalize-js:${versionsProperties.lokalize}"
-    api "com.lightningkite:reacktive-js:${versionsProperties.reacktive}"
-    api "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
-    api "com.lightningkite:mirror-runtime-js:${versionsProperties.mirror}"
-    api "com.lightningkite:koolui-js:${versionsProperties.koolui}"
-    api project(":koolui-test-common")
+//    compile "com.lightningkite:kommon-js:${versionsProperties.kommon}"
+//    compile "com.lightningkite:lokalize-js:${versionsProperties.lokalize}"
+//    compile "com.lightningkite:reacktive-js:${versionsProperties.reacktive}"
+//    compile "com.lightningkite:recktangle-js:${versionsProperties.recktangle}"
+//    compile "com.lightningkite:mirror-runtime-js:${versionsProperties.mirror}"
+//    compile "com.lightningkite:koolui-js:${versionsProperties.koolui}"
+    compile project(":koolui-test-common")
 }
 
 

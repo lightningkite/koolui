@@ -13,10 +13,10 @@
 //import com.lightningkite.koolui.views.ViewFactory
 //import com.lightningkite.koolui.views.ViewGenerator
 //
-//class UrlImageTestVG<VIEW>() : ViewGenerator<ViewFactory<VIEW>, VIEW> {
+//class UrlImageTestVG<VIEW>() : MyViewGenerator<VIEW> {
 //    override val title: String = "URL ImageWithSizing Test"
 //
-//    override fun generate(dependency: ViewFactory<VIEW>): VIEW = with(dependency) {
+//    override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
 //        vertical {
 //            -text(text = "An imageWithSizing will be loaded here from 'https://picsum.photos/200/300'.")
 //            //TODO

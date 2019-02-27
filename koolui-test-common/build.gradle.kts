@@ -42,6 +42,14 @@ android {
         minSdkVersion(16)
         targetSdkVersion(27)
     }
+
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFile(getDefaultProguardFile("proguard-android-optimize.txt"))
+            proguardFile("proguard-rules.pro")
+        }
+    }
 }
 
 
@@ -94,5 +102,32 @@ kotlin {
     }
     android {
         publishLibraryVariants("release")
+    }
+}
+
+publishing {
+    doNotPublishMetadata()
+    repositories {
+        bintray(
+                project = project,
+                organization = "lightningkite",
+                repository = "com.lightningkite.krosslin"
+        )
+    }
+
+    appendToPoms {
+        github("lightningkite", project.name)
+        licenseMIT()
+        developers {
+            developer {
+                id.set("UnknownJoe796")
+                name.set("Joseph Ivie")
+                email.set("joseph@lightningkite.com")
+                timezone.set("America/Denver")
+                roles.set(listOf("architect", "developer"))
+                organization.set("Lightning Kite")
+                organizationUrl.set("http://www.lightningkite.com")
+            }
+        }
     }
 }

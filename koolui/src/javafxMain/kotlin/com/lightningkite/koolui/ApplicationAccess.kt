@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.koolui.resources.Resources
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.recktangle.Point
@@ -13,7 +14,8 @@ actual object ApplicationAccess {
 
     lateinit var stage: Stage
 
-    fun init(stage: Stage) {
+    fun init(classLoader: ClassLoader, stage: Stage) {
+        Resources.classLoader = classLoader
         this.stage = stage
         MousePosition.init(stage)
     }

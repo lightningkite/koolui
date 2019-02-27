@@ -1311,7 +1311,7 @@ object SVGParser {
                 val props = Properties(atts)
 
                 // Check to see if this is the "bounds" layer
-                if ("bounds".equals(getStringAttr("id", atts)!!, ignoreCase = true)) {
+                if ("bounds".equals(getStringAttr("id", atts), ignoreCase = true)) {
                     boundsMode = true
                 }
                 if (hidden) {
