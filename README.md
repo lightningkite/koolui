@@ -24,6 +24,11 @@ Abstracts view creation for multiplatform projects, allowing you to write a shor
     - `ObservableProperty` - a property you can observe
     - `MutableObservableProperty` - a property you can observe and change
     - `(Mutable)ObservableList` - a list you can observe, frequently used to keep track of navigation stacks
+    
+## To Do / Help Requests
+
+- JS could be made to look much better
+- iOS has been started, but still needs to be finished
 
 ## Gradle Inclusion
 
