@@ -46,5 +46,5 @@ class AlignPairBuilder<VIEW>() : MutableList<Pair<AlignPair, VIEW>> by ArrayList
 fun <VIEW> ViewFactory<VIEW>.frame(setup: AlignPairBuilder<VIEW>.() -> Unit): VIEW {
     val list = AlignPairBuilder<VIEW>()
     list.setup()
-    return frame(*list.toTypedArray())
+    return align(*list.toTypedArray())
 }

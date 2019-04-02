@@ -3,12 +3,12 @@ package com.lightningkite.koolui.layout
 import com.lightningkite.koolui.implementationhelpers.TreeObservableProperty
 import com.lightningkite.recktangle.Rectangle
 
-class Layout(val viewAdapter: ViewAdapter, x: DimensionCalculator, y: DimensionCalculator) {
+class Layout<out S: V, V>(val viewAdapter: ViewAdapter<S, V>, x: DimensionCalculator, y: DimensionCalculator) {
 
     companion object
 
     val lifecycle = TreeObservableProperty()
-    var parent: Layout? = null
+    var parent: Layout<*, V>? = null
 
     var x: DimensionCalculator = x
         set(value) {
@@ -45,12 +45,12 @@ class Layout(val viewAdapter: ViewAdapter, x: DimensionCalculator, y: DimensionC
         y.invalidate()
     }
 
-    fun addChild(layout: Layout) {
+    fun addChild(layout: Layout<*, V>) {
         layout.parent = this
         lifecycle.parent = this.lifecycle
     }
 
-    fun removeChild(layout: Layout) {
+    fun removeChild(layout: Layout<*, V>) {
         layout.parent = null
         lifecycle.parent = null
     }

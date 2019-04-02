@@ -70,7 +70,7 @@ open class VirtualViewFactory(
         init{ listViews().forEach { it.attached.parent = attached } }
     }
 
-    override fun frame(views: Array<out Pair<AlignPair, View>>): FrameView = FrameView(views)
+    override fun align(views: Array<out Pair<AlignPair, View>>): FrameView = FrameView(views)
     class FrameView(var views: Array<out Pair<AlignPair, View>>) : ContainerView(){
         override fun listViews(): List<View> = views.map { it.second }
         init{ listViews().forEach { it.attached.parent = attached } }

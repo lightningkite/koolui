@@ -614,7 +614,7 @@ class HtmlViewFactory(
         contains: HTMLElement,
         working: ObservableProperty<Boolean>,
         onRefresh: () -> Unit
-    ): HTMLElement = frame(
+    ): HTMLElement = align(
         AlignPair.FillFill to contains,
         AlignPair.TopRight to work(
             imageButton(
@@ -824,7 +824,7 @@ class HtmlViewFactory(
         return out
     }
 
-    override fun frame(vararg views: Pair<AlignPair, HTMLElement>): HTMLElement = makeElement<HTMLDivElement>("div") {
+    override fun align(vararg views: Pair<AlignPair, HTMLElement>): HTMLElement = makeElement<HTMLDivElement>("div") {
         style.maxWidth = "100%"
         style.maxHeight = "100%"
         style.position = "relative"
@@ -912,7 +912,7 @@ class HtmlViewFactory(
     ) {
         document.getElementById("root")?.let { it as HTMLDivElement }?.apply {
             var dialogDismisser = {}
-            val newView = frame(AlignPair.CenterCenter to makeView { dialogDismisser.invoke() })
+            val newView = align(AlignPair.CenterCenter to makeView { dialogDismisser.invoke() })
                 .background(Color.black.copy(alpha = .5f))
                 .clickable { dialogDismisser() }
                 .apply {

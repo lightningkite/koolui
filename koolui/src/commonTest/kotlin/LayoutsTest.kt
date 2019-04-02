@@ -68,7 +68,9 @@ class LayoutsTest {
         }
     }
 
-    class DummyAdapter(val name: String = "") : ViewAdapter {
+    class DummyAdapter(val name: String = "") : ViewAdapter<Unit, Unit> {
+        override val view: Unit
+            get() = Unit
         val rect = Rectangle()
         val children = ArrayList<DummyAdapter>()
 
@@ -97,43 +99,43 @@ class LayoutsTest {
     fun leaf(text: String) = Layout.leaf(DummyAdapter(text), 2f, text.length.toFloat() + 3f, 3f)
     fun vertical(
             text: String = "",
-            children: List<Pair<LinearPlacement, Layout>>
-    ): Layout {
+            children: List<Pair<LinearPlacement, Layout<*, Unit>>>
+    ): Layout<*, Unit> {
         val viewAdapter = DummyAdapter(text)
         return Layout.vertical(viewAdapter, children.also { it.forEach { viewAdapter.children.add(it.second.viewAdapter as DummyAdapter) } })
     }
 
     fun horizontal(
             text: String = "",
-            children: List<Pair<LinearPlacement, Layout>>
-    ): Layout {
+            children: List<Pair<LinearPlacement, Layout<*, Unit>>>
+    ): Layout<*, Unit> {
         val viewAdapter = DummyAdapter(text)
         return Layout.horizontal(viewAdapter, children.also { it.forEach { viewAdapter.children.add(it.second.viewAdapter as DummyAdapter) } })
     }
 
     fun align(
             text: String = "",
-            children: List<Pair<AlignPair, Layout>>
-    ): Layout {
+            children: List<Pair<AlignPair, Layout<*, Unit>>>
+    ): Layout<*, Unit> {
         val viewAdapter = DummyAdapter(text)
         return Layout.align(viewAdapter, children.also { it.forEach { viewAdapter.children.add(it.second.viewAdapter as DummyAdapter) } })
     }
 
     fun frame(
             text: String = "",
-            child: Layout,
+            child: Layout<*, Unit>,
             leftMargin: Float = 0f,
             rightMargin: Float = 0f,
             topMargin: Float = 0f,
             bottomMargin: Float = 0f
-    ): Layout {
+    ): Layout<*, Unit> {
         val viewAdapter = DummyAdapter(text)
         return Layout.frame(viewAdapter, child.also { viewAdapter.children.add(it.viewAdapter as DummyAdapter) }, leftMargin, rightMargin, topMargin, bottomMargin)
     }
 
     @Test
     fun test() {
-        val layout = frame("frame",
+        val layout = frame("align",
                 horizontal("", listOf(
                         LinearPlacement.fillFill to vertical("", listOf(
                                 LinearPlacement.wrapStart to leaf("wrapStart"),

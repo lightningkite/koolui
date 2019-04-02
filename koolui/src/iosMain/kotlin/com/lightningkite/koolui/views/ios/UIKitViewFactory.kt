@@ -1,5 +1,6 @@
 package com.lightningkite.koolui.views.ios
 
+import com.lightningkite.koolui.builders.text
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -8,7 +9,11 @@ import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
-import com.lightningkite.koolui.image.Image
+import com.lightningkite.koolui.image.ImageWithSizing
+import com.lightningkite.koolui.implementationhelpers.defaultList
+import com.lightningkite.koolui.implementationhelpers.defaultPages
+import com.lightningkite.koolui.implementationhelpers.defaultSmallWindow
+import com.lightningkite.koolui.layout.*
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.time.Date
@@ -18,329 +23,220 @@ import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.MutableObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty
+import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.recktangle.Point
+import kotlinx.cinterop.StableRef
+import kotlinx.cinterop.readValue
+import platform.CoreGraphics.CGRect
+import platform.CoreGraphics.CGRectZero
+import platform.Foundation.NSSelectorFromString
 import platform.UIKit.*
-import kotlin.math.max
+import platform.objc.objc_setAssociatedObject
 
-data class SubLayout(
-        val views: ArrayList<UIView>,
-        val guides: ArrayList<UILayoutGuide>,
-        var anchors: Anchors,
-        var leftMargin: Double = 0.0,
-        var rightMargin: Double = 0.0,
-        var topMargin: Double = 0.0,
-        var bottomMargin: Double = 0.0
-) {
-    constructor(view: UIView) : this(
-            views = arrayListOf(view),
-            guides = ArrayList(),
-            anchors = view.anchors()
-    )
+class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSet) : ViewFactory<Layout<*, UIView>> {
 
-    constructor(guide: UILayoutGuide) : this(
-            views = arrayListOf(),
-            guides = arrayListOf(guide),
-            anchors = guide.anchors()
-    )
-}
-
-class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSet) : ViewFactory<SubLayout> {
-    override fun withColorSet(colorSet: ColorSet): ViewFactory<SubLayout> = UIKitViewFactory(theme, colorSet)
-
-    fun UIView.applyDefaults() {
-        setContentHuggingPriority(500f, UILayoutConstraintAxisHorizontal)
-        setContentHuggingPriority(500f, UILayoutConstraintAxisVertical)
-    }
-
-    fun NSLayoutConstraint.applyDefaults() {
-        priority = 250f
-    }
-
-    fun NSLayoutConstraint.strengthen() {
-        priority += 1f
-    }
-
-    fun NSLayoutConstraint.absolute() {
-        priority = 1000f
-    }
+    override fun withColorSet(colorSet: ColorSet): ViewFactory<Layout<*, UIView>> = UIKitViewFactory(theme, colorSet)
 
     override fun <DEPENDENCY> window(
             dependency: DEPENDENCY,
-            stack: MutableObservableList<ViewGenerator<DEPENDENCY, SubLayout>>,
-            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, SubLayout>>>
-    ): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+            stack: MutableObservableList<ViewGenerator<DEPENDENCY, Layout<*, UIView>>>,
+            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Layout<*, UIView>>>>
+    ): Layout<*, UIView> = defaultSmallWindow(theme, withColorSet(theme.bar), dependency, stack, tabs)
 
     override fun <DEPENDENCY> pages(
             dependency: DEPENDENCY,
             page: MutableObservableProperty<Int>,
-            vararg pageGenerator: ViewGenerator<DEPENDENCY, SubLayout>
-    ): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            vararg pageGenerator: ViewGenerator<DEPENDENCY, Layout<*, UIView>>
+    ): Layout<*, UIView> = defaultPages(theme.bar.background, dependency, page, *pageGenerator)
+
+    override fun horizontal(vararg views: Pair<LinearPlacement, Layout<*, UIView>>): Layout<UIView, UIView> = Layout.horizontal(
+            viewAdapter = UIView(frame = CGRect.zeroVal).adapter,
+            children = views.toList()
+    ).apply {
+        views.forEach {
+            viewAdapter.view.addSubview(it.second.viewAdapter.viewAsBase)
+        }
     }
 
-    override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun vertical(vararg views: Pair<LinearPlacement, Layout<*, UIView>>): Layout<UIView, UIView> = Layout.vertical(
+            viewAdapter = UIView(frame = CGRect.zeroVal).adapter,
+            children = views.toList()
+    ).apply {
+        views.forEach {
+            viewAdapter.view.addSubview(it.second.viewAdapter.viewAsBase)
+        }
     }
+
+    override fun align(vararg views: Pair<AlignPair, Layout<*, UIView>>): Layout<UIView, UIView> = Layout.align(
+            viewAdapter = UIView(frame = CGRect.zeroVal).adapter,
+            children = views.toList()
+    ).apply {
+        views.forEach {
+            viewAdapter.view.addSubview(it.second.viewAdapter.viewAsBase)
+        }
+    }
+
+    override fun frame(view: Layout<*, UIView>): Layout<*, UIView> = Layout.frame(
+            viewAdapter = UIView(frame = CGRect.zeroVal).adapter,
+            child = view
+    )
 
     override fun <T> list(
             data: ObservableList<T>,
             firstIndex: MutableObservableProperty<Int>,
             lastIndex: MutableObservableProperty<Int>,
             direction: Direction,
-            makeView: (obs: ObservableProperty<T>) -> SubLayout
-    ): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+            makeView: (obs: ObservableProperty<T>) -> Layout<*, UIView>
+    ): Layout<*, UIView> = defaultList(100, theme.bar.background, data, direction, firstIndex, lastIndex, makeView)
 
-    override fun text(text: ObservableProperty<String>, importance: Importance, size: TextSize, align: AlignPair, maxLines: Int): SubLayout {
-        return SubLayout(UILabel().apply {
-            this.text = text.value
-            this.numberOfLines = Long.MAX_VALUE
-            this.textColor = when (importance) {
-                Importance.Low -> colorSet.foregroundDisabled
-                Importance.Normal -> colorSet.foreground
-                Importance.High -> colorSet.foregroundHighlighted
-                Importance.Danger -> ColorSet.destructive.foreground
-            }.ios
-            this.font = this.font.fontWithSize(when (size) {
-                TextSize.Tiny -> 10.0
-                TextSize.Body -> 17.0
-                TextSize.Subheader -> 25.0
-                TextSize.Header -> 34.0
-            })
-            this.textAlignment = when (align) {
-                AlignPair.TopLeft -> NSTextAlignmentLeft
-                AlignPair.TopCenter -> NSTextAlignmentCenter
-                AlignPair.TopFill -> NSTextAlignmentJustified
-                AlignPair.TopRight -> NSTextAlignmentRight
-                AlignPair.CenterLeft -> NSTextAlignmentLeft
-                AlignPair.CenterCenter -> NSTextAlignmentCenter
-                AlignPair.CenterFill -> NSTextAlignmentJustified
-                AlignPair.CenterRight -> NSTextAlignmentRight
-                AlignPair.FillLeft -> NSTextAlignmentLeft
-                AlignPair.FillCenter -> NSTextAlignmentCenter
-                AlignPair.FillFill -> NSTextAlignmentJustified
-                AlignPair.FillRight -> NSTextAlignmentRight
-                AlignPair.BottomLeft -> NSTextAlignmentLeft
-                AlignPair.BottomCenter -> NSTextAlignmentCenter
-                AlignPair.BottomFill -> NSTextAlignmentJustified
-                AlignPair.BottomRight -> NSTextAlignmentRight
-            }
-            //TODO: No vertical alignment
-        })
-    }
-
-    override fun image(image: ObservableProperty<Image>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun web(content: ObservableProperty<String>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun space(size: Point): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun button(label: ObservableProperty<String>, image: ObservableProperty<Image?>, importance: Importance, onClick: () -> Unit): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun imageButton(image: ObservableProperty<Image>, label: ObservableProperty<String?>, importance: Importance, onClick: () -> Unit): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun entryContext(label: String, help: String?, icon: Image?, feedback: ObservableProperty<Pair<Importance, String>?>, field: SubLayout): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun <T> picker(options: ObservableList<T>, selected: MutableObservableProperty<T>, makeView: (obs: ObservableProperty<T>) -> SubLayout): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun textField(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun numberField(value: MutableObservableProperty<Number?>, placeholder: String, type: NumberInputType, decimalPlaces: Int): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun datePicker(observable: MutableObservableProperty<Date>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun dateTimePicker(observable: MutableObservableProperty<DateTime>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun timePicker(observable: MutableObservableProperty<Time>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun slider(range: IntRange, observable: MutableObservableProperty<Int>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun toggle(observable: MutableObservableProperty<Boolean>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun refresh(contains: SubLayout, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun work(view: SubLayout, isWorking: ObservableProperty<Boolean>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun progress(view: SubLayout, progress: ObservableProperty<Float>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun scrollBoth(view: SubLayout, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun swap(view: ObservableProperty<Pair<SubLayout, Animation>>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun horizontal(vararg views: Pair<LinearPlacement, SubLayout>): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun vertical(vararg views: Pair<LinearPlacement, SubLayout>): SubLayout {
-        val guide = UILayoutGuide()
-        val layout = SubLayout(guide)
-
-        val leftMargin = views.asSequence().map { it.second.leftMargin }.min() ?: 0.0
-        val rightMargin = views.asSequence().map { it.second.rightMargin }.min() ?: 0.0
-        val topMargin = views.firstOrNull()?.second?.topMargin ?: 0.0
-        val bottomMargin = views.lastOrNull()?.second?.bottomMargin ?: 0.0
-
-        var expandingView: SubLayout? = null
-        var previousView: SubLayout? = null
-
-        views.forEachIndexed { index, (placement, subview) ->
-
-            layout.views.addAll(subview.views)
-            layout.guides.addAll(subview.guides)
-
-            if (previousView == null) {
-                subview.anchors.topAnchor.constraintEqualToAnchor(layout.anchors.topAnchor)
-            } else {
-                val margin = max(previousView!!.bottomMargin, subview.topMargin)
-                subview.anchors.topAnchor.constraintEqualToAnchor(previousView!!.anchors.bottomAnchor, margin)
-            }
-
-            subview.anchors.leftAnchor.constraintEqualToAnchor(layout.anchors.leftAnchor, subview.leftMargin - leftMargin)
-            subview.anchors.rightAnchor.constraintEqualToAnchor(layout.anchors.rightAnchor, subview.rightMargin - rightMargin)
-
-            previousView = subview
+    override fun text(
+            text: ObservableProperty<String>,
+            importance: Importance,
+            size: TextSize,
+            align: AlignPair,
+            maxLines: Int
+    ) = Layout.intrinsic(UILabel(frame = CGRect.zeroVal)).apply {
+        lifecycle.bind(text){
+            viewAdapter.view.text = it
         }
-
-        layout.leftMargin = leftMargin
-        layout.rightMargin = rightMargin
-        layout.topMargin = topMargin
-        layout.bottomMargin = bottomMargin
-        return layout
-    }
-
-    override fun frame(vararg views: Pair<AlignPair, SubLayout>): SubLayout {
-        val guide = UILayoutGuide()
-        val layout = SubLayout(guide)
-        for ((align, sub) in views) {
-            when (align.horizontal) {
-                Align.Start -> {
-                    sub.anchors.leadingAnchor.constraintEqualToAnchor(layout.anchors.leadingAnchor, sub.leftMargin)
-                    sub.anchors.trailingAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.trailingAnchor, sub.rightMargin)
-                }
-                Align.Center -> {
-                    sub.anchors.leadingAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.leadingAnchor, sub.leftMargin)
-                    sub.anchors.trailingAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.trailingAnchor, sub.rightMargin)
-                    sub.anchors.centerXAnchor.constraintEqualToAnchor(layout.anchors.centerXAnchor)
-                }
-                Align.End -> {
-                    sub.anchors.leadingAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.leadingAnchor, sub.leftMargin)
-                    sub.anchors.trailingAnchor.constraintEqualToAnchor(layout.anchors.trailingAnchor, sub.rightMargin)
-                }
-                Align.Fill -> {
-                    sub.anchors.leadingAnchor.constraintEqualToAnchor(layout.anchors.leadingAnchor, sub.leftMargin)
-                    sub.anchors.trailingAnchor.constraintEqualToAnchor(layout.anchors.trailingAnchor, sub.rightMargin)
-                }
-            }
-            when (align.vertical) {
-                Align.Start -> {
-                    sub.anchors.topAnchor.constraintEqualToAnchor(layout.anchors.topAnchor, sub.topMargin)
-                    sub.anchors.bottomAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.bottomAnchor, sub.bottomMargin)
-                }
-                Align.Center -> {
-                    sub.anchors.topAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.topAnchor, sub.topMargin)
-                    sub.anchors.bottomAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.bottomAnchor, sub.bottomMargin)
-                    sub.anchors.centerYAnchor.constraintEqualToAnchor(layout.anchors.centerYAnchor)
-                }
-                Align.End -> {
-                    sub.anchors.topAnchor.constraintLessThanOrEqualToAnchor(layout.anchors.topAnchor, sub.topMargin)
-                    sub.anchors.bottomAnchor.constraintEqualToAnchor(layout.anchors.bottomAnchor, sub.bottomMargin)
-                }
-                Align.Fill -> {
-                    sub.anchors.topAnchor.constraintEqualToAnchor(layout.anchors.topAnchor, sub.topMargin)
-                    sub.anchors.bottomAnchor.constraintEqualToAnchor(layout.anchors.bottomAnchor, sub.bottomMargin)
-                }
-            }
-            layout.views.addAll(sub.views)
-            layout.guides.addAll(sub.guides)
+        viewAdapter.view.textColor = colorSet.importance(importance).ios
+        viewAdapter.view.font = UIFont.systemFontOfSize(size.ios)
+        viewAdapter.view.textAlignment = when(align.horizontal) {
+            Align.Start -> NSTextAlignmentLeft
+            Align.Center -> NSTextAlignmentCenter
+            Align.End -> NSTextAlignmentRight
+            Align.Fill -> NSTextAlignmentJustified
         }
-        return layout
+        viewAdapter.view.numberOfLines = maxLines.toLong()
+        //TODO: Vertical align?
     }
 
-    override fun card(view: SubLayout): SubLayout {
+    override fun button(
+            label: ObservableProperty<String>,
+            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            importance: Importance,
+            onClick: () -> Unit
+    ) = Layout.intrinsic(UIButton(frame = CGRect.zeroVal)).apply {
+        lifecycle.bind(label){
+            viewAdapter.view.setTitle(it, UIControlStateNormal)
+        }
+        viewAdapter.view.setTitleColor(colorSet.importance(importance).ios, UIControlStateNormal)
+        viewAdapter.addAction(UIControlEventTouchUpInside, onClick)
+        //TODO: Image
+    }
+
+
+
+
+    override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): Layout<*, UIView> = text(text = "tabs")
+
+    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>): Layout<*, UIView> = text(text = "image")
+
+    override fun web(content: ObservableProperty<String>): Layout<*, UIView> = text(text = "web")
+
+    override fun space(size: Point): Layout<*, UIView> = text(text = "space").setHeight(size.y).setWidth(size.x)
+
+    override fun imageButton(imageWithSizing: ObservableProperty<ImageWithSizing>, label: ObservableProperty<String?>, importance: Importance, onClick: () -> Unit): Layout<*, UIView> = text(text = "imageButton")
+
+    override fun entryContext(label: String, help: String?, icon: ImageWithSizing?, feedback: ObservableProperty<Pair<Importance, String>?>, field: Layout<*, UIView>): Layout<*, UIView> = text(text = "entryContext")
+
+    override fun <T> picker(options: ObservableList<T>, selected: MutableObservableProperty<T>, makeView: (obs: ObservableProperty<T>) -> Layout<*, UIView>): Layout<*, UIView> = text(text = "<")
+
+    override fun textField(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Layout<*, UIView> = text(text = "textField")
+
+    override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Layout<*, UIView> = text(text = "textArea")
+
+    override fun numberField(value: MutableObservableProperty<Number?>, placeholder: String, type: NumberInputType, decimalPlaces: Int): Layout<*, UIView> = text(text = "numberField")
+
+    override fun datePicker(observable: MutableObservableProperty<Date>): Layout<*, UIView> = text(text = "datePicker")
+
+    override fun dateTimePicker(observable: MutableObservableProperty<DateTime>): Layout<*, UIView> = text(text = "dateTimePicker")
+
+    override fun timePicker(observable: MutableObservableProperty<Time>): Layout<*, UIView> = text(text = "timePicker")
+
+    override fun slider(range: IntRange, observable: MutableObservableProperty<Int>): Layout<*, UIView> = text(text = "slider")
+
+    override fun toggle(observable: MutableObservableProperty<Boolean>): Layout<*, UIView> = text(text = "toggle")
+
+    override fun scrollBoth(view: Layout<*, UIView>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): Layout<*, UIView> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun SubLayout.margin(left: Float, top: Float, right: Float, bottom: Float): SubLayout {
+    override fun refresh(contains: Layout<*, UIView>, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Layout<*, UIView> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun SubLayout.background(color: ObservableProperty<Color>): SubLayout {
+    override fun work(view: Layout<*, UIView>, isWorking: ObservableProperty<Boolean>): Layout<*, UIView> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun SubLayout.alpha(alpha: ObservableProperty<Float>): SubLayout {
+    override fun progress(view: Layout<*, UIView>, progress: ObservableProperty<Float>): Layout<*, UIView> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun SubLayout.clickable(onClick: () -> Unit): SubLayout {
+    override fun swap(view: ObservableProperty<Pair<Layout<*, UIView>, Animation>>): Layout<*, UIView> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun SubLayout.altClickable(onAltClick: () -> Unit): SubLayout {
+    override fun card(view: Layout<*, UIView>): Layout<*, UIView> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun SubLayout.setWidth(width: Float): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun Layout<*, UIView>.margin(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float
+    ): Layout<*, UIView> = Layout.frame(
+            viewAdapter = UIView(CGRect.zeroVal).adapter,
+            child = this,
+            leftMargin = left,
+            rightMargin = right,
+            topMargin = top,
+            bottomMargin = bottom
+    )
+
+    override fun Layout<*, UIView>.background(color: ObservableProperty<Color>): Layout<*, UIView> {
+        lifecycle.bind(color){
+            viewAdapter.viewAsBase.setBackgroundColor(it.ios)
+        }
+        return this
     }
 
-    override fun SubLayout.setHeight(height: Float): SubLayout {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun Layout<*, UIView>.alpha(alpha: ObservableProperty<Float>): Layout<*, UIView> {
+        lifecycle.bind(alpha){
+            viewAdapter.viewAsBase.setAlpha(it.toDouble())
+        }
+        return this
     }
 
-    override fun launchDialog(dismissable: Boolean, onDismiss: () -> Unit, makeView: (dismissDialog: () -> Unit) -> SubLayout) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun Layout<*, UIView>.clickable(onClick: () -> Unit): Layout<*, UIView> {
+        viewAdapter.addGestureRecognizer(UITapGestureRecognizer(), onClick)
+    }
+
+    override fun Layout<*, UIView>.altClickable(onAltClick: () -> Unit): Layout<*, UIView> {
+        viewAdapter.addGestureRecognizer(UILongPressGestureRecognizer(), onAltClick)
+    }
+
+    override fun Layout<*, UIView>.setWidth(width: Float): Layout<*, UIView> {
+        (this as Layout<UIView, UIView>).forceWidth(width)
+        return this
+    }
+
+    override fun Layout<*, UIView>.setHeight(height: Float): Layout<*, UIView> {
+        (this as Layout<UIView, UIView>).forceHeight(height)
+        return this
+    }
+
+    override val Layout<*, UIView>.lifecycle: ObservableProperty<Boolean> get() = this.lifecycle
+
+    override fun launchDialog(dismissable: Boolean, onDismiss: () -> Unit, makeView: (dismissDialog: () -> Unit) -> Layout<*, UIView>) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun launchSelector(title: String?, options: List<Pair<String, () -> Unit>>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
-    override val SubLayout.lifecycle: ObservableProperty<Boolean>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 }
+
+

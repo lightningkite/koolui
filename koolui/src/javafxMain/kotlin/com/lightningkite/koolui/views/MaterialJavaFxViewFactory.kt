@@ -40,7 +40,6 @@ import javafx.util.StringConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.InputStream
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -150,7 +149,7 @@ data class MaterialJavaFxViewFactory(
         this.spacing = 0.0
         val parent = this
         views.forEachIndexed { index, (placement, subview) ->
-            children += frame(alignPair(Align.Fill, placement.align) to subview).apply {
+            children += align(alignPair(Align.Fill, placement.align) to subview).apply {
                 this.lifecycle.parent = parent.lifecycle
                 maxHeight = Double.MAX_VALUE
                 if (placement.weight > 0f) {
@@ -177,7 +176,7 @@ data class MaterialJavaFxViewFactory(
         this.spacing = 0.0
         val parent = this
         views.forEachIndexed { index, (placement, subview) ->
-            children += frame(alignPair(placement.align, Align.Fill) to subview).apply {
+            children += align(alignPair(placement.align, Align.Fill) to subview).apply {
                 this.lifecycle.parent = parent.lifecycle
                 maxWidth = Double.MAX_VALUE
                 if (placement.weight > 0f) {
@@ -200,7 +199,7 @@ data class MaterialJavaFxViewFactory(
         }
     }
 
-    override fun frame(vararg views: Pair<AlignPair, Node>) = StackPane().apply {
+    override fun align(vararg views: Pair<AlignPair, Node>) = StackPane().apply {
         val parent = this
         for ((placement, view) in views) {
             children += view.apply {
@@ -558,7 +557,7 @@ data class MaterialJavaFxViewFactory(
         lifecycle.bindBidirectional(observable, selectedProperty())
     }
 
-    override fun refresh(contains: Node, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Node = frame(
+    override fun refresh(contains: Node, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Node = align(
             AlignPair.FillFill to contains,
             AlignPair.TopRight to work(space(Point(20f, 20f)), working)
     )
@@ -734,7 +733,7 @@ data class MaterialJavaFxViewFactory(
         }
     }
 
-    override fun card(view: Node): Node = frame(AlignPair.FillFill to view).apply {
+    override fun card(view: Node): Node = align(AlignPair.FillFill to view).apply {
         desiredMargins = DesiredMargins(8f)
         background = Background(
                 BackgroundFill(

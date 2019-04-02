@@ -3,14 +3,12 @@ package com.lightningkite.koolui.test
 import com.lightningkite.koolui.builders.text
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
-import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
 
 class FrameVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Frame"
 
     override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
-        frame(
+        align(
                 AlignPair.TopLeft to text(text = "Top Left", size = TextSize.Body),
                 AlignPair.CenterLeft to text(text = "Center Left", size = TextSize.Body),
                 AlignPair.BottomLeft to text(text = "Bottom Left", size = TextSize.Body),

@@ -327,9 +327,16 @@ interface ViewFactory<VIEW> {
      * Places elements on top of each other, back to front.
      * The placement pairs determine whether or not the elements are stretched or shifted around.
      */
-    fun frame(
+    fun align(
             vararg views: Pair<AlignPair, VIEW>
     ): VIEW
+
+    /**
+     * Frames these elements separately.
+     */
+    fun frame(
+            view: VIEW
+    ): VIEW = align(AlignPair.FillFill to view)
 
     /**
      * Adds a 'card' background to the given item.
