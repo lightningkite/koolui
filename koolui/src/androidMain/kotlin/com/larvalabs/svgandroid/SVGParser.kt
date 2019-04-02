@@ -85,7 +85,7 @@ object SVGParser {
             xr.parse(data)
 
             val result = SVG(picture, handler.bounds)
-            // Skip bounds if it was an empty pic
+            // Skip boundsInParent if it was an empty pic
             if (!java.lang.Float.isInfinite(handler.limits.top)) {
                 result.limits = (handler.limits)
             }
@@ -1227,7 +1227,7 @@ object SVGParser {
 
             this.drawCharacters = false
 
-            // Ignore everything but rectangles in bounds mode
+            // Ignore everything but rectangles in boundsInParent mode
             if (boundsMode) {
                 if (localName == "rect") {
                     var x = getFloatAttr("x", atts)
@@ -1310,8 +1310,8 @@ object SVGParser {
             } else if (localName == "g") {
                 val props = Properties(atts)
 
-                // Check to see if this is the "bounds" layer
-                if ("bounds".equals(getStringAttr("id", atts), ignoreCase = true)) {
+                // Check to see if this is the "boundsInParent" layer
+                if ("boundsInParent".equals(getStringAttr("id", atts), ignoreCase = true)) {
                     boundsMode = true
                 }
                 if (hidden) {

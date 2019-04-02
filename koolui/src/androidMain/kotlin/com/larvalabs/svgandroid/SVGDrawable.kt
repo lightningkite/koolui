@@ -57,7 +57,7 @@ class SVGDrawable
         if (picture != null) {
             val bounds = bounds
             canvas.save()
-            // draw picture to fit bounds!
+            // draw picture to fit boundsInParent!
             canvas.drawPicture(picture, bounds)
             canvas.restore()
         }
@@ -73,10 +73,10 @@ class SVGDrawable
 
     // @Override
     // public int getIntrinsicWidth() {
-    // Rect bounds = getBounds();
+    // Rect boundsInParent = getBoundsInParent();
     // RectF limits = mSvgState.mSvg.getLimits();
-    // if (bounds != null) {
-    // return (int) bounds.width();
+    // if (boundsInParent != null) {
+    // return (int) boundsInParent.width();
     // } else if (limits != null) {
     // return (int) limits.width();
     // } else {
@@ -86,10 +86,10 @@ class SVGDrawable
     //
     // @Override
     // public int getIntrinsicHeight() {
-    // Rect bounds = getBounds();
+    // Rect boundsInParent = getBoundsInParent();
     // RectF limits = mSvgState.mSvg.getLimits();
-    // if (bounds != null) {
-    // return (int) bounds.height();
+    // if (boundsInParent != null) {
+    // return (int) boundsInParent.height();
     // } else if (limits != null) {
     // return (int) limits.height();
     // } else {

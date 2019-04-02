@@ -16,7 +16,7 @@ import android.graphics.drawable.PictureDrawable
  */
 
 /**
- * Describes a vector Picture object, and optionally its bounds.
+ * Describes a vector Picture object, and optionally its boundsInParent.
  *
  * @author Larva Labs, LLC
  */
@@ -25,7 +25,7 @@ class SVG
  * Construct a new SVG.
  *
  * @param picture the parsed picture object.
- * @param bounds  the bounds computed from the "bounds" layer in the SVG.
+ * @param bounds  the boundsInParent computed from the "boundsInParent" layer in the SVG.
  */
 internal constructor(
         /**
@@ -38,29 +38,29 @@ internal constructor(
          */
         val picture: Picture,
         /**
-         * These are the bounds for the SVG specified as a hidden "bounds" layer in the SVG.
+         * These are the boundsInParent for the SVG specified as a hidden "boundsInParent" layer in the SVG.
          */
         /**
          * Gets the bounding rectangle for the SVG, if one was specified.
          *
-         * @return rectangle representing the bounds.
+         * @return rectangle representing the boundsInParent.
          */
         val bounds: RectF?) {
 
     /**
-     * These are the estimated bounds of the SVG computed from the SVG elements while parsing. Note that this could be
+     * These are the estimated boundsInParent of the SVG computed from the SVG elements while parsing. Note that this could be
      * null if there was a failure to compute limits (ie. an empty SVG).
      */
     /**
      * Gets the bounding rectangle for the SVG that was computed upon parsing. It may not be entirely accurate for
      * certain curves or transformations, but is often better than nothing.
      *
-     * @return rectangle representing the computed bounds.
+     * @return rectangle representing the computed boundsInParent.
      */
     /**
-     * Set the limits of the SVG, which are the estimated bounds computed by the parser.
+     * Set the limits of the SVG, which are the estimated boundsInParent computed by the parser.
      *
-     * @param limits the bounds computed while parsing the SVG, may not be entirely accurate.
+     * @param limits the boundsInParent computed while parsing the SVG, may not be entirely accurate.
      */
     var limits: RectF? = null
         internal set

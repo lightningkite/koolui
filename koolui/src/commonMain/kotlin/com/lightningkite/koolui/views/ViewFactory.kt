@@ -349,6 +349,19 @@ interface ViewFactory<VIEW> {
             bottom: Float = 0f
     ): VIEW
 
+    fun VIEW.margin(
+            horizontal: Float = 0f,
+            top: Float = 0f,
+            bottom: Float = 0f
+    ) = this.margin(horizontal, top, horizontal, bottom)
+
+    fun VIEW.margin(
+            horizontal: Float = 0f,
+            vertical: Float = 0f
+    ) = this.margin(horizontal, vertical, horizontal, vertical)
+
+    fun VIEW.margin(amount: Float) = this.margin(amount, amount, amount, amount)
+
     /**
      * Adds a background to the given item.
      */
@@ -397,19 +410,6 @@ interface ViewFactory<VIEW> {
      * Forces the view to be of a certain size
      */
     fun VIEW.setHeight(height: Float): VIEW
-
-    fun VIEW.margin(
-            horizontal: Float = 0f,
-            top: Float = 0f,
-            bottom: Float = 0f
-    ) = this.margin(horizontal, top, horizontal, bottom)
-
-    fun VIEW.margin(
-            horizontal: Float = 0f,
-            vertical: Float = 0f
-    ) = this.margin(horizontal, vertical, horizontal, vertical)
-
-    fun VIEW.margin(amount: Float) = this.margin(amount, amount, amount, amount)
 
     /**
      * Gets the lifecycle of a view.
