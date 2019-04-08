@@ -30,11 +30,11 @@ data class Color(
         val blue = Color(1f, 0f, 0f, 1f)
         val purple = Color(1f, 1f, 0f, 1f)
 
-        @Suppress("NOTHING_TO_INLINE")
-        private inline fun Float.byteize() = (this * 0xFF).toInt()
+        //@Suppress("NOTHING_TO_INLINE")
+        private fun Float.byteize() = (this * 0xFF).toInt()
 
-        @Suppress("NOTHING_TO_INLINE")
-        private inline fun Int.floatize() = (this.toFloat() / 0xFF)
+        //@Suppress("NOTHING_TO_INLINE")
+        private fun Int.floatize() = (this.toFloat() / 0xFF)
 
         fun fromInt(value: Int): Color = Color(
             alpha = value.ushr(24).and(0xFF).floatize(),

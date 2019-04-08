@@ -24,9 +24,11 @@ import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.MutableObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.lifecycle.bind
+import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.recktangle.Point
 import kotlinx.cinterop.StableRef
 import kotlinx.cinterop.readValue
+import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectZero
 import platform.Foundation.NSSelectorFromString
@@ -79,7 +81,9 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
     override fun frame(view: Layout<*, UIView>): Layout<*, UIView> = Layout.frame(
             viewAdapter = UIView(frame = CGRect.zeroVal).adapter,
             child = view
-    )
+    ).apply {
+        viewAdapter.view.addSubview(view.viewAdapter.viewAsBase)
+    }
 
     override fun <T> list(
             data: ObservableList<T>,
@@ -96,12 +100,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
             align: AlignPair,
             maxLines: Int
     ) = Layout.intrinsic(UILabel(frame = CGRect.zeroVal)).apply {
-        lifecycle.bind(text){
+        lifecycle.bind(text) {
             viewAdapter.view.text = it
         }
         viewAdapter.view.textColor = colorSet.importance(importance).ios
         viewAdapter.view.font = UIFont.systemFontOfSize(size.ios)
-        viewAdapter.view.textAlignment = when(align.horizontal) {
+        viewAdapter.view.textAlignment = when (align.horizontal) {
             Align.Start -> NSTextAlignmentLeft
             Align.Center -> NSTextAlignmentCenter
             Align.End -> NSTextAlignmentRight
@@ -117,15 +121,13 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
             importance: Importance,
             onClick: () -> Unit
     ) = Layout.intrinsic(UIButton(frame = CGRect.zeroVal)).apply {
-        lifecycle.bind(label){
+        lifecycle.bind(label) {
             viewAdapter.view.setTitle(it, UIControlStateNormal)
         }
         viewAdapter.view.setTitleColor(colorSet.importance(importance).ios, UIControlStateNormal)
         viewAdapter.addAction(UIControlEventTouchUpInside, onClick)
         //TODO: Image
     }
-
-
 
 
     override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): Layout<*, UIView> = text(text = "tabs")
@@ -158,29 +160,74 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
 
     override fun toggle(observable: MutableObservableProperty<Boolean>): Layout<*, UIView> = text(text = "toggle")
 
-    override fun scrollBoth(view: Layout<*, UIView>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): Layout<*, UIView> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun scrollVertical(view: Layout<*, UIView>, amount: MutableObservableProperty<Float>): Layout<*, UIView> = Layout(
+            viewAdapter = UIScrollView(CGRect.zeroVal).apply {
+                (view.viewAdapter as UIViewAdapter<*>).onResize += {
+                    this.contentSize.useContents {
+                        width = it.size.width
+                        height = it.size.height
+                    }
+                }
+            }.adapter,
+            x = FrameDimensionCalculator(child = { view.x }),
+            y = ScrollDimensionCalculator(child = { view.y })
+    ).apply {
+        viewAdapter.view.addSubview(view.viewAdapter.viewAsBase)
     }
 
-    override fun refresh(contains: Layout<*, UIView>, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Layout<*, UIView> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun scrollHorizontal(view: Layout<*, UIView>, amount: MutableObservableProperty<Float>): Layout<*, UIView> = Layout(
+            viewAdapter = UIScrollView(CGRect.zeroVal).apply {
+                (view.viewAdapter as UIViewAdapter<*>).onResize += {
+                    this.contentSize.useContents {
+                        width = it.size.width
+                        height = it.size.height
+                    }
+                }
+            }.adapter,
+            x = ScrollDimensionCalculator(child = { view.x }),
+            y = FrameDimensionCalculator(child = { view.y })
+    ).apply {
+        viewAdapter.view.addSubview(view.viewAdapter.viewAsBase)
     }
 
-    override fun work(view: Layout<*, UIView>, isWorking: ObservableProperty<Boolean>): Layout<*, UIView> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun scrollBoth(view: Layout<*, UIView>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): Layout<*, UIView> = Layout(
+            viewAdapter = UIScrollView(CGRect.zeroVal).apply {
+                (view.viewAdapter as UIViewAdapter<*>).onResize += {
+                    this.contentSize.useContents {
+                        width = it.size.width
+                        height = it.size.height
+                    }
+                }
+            }.adapter,
+            x = ScrollDimensionCalculator(child = { view.x }),
+            y = ScrollDimensionCalculator(child = { view.y })
+    ).apply {
+        viewAdapter.view.addSubview(view.viewAdapter.viewAsBase)
     }
 
-    override fun progress(view: Layout<*, UIView>, progress: ObservableProperty<Float>): Layout<*, UIView> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun refresh(contains: Layout<*, UIView>, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Layout<*, UIView> = contains
+
+    override fun work(view: Layout<*, UIView>, isWorking: ObservableProperty<Boolean>): Layout<*, UIView> = view
+
+    override fun progress(view: Layout<*, UIView>, progress: ObservableProperty<Float>): Layout<*, UIView> = view
 
     override fun swap(view: ObservableProperty<Pair<Layout<*, UIView>, Animation>>): Layout<*, UIView> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val adapter = UIView(CGRect.zeroVal).adapter
+        val layout = Layout.swap(adapter, { view.value.first })
+        var currentView = view.value.first
+        adapter.view.addSubview(currentView.viewAdapter.viewAsBase)
+
+        layout.isAttached.listen(view){ (newView, animation) ->
+            //TODO: Animate
+            currentView.viewAdapter.viewAsBase.removeFromSuperview()
+            currentView = newView
+            adapter.view.addSubview(currentView.viewAdapter.viewAsBase)
+            layout.invalidate()
+        }
+        return layout
     }
 
-    override fun card(view: Layout<*, UIView>): Layout<*, UIView> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun card(view: Layout<*, UIView>): Layout<*, UIView> = view.margin(8f).background(colorSet.backgroundHighlighted)
 
     override fun Layout<*, UIView>.margin(
             left: Float,
@@ -197,14 +244,14 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
     )
 
     override fun Layout<*, UIView>.background(color: ObservableProperty<Color>): Layout<*, UIView> {
-        lifecycle.bind(color){
+        lifecycle.bind(color) {
             viewAdapter.viewAsBase.setBackgroundColor(it.ios)
         }
         return this
     }
 
     override fun Layout<*, UIView>.alpha(alpha: ObservableProperty<Float>): Layout<*, UIView> {
-        lifecycle.bind(alpha){
+        lifecycle.bind(alpha) {
             viewAdapter.viewAsBase.setAlpha(it.toDouble())
         }
         return this
@@ -212,10 +259,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
 
     override fun Layout<*, UIView>.clickable(onClick: () -> Unit): Layout<*, UIView> {
         viewAdapter.addGestureRecognizer(UITapGestureRecognizer(), onClick)
+        return this
     }
 
     override fun Layout<*, UIView>.altClickable(onAltClick: () -> Unit): Layout<*, UIView> {
         viewAdapter.addGestureRecognizer(UILongPressGestureRecognizer(), onAltClick)
+        return this
     }
 
     override fun Layout<*, UIView>.setWidth(width: Float): Layout<*, UIView> {
@@ -228,7 +277,7 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
         return this
     }
 
-    override val Layout<*, UIView>.lifecycle: ObservableProperty<Boolean> get() = this.lifecycle
+    override val Layout<*, UIView>.lifecycle: ObservableProperty<Boolean> get() = this.isAttached
 
     override fun launchDialog(dismissable: Boolean, onDismiss: () -> Unit, makeView: (dismissDialog: () -> Unit) -> Layout<*, UIView>) {
 //        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

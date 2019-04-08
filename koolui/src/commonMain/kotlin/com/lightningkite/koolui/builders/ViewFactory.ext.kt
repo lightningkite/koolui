@@ -61,7 +61,12 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.pagesEmbedded(
         dependency: DEPENDENCY,
         page: MutableObservableProperty<Int>,
         vararg pageGenerators: (DEPENDENCY) -> VIEW
-) = pages(dependency, page, *pageGenerators.map { ViewGenerator.make("", it) }.toTypedArray())
+) = pages(dependency, page, *pageGenerators.map {
+    object : ViewGenerator<DEPENDENCY, VIEW> {
+        @Suppress("UNCHECKED_CAST")
+        override fun generate(dependency: DEPENDENCY): VIEW = (dependency as ViewFactory<VIEW>).space(5f)
+    }
+}.toTypedArray())
 
 fun <VIEW> ViewFactory<VIEW>.loadingImage(
         imageWithSizingObservable: ObservableProperty<ImageWithSizing?>

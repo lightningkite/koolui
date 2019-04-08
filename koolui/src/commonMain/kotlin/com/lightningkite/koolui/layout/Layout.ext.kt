@@ -43,6 +43,19 @@ fun <S: V, V> Layout.Companion.frame(
         y = FrameDimensionCalculator(topMargin, bottomMargin) { child.y }
 )
 
+fun <S: V, V> Layout.Companion.swap(
+        viewAdapter: ViewAdapter<S, V>,
+        child: ()->Layout<*, V>,
+        leftMargin: Float = 0f,
+        rightMargin: Float = 0f,
+        topMargin: Float = 0f,
+        bottomMargin: Float = 0f
+) = Layout<S, V>(
+        viewAdapter = viewAdapter,
+        x = FrameDimensionCalculator(leftMargin, rightMargin) { child().x },
+        y = FrameDimensionCalculator(topMargin, bottomMargin) { child().y }
+)
+
 fun <S: V, V> Layout.Companion.leaf(
         viewAdapter: ViewAdapter<S, V>,
         margin: Float,

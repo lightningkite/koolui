@@ -2,12 +2,12 @@ package com.lightningkite.koolui.layout
 
 import com.lightningkite.koolui.geometry.Measurement
 
-inline fun FinalDimensionCalculator(crossinline measure: (Measurement) -> Unit): BaseDimensionCalculator {
-    return object : BaseDimensionCalculator() {
-        override fun measure(output: Measurement) = measure(output)
-        override fun layoutChildren(size: Float) {}
-    }
-}
+//inline fun FinalDimensionCalculator(crossinline measure: (Measurement) -> Unit): BaseDimensionCalculator {
+//    return object : BaseDimensionCalculator() {
+//        override fun measure(output: Measurement) = measure(output)
+//        override fun layoutChildren(size: Float) {}
+//    }
+//}
 
 
 /*

@@ -74,7 +74,9 @@ kotlin {
                 android,
                 javafx,
                 jvmVirtual,
-                js
+                js,
+                iosArm64,
+                iosX64
         )
     }
     sources(tryTargets = tryTargets) {
