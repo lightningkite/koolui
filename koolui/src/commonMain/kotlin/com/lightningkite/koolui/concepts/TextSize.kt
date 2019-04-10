@@ -1,7 +1,21 @@
 package com.lightningkite.koolui.concepts
 
 enum class TextSize {
-    Tiny, Body, Subheader, Header
-}
+    Tiny,
+    Body,
+    Subheader,
+    Header;
 
-//Show selected, faded, etc
+    companion object {
+        val values = values().toList()
+    }
+
+    val bigger: TextSize
+        get() {
+            return values.getOrNull(values.indexOf(this) + 1) ?: TextSize.Header
+        }
+    val smaller: TextSize
+        get() {
+            return values.getOrNull(values.indexOf(this) - 1) ?: TextSize.Tiny
+        }
+}

@@ -79,9 +79,7 @@ open class AndroidMaterialViewFactory(
     }
 
     override fun contentRoot(view: View): View {
-        return frame(
-                AlignPair.FillFill to view
-        ).apply {
+        return frame(view).apply {
             id = frameId
             lifecycle.alwaysOn = true
         }
@@ -997,7 +995,7 @@ open class AndroidMaterialViewFactory(
         )
     }
 
-    override fun frame(vararg views: Pair<AlignPair, View>): View = FrameLayout(context).apply {
+    override fun align(vararg views: Pair<AlignPair, View>): View = FrameLayout(context).apply {
         for ((placement, subview) in views) {
             subview.lifecycle.parent = this.lifecycle
             val layoutParams = FrameLayout.LayoutParams(
@@ -1032,7 +1030,7 @@ open class AndroidMaterialViewFactory(
         return this
     }
 
-    override fun View.background(color: ObservableProperty<Color>): View = frame(AlignPair.FillFill to this).apply {
+    override fun View.background(color: ObservableProperty<Color>): View = frame(this).apply {
         lifecycle.bind(color) {
             setBackgroundColor(it.toInt())
         }
@@ -1088,7 +1086,7 @@ open class AndroidMaterialViewFactory(
         val frame = access.activity?.findViewById<FrameLayout>(frameId) ?: return
         var dismisser: () -> Unit = {}
         val generatedView = makeView { dismisser() }
-        val wrapper = frame(
+        val wrapper = align(
                 AlignPair.CenterCenter to generatedView.apply {
                     if (!hasOnClickListeners()) {
                         setOnClickListener { /*squish*/ }

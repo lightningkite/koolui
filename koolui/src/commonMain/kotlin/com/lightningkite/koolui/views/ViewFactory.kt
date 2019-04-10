@@ -324,6 +324,16 @@ interface ViewFactory<VIEW> {
     ): VIEW
 
     /**
+     * Places elements linearly, either left to right or top to bottom.
+     * The orientation is determined automatically based on what the system decides fits the elements best.
+     * The placement pairs determine whether or not the elements are stretched or shifted around.
+     */
+    fun linear(
+            defaultToHorizontal: Boolean = false,
+            vararg views: Pair<LinearPlacement, VIEW>
+    ): VIEW = if (defaultToHorizontal) horizontal(*views) else vertical(*views)
+
+    /**
      * Places elements on top of each other, back to front.
      * The placement pairs determine whether or not the elements are stretched or shifted around.
      */
