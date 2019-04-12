@@ -6,6 +6,7 @@ pluginManagement {
         jcenter()
         mavenLocal()
         maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
     }
     resolutionStrategy {
         eachPlugin {
@@ -17,6 +18,7 @@ pluginManagement {
 }
 
 include("koolui")
+include("koolui-test")
 include("koolui-test-common")
 include("koolui-test-android")
 include("koolui-test-javafx")
