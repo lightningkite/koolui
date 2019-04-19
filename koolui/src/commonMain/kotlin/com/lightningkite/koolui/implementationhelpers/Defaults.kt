@@ -147,7 +147,7 @@ fun <VIEW, T> ViewFactory<VIEW>.defaultList(
                 }) to anim
             }
         })
-        -frame {
+        -align {
             AlignPair.BottomLeft - imageButton(
                 imageWithSizing = ConstantObservableProperty(
                     MaterialIcon.chevronLeft.color(buttonColor).withSizing(
@@ -313,7 +313,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultPages(
         previous = it
         pageGenerator[it.coerceIn(pageGenerator.indices)].generate(dependency) to anim
     })
-    -frame {
+    -align {
         AlignPair.BottomLeft - imageButton(
             imageWithSizing = ConstantObservableProperty(
                 MaterialIcon.chevronLeft.color(buttonColor).withSizing(

@@ -42,7 +42,6 @@ android {
     defaultConfig {
         minSdkVersion(16)
         targetSdkVersion(27)
-//        applicationId("com.lightningkite.koolui")
     }
 
     buildTypes {
@@ -75,9 +74,7 @@ kotlin {
                 android,
                 javafx,
                 jvmVirtual,
-                js,
-                iosX64,
-                iosArm64
+                js
         )
     }
     sources(tryTargets = tryTargets) {
@@ -104,6 +101,7 @@ kotlin {
         KTarget.android.sources {
             main {
                 dependencies {
+
                     val compatVersion = "27.1.1"
                     api("com.android.support:appcompat-v7:$compatVersion")
                     api("com.android.support:cardview-v7:$compatVersion")
@@ -131,10 +129,7 @@ kotlin {
         }
         jvmVirtual.sources {}
         isJs.sources {}
-        isIos.sources {}
     }
-    
-    println("Source sets: ${sourceSets.names}")
 
     android {
         publishLibraryVariants("release")//, "debug")
