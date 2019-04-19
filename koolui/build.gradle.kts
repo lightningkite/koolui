@@ -104,8 +104,6 @@ kotlin {
         KTarget.android.sources {
             main {
                 dependencies {
-                    api("com.squareup.okhttp3:okhttp:3.13.1")
-
                     val compatVersion = "27.1.1"
                     api("com.android.support:appcompat-v7:$compatVersion")
                     api("com.android.support:cardview-v7:$compatVersion")
@@ -135,6 +133,8 @@ kotlin {
         isJs.sources {}
         isIos.sources {}
     }
+    
+    println("Source sets: ${sourceSets.names}")
 
     android {
         publishLibraryVariants("release")//, "debug")

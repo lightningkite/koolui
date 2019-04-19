@@ -63,6 +63,7 @@ import java.text.ParseException
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.properties.ObservableProperty
 
 open class AndroidMaterialViewFactory(
         val access: ActivityAccess,
@@ -86,7 +87,16 @@ open class AndroidMaterialViewFactory(
     }
 
     override var View.lifecycle: TreeObservableProperty
-        get() = AnyLifecycles.getOrPut(this) { TreeObservableProperty() }
+        get() {
+            val existing = tag as? TreeObservableProperty
+            if (existing == null) {
+                val newOne = TreeObservableProperty()
+                tag = newOne
+                return newOne
+            } else {
+                return existing
+            }
+        }
         set(value) {
             AnyLifecycles[this] = value
         }
@@ -321,12 +331,18 @@ open class AndroidMaterialViewFactory(
         })
 
         lifecycle.bind(firstIndex) {
-            if (setByAndroid) return@bind
+            if (setByAndroid) {
+                setByAndroid = false
+                return@bind
+            }
             scrollToPosition(it)
         }
 
         lifecycle.bind(lastIndex) {
-            if (setByAndroid) return@bind
+            if (setByAndroid) {
+                setByAndroid = false
+                return@bind
+            }
             scrollToPosition(it)
         }
 
@@ -1091,8 +1107,7 @@ open class AndroidMaterialViewFactory(
                     if (!hasOnClickListeners()) {
                         setOnClickListener { /*squish*/ }
                     }
-                },
-                AlignPair.TopLeft to text(text = "I'm a real boy!")
+                }
         )
                 .clickable { dismisser() }
                 .apply {
