@@ -8,6 +8,9 @@ import kotlin.browser.window
 
 actual object ApplicationAccess {
 
+    fun init(appPath: String) {
+        ApplicationAccess.appPath = appPath
+    }
     lateinit var appPath: String
 
     //TODO: Handle dynamic display size changes

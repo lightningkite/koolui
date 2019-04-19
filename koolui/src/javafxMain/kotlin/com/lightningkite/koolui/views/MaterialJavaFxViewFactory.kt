@@ -40,17 +40,15 @@ import javafx.util.StringConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.InputStream
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.collections.set
 
 data class MaterialJavaFxViewFactory(
-    override val theme: Theme,
-    override val colorSet: ColorSet = theme.main,
-    val resourceFetcher: (String) -> InputStream,
-    val scale: Double = 1.0
+        override val theme: Theme,
+        override val colorSet: ColorSet = theme.main,
+        val scale: Double = 1.0
 ) : ViewFactory<Node> {
 
     var Node.desiredMargins: DesiredMargins
@@ -82,8 +80,8 @@ data class MaterialJavaFxViewFactory(
         }
 
     fun <T> ObservableProperty<Boolean>.bindBidirectional(
-        kotlinx: MutableObservableProperty<T>,
-        property: Property<T>
+            kotlinx: MutableObservableProperty<T>,
+            property: Property<T>
     ) {
         bind(kotlinx) {
             if (it != property.value) {
@@ -98,9 +96,9 @@ data class MaterialJavaFxViewFactory(
     }
 
     fun <T> ObservableProperty<Boolean>.bindBidirectional(
-        kotlinx: MutableObservableProperty<T>,
-        property: ReadOnlyProperty<T>,
-        write: (T) -> Unit
+            kotlinx: MutableObservableProperty<T>,
+            property: ReadOnlyProperty<T>,
+            write: (T) -> Unit
     ) {
         bind(kotlinx) {
             if (it != property.value) {
@@ -111,6 +109,12 @@ data class MaterialJavaFxViewFactory(
             if (newValue != kotlinx.value) {
                 kotlinx.value = newValue
             }
+        }
+    }
+
+    override fun contentRoot(view: Node): Node {
+        return view.apply {
+            lifecycle.alwaysOn = true
         }
     }
 
@@ -132,9 +136,9 @@ data class MaterialJavaFxViewFactory(
         isWrapText = true
 
         lifecycle.bind(text) {
-            if(maxLines != Int.MAX_VALUE) {
+            if (maxLines != Int.MAX_VALUE) {
                 val cap = maxLines * 80
-                this.text = if(it.length > cap) it.take(cap) + "..." else it
+                this.text = if (it.length > cap) it.take(cap) + "..." else it
             } else {
                 this.text = it
             }
@@ -145,7 +149,7 @@ data class MaterialJavaFxViewFactory(
         this.spacing = 0.0
         val parent = this
         views.forEachIndexed { index, (placement, subview) ->
-            children += frame(alignPair(Align.Fill, placement.align) to subview).apply {
+            children += align(alignPair(Align.Fill, placement.align) to subview).apply {
                 this.lifecycle.parent = parent.lifecycle
                 maxHeight = Double.MAX_VALUE
                 if (placement.weight > 0f) {
@@ -156,12 +160,12 @@ data class MaterialJavaFxViewFactory(
                     val otherNextMargin = views.getOrNull(index + 1)?.second?.desiredMargins?.left
                     val finalNextMargin = otherNextMargin?.let { other -> Math.max(it.right, other) } ?: it.right
                     HBox.setMargin(
-                        this, Insets(
+                            this, Insets(
                             it.top * scale,
                             finalNextMargin * scale,
                             it.bottom * scale,
                             if (index == 0) it.left * scale else 0.0
-                        )
+                    )
                     )
                 }
             }
@@ -172,7 +176,7 @@ data class MaterialJavaFxViewFactory(
         this.spacing = 0.0
         val parent = this
         views.forEachIndexed { index, (placement, subview) ->
-            children += frame(alignPair(placement.align, Align.Fill) to subview).apply {
+            children += align(alignPair(placement.align, Align.Fill) to subview).apply {
                 this.lifecycle.parent = parent.lifecycle
                 maxWidth = Double.MAX_VALUE
                 if (placement.weight > 0f) {
@@ -183,19 +187,19 @@ data class MaterialJavaFxViewFactory(
                     val otherNextMargin = views.getOrNull(index + 1)?.second?.desiredMargins?.top
                     val finalNextMargin = otherNextMargin?.let { other -> Math.max(it.bottom, other) } ?: it.bottom
                     VBox.setMargin(
-                        this, Insets(
+                            this, Insets(
                             if (index == 0) it.top * scale else 0.0,
                             it.right * scale,
                             finalNextMargin * scale,
                             it.left * scale
-                        )
+                    )
                     )
                 }
             }
         }
     }
 
-    override fun frame(vararg views: Pair<AlignPair, Node>) = StackPane().apply {
+    override fun align(vararg views: Pair<AlignPair, Node>) = StackPane().apply {
         val parent = this
         for ((placement, view) in views) {
             children += view.apply {
@@ -203,12 +207,12 @@ data class MaterialJavaFxViewFactory(
                 StackPane.setAlignment(view, placement.javafx)
                 this.desiredMargins.let {
                     StackPane.setMargin(
-                        this, Insets(
+                            this, Insets(
                             it.top * scale,
                             it.right * scale,
                             it.bottom * scale,
                             it.left * scale
-                        )
+                    )
                     )
                 }
                 (this as? Region)?.let {
@@ -241,31 +245,31 @@ data class MaterialJavaFxViewFactory(
 
 
     override fun <DEPENDENCY> window(
-        dependency: DEPENDENCY,
-        stack: MutableObservableList<ViewGenerator<DEPENDENCY, Node>>,
-        tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Node>>>
+            dependency: DEPENDENCY,
+            stack: MutableObservableList<ViewGenerator<DEPENDENCY, Node>>,
+            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Node>>>
     ): Node = defaultLargeWindow(
-        theme = theme,
-        barBuilder = withColorSet(theme.bar),
-        dependency = dependency,
-        stack = stack,
-        tabs = tabs
+            theme = theme,
+            barBuilder = withColorSet(theme.bar),
+            dependency = dependency,
+            stack = stack,
+            tabs = tabs
     )
 
     override fun <DEPENDENCY> pages(
-        dependency: DEPENDENCY,
-        page: MutableObservableProperty<Int>,
-        vararg pageGenerator: ViewGenerator<DEPENDENCY, Node>
+            dependency: DEPENDENCY,
+            page: MutableObservableProperty<Int>,
+            vararg pageGenerator: ViewGenerator<DEPENDENCY, Node>
     ): Node = defaultPages(
-        buttonColor = theme.main.foreground,
-        dependency = dependency,
-        page = page,
-        pageGenerator = *pageGenerator
+            buttonColor = theme.main.foreground,
+            dependency = dependency,
+            page = page,
+            pageGenerator = *pageGenerator
     )
 
     override fun tabs(
-        options: ObservableList<TabItem>,
-        selected: MutableObservableProperty<TabItem>
+            options: ObservableList<TabItem>,
+            selected: MutableObservableProperty<TabItem>
     ) = JFXTabPane().apply {
 
         //TODO: Color
@@ -273,38 +277,38 @@ data class MaterialJavaFxViewFactory(
 
         options.mapping {
             Tab(
-                it.text,
-                image(
-                    ConstantObservableProperty(it.imageWithSizing)
-                )
+                    it.text,
+                    image(
+                            ConstantObservableProperty(it.imageWithSizing)
+                    )
             )
         }.bindToJavaFX(lifecycle, tabs)
 
         lifecycle.bindBidirectional<Tab>(
-            selected.transform(
-                mapper = { tabs[options.indexOf(it)] },
-                reverseMapper = { options[tabs.indexOf(it)] }
-            ),
-            this.selectionModel.selectedItemProperty()
+                selected.transform(
+                        mapper = { tabs[options.indexOf(it)] },
+                        reverseMapper = { options[tabs.indexOf(it)] }
+                ),
+                this.selectionModel.selectedItemProperty()
         ) { it: Tab ->
             selectionModel.select(it)
         }
     }
 
     override fun <T> list(
-        data: ObservableList<T>,
-        firstIndex: MutableObservableProperty<Int>,
-        lastIndex: MutableObservableProperty<Int>,
-        direction: Direction,
-        makeView: (obs: ObservableProperty<T>) -> Node
+            data: ObservableList<T>,
+            firstIndex: MutableObservableProperty<Int>,
+            lastIndex: MutableObservableProperty<Int>,
+            direction: Direction,
+            makeView: (obs: ObservableProperty<T>) -> Node
     ): Node = defaultList(
-        pageSize = 20,
-        buttonColor = colorSet.foreground,
-        data = data,
-        firstIndex = firstIndex,
-        lastIndex = lastIndex,
-        direction = direction,
-        makeView = makeView
+            pageSize = 20,
+            buttonColor = colorSet.foreground,
+            data = data,
+            firstIndex = firstIndex,
+            lastIndex = lastIndex,
+            direction = direction,
+            makeView = makeView
     )
 
     override fun work(view: Node, isWorking: ObservableProperty<Boolean>): Node {
@@ -317,10 +321,10 @@ data class MaterialJavaFxViewFactory(
             prefHeight = 30.0 * scale
         }
         return swap(
-            view = isWorking.transform {
-                val nextView = if (it) spinner else view
-                nextView to Animation.Fade
-            }
+                view = isWorking.transform {
+                    val nextView = if (it) spinner else view
+                    nextView to Animation.Fade
+                }
         )
     }
 
@@ -332,10 +336,10 @@ data class MaterialJavaFxViewFactory(
             }
         }
         return swap(
-            view = progress.transform {
-                val nextView = if (it == 1f) view else bar
-                nextView to Animation.Fade
-            }
+                view = progress.transform {
+                    val nextView = if (it == 1f) view else bar
+                    nextView to Animation.Fade
+                }
         )
     }
 
@@ -402,9 +406,9 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun <T> picker(
-        options: ObservableList<T>,
-        selected: MutableObservableProperty<T>,
-        makeView: (obs: ObservableProperty<T>) -> Node
+            options: ObservableList<T>,
+            selected: MutableObservableProperty<T>,
+            makeView: (obs: ObservableProperty<T>) -> Node
     ) = JFXComboBox<T>().apply {
 
         focusColor = colorSet.backgroundHighlighted.toJavaFX()
@@ -427,38 +431,38 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun textField(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Node =
-        if (type == TextInputType.Password) JFXPasswordField().apply {
-            this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
-            font = Font.font(TextSize.Body.javafx)
-            this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
-            this.unFocusColor = colorSet.foreground.toJavaFX()
-            lifecycle.bindBidirectional(text, this.textProperty())
-            this.isLabelFloat = true
-        } else JFXTextField().apply {
-            this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
-            font = Font.font(TextSize.Body.javafx)
-            this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
-            this.unFocusColor = colorSet.foreground.toJavaFX()
-            lifecycle.bindBidirectional(text, this.textProperty())
-            this.isLabelFloat = true
-        }
+            if (type == TextInputType.Password) JFXPasswordField().apply {
+                this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
+                font = Font.font(TextSize.Body.javafx)
+                this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
+                this.unFocusColor = colorSet.foreground.toJavaFX()
+                lifecycle.bindBidirectional(text, this.textProperty())
+                this.isLabelFloat = true
+            } else JFXTextField().apply {
+                this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
+                font = Font.font(TextSize.Body.javafx)
+                this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
+                this.unFocusColor = colorSet.foreground.toJavaFX()
+                lifecycle.bindBidirectional(text, this.textProperty())
+                this.isLabelFloat = true
+            }
 
     override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Node =
-        JFXTextArea().apply {
-            this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
-            font = Font.font(TextSize.Body.javafx)
-            this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
-            this.unFocusColor = colorSet.foreground.toJavaFX()
-            lifecycle.bindBidirectional(text, this.textProperty())
-            this.isLabelFloat = true
-            minHeight = scale * 100.0
-        }
+            JFXTextArea().apply {
+                this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
+                font = Font.font(TextSize.Body.javafx)
+                this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
+                this.unFocusColor = colorSet.foreground.toJavaFX()
+                lifecycle.bindBidirectional(text, this.textProperty())
+                this.isLabelFloat = true
+                minHeight = scale * 100.0
+            }
 
     override fun numberField(
-        value: MutableObservableProperty<Number?>,
-        placeholder: String,
-        type: NumberInputType,
-        decimalPlaces: Int
+            value: MutableObservableProperty<Number?>,
+            placeholder: String,
+            type: NumberInputType,
+            decimalPlaces: Int
     ): Node = JFXTextField().apply {
         this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
         font = Font.font(TextSize.Body.javafx)
@@ -468,7 +472,7 @@ data class MaterialJavaFxViewFactory(
         val compareVal = Math.pow(-decimalPlaces.toDouble(), 10.0) / 2
         val converter = object : StringConverter<Number>() {
             override fun toString(value: Number?): String =
-                if (value == null) "" else DecimalFormat("#." + "#".repeat(decimalPlaces)).format(value)
+                    if (value == null) "" else DecimalFormat("#." + "#".repeat(decimalPlaces)).format(value)
 
             override fun fromString(string: String?): Number? = string?.toDoubleOrNull()
         }
@@ -477,10 +481,10 @@ data class MaterialJavaFxViewFactory(
             val backing = it
             val converted = converter.fromString(text)
             val different =
-                (backing == null && converted != null) ||
-                        (backing != null && converted == null) ||
-                        (backing != null && converted != null && backing.toDouble().minus(converted.toDouble())
-                            .let { Math.abs(it) > compareVal })
+                    (backing == null && converted != null) ||
+                            (backing != null && converted == null) ||
+                            (backing != null && converted != null && backing.toDouble().minus(converted.toDouble())
+                                    .let { Math.abs(it) > compareVal })
             if (different) {
                 text = converter.toString(backing)
             }
@@ -489,10 +493,10 @@ data class MaterialJavaFxViewFactory(
             val backing = value.value
             val converted = converter.fromString(newValue)
             val different =
-                (backing == null && converted != null) ||
-                        (backing != null && converted == null) ||
-                        (backing != null && converted != null && backing.toDouble().minus(converted.toDouble())
-                            .let { Math.abs(it) > compareVal })
+                    (backing == null && converted != null) ||
+                            (backing != null && converted == null) ||
+                            (backing != null && converted != null && backing.toDouble().minus(converted.toDouble())
+                                    .let { Math.abs(it) > compareVal })
             if (different) {
                 value.value = converter.fromString(newValue)
             }
@@ -506,24 +510,24 @@ data class MaterialJavaFxViewFactory(
         this.defaultColor = colorSet.foreground.toJavaFX()
         this.value = LocalDate.ofEpochDay(observable.value.daysSinceEpoch.toLong())
         lifecycle.bindBidirectional<LocalDate>(
-            kotlinx = observable.transform(
-                mapper = { LocalDate.ofEpochDay(it.daysSinceEpoch.toLong()) },
-                reverseMapper = { Date(it.toEpochDay().toInt()) }
-            ),
-            property = valueProperty()
+                kotlinx = observable.transform(
+                        mapper = { LocalDate.ofEpochDay(it.daysSinceEpoch.toLong()) },
+                        reverseMapper = { Date(it.toEpochDay().toInt()) }
+                ),
+                property = valueProperty()
         )
     }
 
     override fun dateTimePicker(observable: MutableObservableProperty<DateTime>): Node = horizontal(
-        LinearPlacement.fillFill to datePicker(observable = observable.transform(
-            mapper = { it.date },
-            reverseMapper = { observable.value.copy(date = it) }
-        )),
-        LinearPlacement.wrapFill to space(Point(8f, 8f)),
-        LinearPlacement.fillFill to timePicker(observable = observable.transform(
-            mapper = { it.time },
-            reverseMapper = { observable.value.copy(time = it) }
-        ))
+            LinearPlacement.fillFill to datePicker(observable = observable.transform(
+                    mapper = { it.date },
+                    reverseMapper = { observable.value.copy(date = it) }
+            )),
+            LinearPlacement.wrapFill to space(Point(8f, 8f)),
+            LinearPlacement.fillFill to timePicker(observable = observable.transform(
+                    mapper = { it.time },
+                    reverseMapper = { observable.value.copy(time = it) }
+            ))
     )
 
     override fun timePicker(observable: MutableObservableProperty<Time>) = JFXTimePicker().apply {
@@ -532,11 +536,11 @@ data class MaterialJavaFxViewFactory(
         this.defaultColor = colorSet.foreground.toJavaFX()
         this.value = LocalTime.ofNanoOfDay(observable.value.millisecondsSinceMidnight.times(1000000L))
         lifecycle.bindBidirectional<LocalTime>(
-            kotlinx = observable.transform(
-                mapper = { LocalTime.ofNanoOfDay(it.millisecondsSinceMidnight.times(1000000L)) },
-                reverseMapper = { Time(it.toNanoOfDay().div(1000000L).toInt()) }
-            ),
-            property = valueProperty()
+                kotlinx = observable.transform(
+                        mapper = { LocalTime.ofNanoOfDay(it.millisecondsSinceMidnight.times(1000000L)) },
+                        reverseMapper = { Time(it.toNanoOfDay().div(1000000L).toInt()) }
+                ),
+                property = valueProperty()
         )
     }
 
@@ -544,8 +548,8 @@ data class MaterialJavaFxViewFactory(
         min = range.start.toDouble()
         max = range.endInclusive.toDouble()
         lifecycle.bindBidirectional(observable.transform(
-            mapper = { it as Number },
-            reverseMapper = { it.toInt() }
+                mapper = { it as Number },
+                reverseMapper = { it.toInt() }
         ), valueProperty())
     }
 
@@ -553,9 +557,9 @@ data class MaterialJavaFxViewFactory(
         lifecycle.bindBidirectional(observable, selectedProperty())
     }
 
-    override fun refresh(contains: Node, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Node = frame(
-        AlignPair.FillFill to contains,
-        AlignPair.TopRight to work(space(Point(20f, 20f)), working)
+    override fun refresh(contains: Node, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Node = align(
+            AlignPair.FillFill to contains,
+            AlignPair.TopRight to work(space(Point(20f, 20f)), working)
     )
 
     override fun scrollVertical(view: Node, amount: MutableObservableProperty<Float>): Node = ScrollPane(view).apply {
@@ -607,9 +611,9 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun scrollBoth(
-        view: Node,
-        amountX: MutableObservableProperty<Float>,
-        amountY: MutableObservableProperty<Float>
+            view: Node,
+            amountX: MutableObservableProperty<Float>,
+            amountY: MutableObservableProperty<Float>
     ): Node = ScrollPane(view).apply {
         hbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
         vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
@@ -656,8 +660,8 @@ data class MaterialJavaFxViewFactory(
         lifecycle.bind(view) { (view, animation) ->
             GlobalScope.launch(Dispatchers.UI) {
                 val containerSize = Point(
-                    width.toFloat(),
-                    height.toFloat()
+                        width.toFloat(),
+                        height.toFloat()
                 )
                 currentView?.let { old ->
                     animation.javaFxOut(old, containerSize).apply {
@@ -673,12 +677,12 @@ data class MaterialJavaFxViewFactory(
                     StackPane.setAlignment(view, AlignPair.CenterCenter.javafx)
                     this.desiredMargins.let {
                         StackPane.setMargin(
-                            this, Insets(
+                                this, Insets(
                                 it.top * scale,
                                 it.right * scale,
                                 it.bottom * scale,
                                 it.left * scale
-                            )
+                        )
                         )
                     }
                     if (currentView != null) {
@@ -729,14 +733,14 @@ data class MaterialJavaFxViewFactory(
         }
     }
 
-    override fun card(view: Node): Node = frame(AlignPair.FillFill to view).apply {
+    override fun card(view: Node): Node = align(AlignPair.FillFill to view).apply {
         desiredMargins = DesiredMargins(8f)
         background = Background(
-            BackgroundFill(
-                colorSet.backgroundHighlighted.toJavaFX(),
-                CornerRadii(4.0 * scale),
-                Insets.EMPTY
-            )
+                BackgroundFill(
+                        colorSet.backgroundHighlighted.toJavaFX(),
+                        CornerRadii(4.0 * scale),
+                        Insets.EMPTY
+                )
         )
         effect = DropShadow(3.0 * scale, 0.0, 1.0 * scale, Color.black.copy(alpha = .5f).toJavaFX())
         padding = Insets(8.0 * scale)
@@ -764,9 +768,9 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun launchDialog(
-        dismissable: Boolean,
-        onDismiss: () -> Unit,
-        makeView: (dismissDialog: () -> Unit) -> Node
+            dismissable: Boolean,
+            onDismiss: () -> Unit,
+            makeView: (dismissDialog: () -> Unit) -> Node
     ) {
         val dialog = Stage()
         MousePosition.init(dialog)

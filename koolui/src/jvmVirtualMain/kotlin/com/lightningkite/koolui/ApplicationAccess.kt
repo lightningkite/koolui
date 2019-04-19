@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.koolui.resources.Resources
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.reacktive.property.ConstantObservableProperty
@@ -9,6 +10,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 actual object ApplicationAccess {
+
+    fun init(classLoader: ClassLoader) {
+        Resources.classLoader = classLoader
+    }
+
     actual val displaySize: ObservableProperty<Point> = StandardObservableProperty(Point())
     actual val isInForeground: ObservableProperty<Boolean> = StandardObservableProperty(true)
     actual val onBackPressed: MutableList<() -> Boolean> = ArrayList()

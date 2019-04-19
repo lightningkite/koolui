@@ -17,6 +17,7 @@ pluginManagement {
 }
 
 include("koolui")
+include("koolui-test")
 //include("koolui-test-common")
 //include("koolui-test-android")
 //include("koolui-test-javafx")

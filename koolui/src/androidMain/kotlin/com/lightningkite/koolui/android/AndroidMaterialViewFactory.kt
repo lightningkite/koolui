@@ -30,7 +30,7 @@ import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
-import com.lightningkite.koolui.builders.frame
+import com.lightningkite.koolui.builders.align
 import com.lightningkite.koolui.builders.horizontal
 import com.lightningkite.koolui.builders.space
 import com.lightningkite.koolui.builders.vertical
@@ -81,16 +81,24 @@ open class AndroidMaterialViewFactory(
         dip = context.resources.displayMetrics.density
     }
 
-    fun contentRoot(subview: View): View {
-        return frame(
-                AlignPair.FillFill to subview
-        ).apply {
+    override fun contentRoot(view: View): View {
+        return frame(view).apply {
             id = frameId
+            lifecycle.alwaysOn = true
         }
     }
 
     override var View.lifecycle: TreeObservableProperty
-        get() = AnyLifecycles.getOrPut(this) { TreeObservableProperty() }
+        get() {
+            val existing = tag as? TreeObservableProperty
+            if (existing == null) {
+                val newOne = TreeObservableProperty()
+                tag = newOne
+                return newOne
+            } else {
+                return existing
+            }
+        }
         set(value) {
             AnyLifecycles[this] = value
         }
@@ -167,7 +175,7 @@ open class AndroidMaterialViewFactory(
             dependency: DEPENDENCY,
             page: MutableObservableProperty<Int>,
             vararg pageGenerator: ViewGenerator<DEPENDENCY, View>
-    ): View = frame {
+    ): View = align {
         AlignPair.FillFill + ViewPager(context).apply {
             var iSet = false
             adapter = object : PagerAdapter() {
@@ -325,12 +333,18 @@ open class AndroidMaterialViewFactory(
         })
 
         lifecycle.bind(firstIndex) {
-            if (setByAndroid) return@bind
+            if (setByAndroid) {
+                setByAndroid = false
+                return@bind
+            }
             scrollToPosition(it)
         }
 
         lifecycle.bind(lastIndex) {
-            if (setByAndroid) return@bind
+            if (setByAndroid) {
+                setByAndroid = false
+                return@bind
+            }
             scrollToPosition(it)
         }
 
@@ -999,7 +1013,7 @@ open class AndroidMaterialViewFactory(
         )
     }
 
-    override fun frame(vararg views: Pair<AlignPair, View>): View = FrameLayout(context).apply {
+    override fun align(vararg views: Pair<AlignPair, View>): View = FrameLayout(context).apply {
         for ((placement, subview) in views) {
             subview.lifecycle.parent = this.lifecycle
             val layoutParams = FrameLayout.LayoutParams(
@@ -1034,7 +1048,7 @@ open class AndroidMaterialViewFactory(
         return this
     }
 
-    override fun View.background(color: ObservableProperty<Color>): View = frame(AlignPair.FillFill to this).apply {
+    override fun View.background(color: ObservableProperty<Color>): View = align(AlignPair.FillFill to this).apply {
         lifecycle.bind(color) {
             setBackgroundColor(it.toInt())
         }
@@ -1090,7 +1104,7 @@ open class AndroidMaterialViewFactory(
         val frame = access.activity?.findViewById<FrameLayout>(frameId) ?: return
         var dismisser: () -> Unit = {}
         val generatedView = makeView { dismisser() }
-        val wrapper = frame(
+        val wrapper = align(
                 AlignPair.CenterCenter to generatedView.apply {
                     if (!hasOnClickListeners()) {
                         setOnClickListener { /*squish*/ }

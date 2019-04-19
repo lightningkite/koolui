@@ -30,6 +30,12 @@ fun <VIEW> ViewFactory<VIEW>.vertical(setup: LinearBuilder<VIEW>.() -> Unit): VI
     return vertical(*list.toTypedArray())
 }
 
+fun <VIEW> ViewFactory<VIEW>.linear(defaultToHorizontal: Boolean = false, setup: LinearBuilder<VIEW>.() -> Unit): VIEW {
+    val list = LinearBuilder<VIEW>()
+    list.setup()
+    return linear(defaultToHorizontal = defaultToHorizontal, views = *list.toTypedArray())
+}
+
 class AlignPairBuilder<VIEW>() : MutableList<Pair<AlignPair, VIEW>> by ArrayList<Pair<AlignPair, VIEW>>() {
 
     var defaultAlign = Align.Fill
@@ -43,8 +49,8 @@ class AlignPairBuilder<VIEW>() : MutableList<Pair<AlignPair, VIEW>> by ArrayList
     }
 }
 
-fun <VIEW> ViewFactory<VIEW>.frame(setup: AlignPairBuilder<VIEW>.() -> Unit): VIEW {
+fun <VIEW> ViewFactory<VIEW>.align(setup: AlignPairBuilder<VIEW>.() -> Unit): VIEW {
     val list = AlignPairBuilder<VIEW>()
     list.setup()
-    return frame(*list.toTypedArray())
+    return align(*list.toTypedArray())
 }

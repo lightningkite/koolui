@@ -44,6 +44,12 @@ interface ViewFactory<VIEW> {
 
     fun withColorSet(colorSet: ColorSet): ViewFactory<VIEW>
 
+    /**
+     * Wraps the given view in another view, if necessary for this view factory to function.
+     * Some view factories need a certain root view to be accessible to add dialogs and such.
+     */
+    fun contentRoot(view: VIEW): VIEW = view
+
     //Navigation
 
     /**
@@ -318,12 +324,29 @@ interface ViewFactory<VIEW> {
     ): VIEW
 
     /**
+     * Places elements linearly, either left to right or top to bottom.
+     * The orientation is determined automatically based on what the system decides fits the elements best.
+     * The placement pairs determine whether or not the elements are stretched or shifted around.
+     */
+    fun linear(
+            defaultToHorizontal: Boolean = false,
+            vararg views: Pair<LinearPlacement, VIEW>
+    ): VIEW = if (defaultToHorizontal) horizontal(*views) else vertical(*views)
+
+    /**
      * Places elements on top of each other, back to front.
      * The placement pairs determine whether or not the elements are stretched or shifted around.
      */
-    fun frame(
+    fun align(
             vararg views: Pair<AlignPair, VIEW>
     ): VIEW
+
+    /**
+     * Frames these elements separately.
+     */
+    fun frame(
+            view: VIEW
+    ): VIEW = align(AlignPair.FillFill to view)
 
     /**
      * Adds a 'card' background to the given item.
@@ -342,6 +365,19 @@ interface ViewFactory<VIEW> {
             right: Float = 0f,
             bottom: Float = 0f
     ): VIEW
+
+    fun VIEW.margin(
+            horizontal: Float = 0f,
+            top: Float = 0f,
+            bottom: Float = 0f
+    ) = this.margin(horizontal, top, horizontal, bottom)
+
+    fun VIEW.margin(
+            horizontal: Float = 0f,
+            vertical: Float = 0f
+    ) = this.margin(horizontal, vertical, horizontal, vertical)
+
+    fun VIEW.margin(amount: Float) = this.margin(amount, amount, amount, amount)
 
     /**
      * Adds a background to the given item.
@@ -391,19 +427,6 @@ interface ViewFactory<VIEW> {
      * Forces the view to be of a certain size
      */
     fun VIEW.setHeight(height: Float): VIEW
-
-    fun VIEW.margin(
-            horizontal: Float = 0f,
-            top: Float = 0f,
-            bottom: Float = 0f
-    ) = this.margin(horizontal, top, horizontal, bottom)
-
-    fun VIEW.margin(
-            horizontal: Float = 0f,
-            vertical: Float = 0f
-    ) = this.margin(horizontal, vertical, horizontal, vertical)
-
-    fun VIEW.margin(amount: Float) = this.margin(amount, amount, amount, amount)
 
     /**
      * Gets the lifecycle of a view.
