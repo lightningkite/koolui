@@ -30,7 +30,10 @@ import android.webkit.WebView
 import android.widget.*
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
-import com.lightningkite.koolui.builders.*
+import com.lightningkite.koolui.builders.align
+import com.lightningkite.koolui.builders.horizontal
+import com.lightningkite.koolui.builders.space
+import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -63,7 +66,6 @@ import java.text.ParseException
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlin.properties.ObservableProperty
 
 open class AndroidMaterialViewFactory(
         val access: ActivityAccess,
@@ -173,7 +175,7 @@ open class AndroidMaterialViewFactory(
             dependency: DEPENDENCY,
             page: MutableObservableProperty<Int>,
             vararg pageGenerator: ViewGenerator<DEPENDENCY, View>
-    ): View = frame {
+    ): View = align {
         AlignPair.FillFill + ViewPager(context).apply {
             var iSet = false
             adapter = object : PagerAdapter() {
