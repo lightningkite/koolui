@@ -207,7 +207,7 @@ class HtmlViewFactory(
         firstIndex: MutableObservableProperty<Int>,
         lastIndex: MutableObservableProperty<Int>,
         direction: Direction,
-        makeView: (obs: ObservableProperty<T>) -> HTMLElement
+        makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> HTMLElement
     ): HTMLElement = defaultList(
         pageSize = 20,
         buttonColor = colorSet.foreground,

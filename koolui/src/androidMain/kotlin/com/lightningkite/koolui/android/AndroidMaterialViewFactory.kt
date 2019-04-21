@@ -167,7 +167,10 @@ open class AndroidMaterialViewFactory(
         }
     }.apply {
         lifecycle.listen(access.onBackPressed) {
-            stack.pop() != null
+            if(stack.size > 1){
+                stack.pop()
+                true
+            } else false
         }
     }
 
@@ -256,17 +259,19 @@ open class AndroidMaterialViewFactory(
 
     inner class ListViewHolder<T>(
             context: Context,
-            val makeView: (obs: ObservableProperty<T>) -> View,
+            val makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> View,
             val parent: TreeObservableProperty
     ) : RecyclerView.ViewHolder(FrameLayout(context).apply {
         layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
     }) {
         var property: StandardObservableProperty<T>? = null
-        fun update(item: T) {
+        var index: StandardObservableProperty<Int> = StandardObservableProperty(0)
+        fun update(item: T, newIndex: Int) {
             GlobalScope.launch(Dispatchers.UI) {
+                index.value = newIndex
                 if (property == null) {
                     property = StandardObservableProperty(item)
-                    val newView = makeView.invoke(property!!)
+                    val newView = makeView.invoke(property!!, index)
                     newView.lifecycle.parent = parent
                     (itemView as FrameLayout).addView(
                             newView,
@@ -292,7 +297,7 @@ open class AndroidMaterialViewFactory(
             firstIndex: MutableObservableProperty<Int>,
             lastIndex: MutableObservableProperty<Int>,
             direction: Direction,
-            makeView: (obs: ObservableProperty<T>) -> View
+            makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> View
     ): View = RecyclerView(context).apply {
         layoutManager = LinearLayoutManager(
                 context,
@@ -305,10 +310,10 @@ open class AndroidMaterialViewFactory(
             override fun onCreateViewHolder(
                     parent: ViewGroup,
                     viewType: Int
-            ): ListViewHolder<T> = ListViewHolder(context, makeView, this@apply.lifecycle)
+            ): ListViewHolder<T> = ListViewHolder<T>(context, makeView, this@apply.lifecycle)
 
             override fun onBindViewHolder(holder: ListViewHolder<T>, position: Int) {
-                holder.update(data[position])
+                holder.update(data[position], position)
             }
         }
 
@@ -348,15 +353,25 @@ open class AndroidMaterialViewFactory(
             scrollToPosition(it)
         }
 
+        fun updateIndices() {
+            for (index in 0 until childCount) {
+                val holder = getChildViewHolder(getChildAt(index)) as? ListViewHolder<T>
+                if (holder != null) {
+                    holder.index.value = holder.adapterPosition
+                }
+            }
+        }
+
         lifecycle.bind(data, ObservableListListenerSet<T>(
-                onAddListener = { item, position -> adapter.notifyItemInserted(position) },
-                onRemoveListener = { item, position -> adapter.notifyItemRemoved(position) },
+                onAddListener = { item, position -> adapter.notifyItemInserted(position); updateIndices() },
+                onRemoveListener = { item, position -> adapter.notifyItemRemoved(position); updateIndices() },
                 onChangeListener = { oldItem, newItem, position -> adapter.notifyItemChanged(position) },
                 onMoveListener = { item, oldPosition, newPosition ->
                     adapter.notifyItemMoved(
                             oldPosition,
                             newPosition
                     )
+                    updateIndices()
                 },
                 onReplaceListener = { list -> adapter.notifyDataSetChanged() }
         ))

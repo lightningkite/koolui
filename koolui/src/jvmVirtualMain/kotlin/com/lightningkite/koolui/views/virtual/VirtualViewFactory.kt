@@ -88,12 +88,12 @@ open class VirtualViewFactory(
     override fun imageButton(imageWithSizing: ObservableProperty<ImageWithSizing>, label: ObservableProperty<String?>, importance: Importance, onClick: () -> Unit): ImageButtonView = ImageButtonView(imageWithSizing, label, importance, onClick)
     class ImageButtonView(var imageWithSizing: ObservableProperty<ImageWithSizing>, var label: ObservableProperty<String?>, var importance: Importance, var onClick: () -> Unit) : View()
 
-    override fun <T> list(data: ObservableList<T>, firstIndex: MutableObservableProperty<Int>, lastIndex: MutableObservableProperty<Int>, direction: Direction, makeView: (obs: ObservableProperty<T>) -> View): ListView<T> = ListView(data, firstIndex, lastIndex, direction, makeView)
-    class ListView<T>(var data: ObservableList<T>, var firstIndex: MutableObservableProperty<Int>, var lastIndex: MutableObservableProperty<Int>, var direction: Direction, var makeView: (obs: ObservableProperty<T>) -> View)  : ContainerView(){
+    override fun <T> list(data: ObservableList<T>, firstIndex: MutableObservableProperty<Int>, lastIndex: MutableObservableProperty<Int>, direction: Direction, makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> View): ListView<T> = ListView(data, firstIndex, lastIndex, direction, makeView)
+    class ListView<T>(var data: ObservableList<T>, var firstIndex: MutableObservableProperty<Int>, var lastIndex: MutableObservableProperty<Int>, var direction: Direction, var makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> View)  : ContainerView(){
         //TODO: Make this recycle
         var views:List<View> = listOf()
         fun update(){
-            views = (firstIndex.value .. lastIndex.value).map { makeView(ConstantObservableProperty(data[it])) }
+            views = (firstIndex.value .. lastIndex.value).map { makeView(ConstantObservableProperty(data[it]), ConstantObservableProperty(it)) }
         }
         init{
             update()

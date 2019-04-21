@@ -40,33 +40,7 @@ val versions = Properties().apply {
 group = "com.lightningkite"
 version = versions.getProperty("koolui")
 
-val jvmVirtual = KTarget(
-        name = "jvmVirtual",
-        platformType = KotlinPlatformType.jvm,
-        konanTarget = null,
-        worksOnMyPlatform = { true },
-        configure = {
-            jvm("jvmVirtual") {
-                attributes {
-                    attribute(KTarget.attributeUI, "jvmVirtual")
-                }
-            }
-        }
-)
-
-val jvmServer = KTarget(
-        name = "jvmServer",
-        platformType = KotlinPlatformType.jvm,
-        konanTarget = null,
-        worksOnMyPlatform = { true },
-        configure = {
-            jvm("jvmServer") {
-                attributes {
-                    attribute(KTarget.attributeUI, "jvmVirtual")
-                }
-            }
-        }
-)
+val jvmServer = KTarget.jvmVirtual.copy(name = "jvmServer")
 
 kotlin {
     val tryTargets = KTarget.run {
@@ -84,19 +58,11 @@ kotlin {
         main {
             dependency(standardLibrary)
             dependency(coroutines(versions.getProperty("kotlinx_coroutines")).type(KDependencyType.Api))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon")) {
-                isJvm uses projectOrMaven("com.lightningkite", "kommon-jvm", versions.getProperty("kommon"), ":kommon")
-            }.type(KDependencyType.Api))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize")) {
-                isJvm uses projectOrMaven("com.lightningkite", "lokalize-jvm", versions.getProperty("lokalize"), ":lokalize")
-            }.type(KDependencyType.Api))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive")) {
-                isJvm uses projectOrMaven("com.lightningkite", "reacktive-jvm", versions.getProperty("reacktive"), ":reacktive")
-            }.type(KDependencyType.Api))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "recktangle", versions.getProperty("recktangle")) {
-                isJvm uses projectOrMaven("com.lightningkite", "recktangle-jvm", versions.getProperty("recktangle"), ":recktangle")
-            }.type(KDependencyType.Api))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "koolui", versions.getProperty("koolui")).type(KDependencyType.Api))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "recktangle", versions.getProperty("recktangle"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "koolui", versions.getProperty("koolui"), groupings = KTargetPredicates.ui).type(KDependencyType.Api))
         }
         test {
             dependency(testing)

@@ -90,8 +90,19 @@ interface ViewFactory<VIEW> {
             firstIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
             lastIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
             direction: Direction = Direction.Down,
-            makeView: (obs: ObservableProperty<T>) -> VIEW
+            makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> VIEW
     ): VIEW
+
+    /**
+     * Shows a list of items and notifies you when it's scrolled to the end.
+     */
+    fun <T> list(
+            data: ObservableList<T>,
+            firstIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
+            lastIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
+            direction: Direction = Direction.Down,
+            makeView: (obs: ObservableProperty<T>) -> VIEW
+    ): VIEW = list(data, firstIndex, lastIndex, direction) { obs, index -> makeView(obs) }
 
 
     //Display

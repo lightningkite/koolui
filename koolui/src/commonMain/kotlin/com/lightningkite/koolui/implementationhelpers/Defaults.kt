@@ -62,7 +62,7 @@ fun <VIEW, T> ViewFactory<VIEW>.defaultList(
     direction: Direction,
     firstIndex: MutableObservableProperty<Int>,
     lastIndex: MutableObservableProperty<Int>,
-    makeView: (obs: ObservableProperty<T>) -> VIEW
+    makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> VIEW
 ): VIEW {
     var setByUi = false
     val pageObs = StandardObservableProperty(firstIndex.value / pageSize)
@@ -111,7 +111,7 @@ fun <VIEW, T> ViewFactory<VIEW>.defaultList(
                             if (filledView != null) return filledView!!
                             val obs: ObservableProperty<T> =
                                 data.onListUpdate.transform { it.getOrNull(index) ?: backup as T }
-                            filledView = makeView(obs)
+                            filledView = makeView(obs, ConstantObservableProperty(index))
                             return filledView as VIEW
                         }
                         -swap(data.onListUpdate.transform {
@@ -133,7 +133,7 @@ fun <VIEW, T> ViewFactory<VIEW>.defaultList(
                             if (filledView != null) return filledView!!
                             val obs: ObservableProperty<T> =
                                 data.onListUpdate.transform { it.getOrNull(index) ?: backup as T }
-                            filledView = makeView(obs)
+                            filledView = makeView(obs, ConstantObservableProperty(index))
                             return filledView as VIEW
                         }
                         -swap(data.onListUpdate.transform {

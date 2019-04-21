@@ -300,7 +300,7 @@ data class MaterialJavaFxViewFactory(
             firstIndex: MutableObservableProperty<Int>,
             lastIndex: MutableObservableProperty<Int>,
             direction: Direction,
-            makeView: (obs: ObservableProperty<T>) -> Node
+            makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> Node
     ): Node = defaultList(
             pageSize = 20,
             buttonColor = colorSet.foreground,

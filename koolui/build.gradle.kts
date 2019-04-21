@@ -55,19 +55,6 @@ android {
 
 
 kotlin {
-    val jvmVirtual = KTarget(
-            name = "jvmVirtual",
-            platformType = KotlinPlatformType.jvm,
-            konanTarget = null,
-            worksOnMyPlatform = { true },
-            configure = {
-                jvm("jvmVirtual") {
-                    attributes {
-                        attribute(KTarget.attributeUI, "jvmVirtual")
-                    }
-                }
-            }
-    )
 
     val tryTargets = KTarget.run {
         setOf(
@@ -81,18 +68,10 @@ kotlin {
         main {
             dependency(standardLibrary)
             dependency(coroutines(versions.getProperty("kotlinx_coroutines")))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon")) {
-                isJvm uses projectOrMaven("com.lightningkite", "kommon-jvm", versions.getProperty("kommon"), ":kommon")
-            })
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize")) {
-                isJvm uses projectOrMaven("com.lightningkite", "lokalize-jvm", versions.getProperty("lokalize"), ":lokalize")
-            })
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive")) {
-                isJvm uses projectOrMaven("com.lightningkite", "reacktive-jvm", versions.getProperty("reacktive"), ":reacktive")
-            })
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "recktangle", versions.getProperty("recktangle")) {
-                isJvm uses projectOrMaven("com.lightningkite", "recktangle-jvm", versions.getProperty("recktangle"), ":recktangle")
-            })
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive"), groupings = KTargetPredicates.binary))
+            dependency(projectOrMavenDashPlatform("com.lightningkite", "recktangle", versions.getProperty("recktangle"), groupings = KTargetPredicates.binary))
         }
         test {
             dependency(testing)
@@ -127,12 +106,8 @@ kotlin {
                 }
             }
         }
-        jvmVirtual.sources {}
+        KTarget.jvmVirtual.sources {}
         isJs.sources {}
-    }
-
-    android {
-        publishLibraryVariants("release")//, "debug")
     }
 }
 
