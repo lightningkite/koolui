@@ -47,11 +47,11 @@ fun <VIEW> ViewFactory<VIEW>.defaultEntryContext(
         -field.margin(2f)
         -swap(
             feedback.transform {
-                val v = if (it == null) space(Point(12f, 12f))
-                else text(ConstantObservableProperty(it.second), importance = it.first, size = TextSize.Tiny)
+                val v = if (it == null) space(0f).margin(0f)
+                else text(ConstantObservableProperty(it.second), importance = it.first, size = TextSize.Tiny).margin(2f)
                 v to Animation.Fade
             }
-        ).margin(2f)
+        ).margin(0f)
     }
 }.margin(6f)
 

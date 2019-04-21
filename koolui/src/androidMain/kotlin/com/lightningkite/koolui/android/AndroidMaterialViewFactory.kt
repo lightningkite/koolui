@@ -682,8 +682,9 @@ open class AndroidMaterialViewFactory(
         val format = if (decimalPlaces == 0) DecimalFormat("#") else DecimalFormat("#." + "#".repeat(decimalPlaces))
 
         infix fun Number?.basicallyDifferent(other: Number?): Boolean {
-            if (this == null) return false
-            if (other == null) return false
+            if (this == null && other == null) return false
+            if (this == null) return true
+            if (other == null) return true
             return abs(this.toDouble() - other.toDouble()) > 0.00001
         }
 
