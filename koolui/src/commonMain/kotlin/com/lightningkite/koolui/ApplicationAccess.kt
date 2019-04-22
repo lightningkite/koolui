@@ -27,4 +27,6 @@ expect object ApplicationAccess {
      * You'll have to register to catch it in the manifests of each platform separately.
      */
     val onDeepLink: MutableList<(url: String) -> Boolean>
+
+    //Potential additions: clipboard access
 }
