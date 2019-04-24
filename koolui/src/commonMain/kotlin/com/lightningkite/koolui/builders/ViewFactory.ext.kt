@@ -124,6 +124,6 @@ fun <VIEW> ViewFactory<VIEW>.launchInfoDialog(
                     dismiss()
                 }
             }
-        }))
+        }).margin(8f))
     }
 }
