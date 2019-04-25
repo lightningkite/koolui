@@ -22,6 +22,7 @@ import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.recktangle.Point
 import javafx.beans.property.Property
 import javafx.beans.property.ReadOnlyProperty
+import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.Parent
@@ -415,16 +416,30 @@ data class MaterialJavaFxViewFactory(
         unFocusColor = colorSet.background.toJavaFX()
         items = options.asJavaFX(lifecycle)
 
+        var localSet = false
+        lifecycle.bind(selected){
+            if(localSet) {
+                localSet = false
+            } else {
+                this.selectionModel.select(it)
+            }
+        }
+        this.onAction = EventHandler {
+            localSet = true
+            selected.value = this.value
+        }
+
         setCellFactory {
             object : ListCell<T>() {
                 val obs = StandardObservableProperty<T>(options.firstOrNull() as T)
 
                 init {
-                    children += makeView(obs)
+                    this.graphic = makeView(obs)
                 }
 
                 override fun updateItem(item: T, empty: Boolean) {
                     obs.value = item
+                    this.text = item.toString()
                 }
             }
         }

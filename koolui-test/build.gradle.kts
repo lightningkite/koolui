@@ -106,5 +106,5 @@ android {
     }
 }
 
-//javaApp(forTarget = KTarget.javafx, mainClassName = "com.lightningkite.koolui.test.MainKt")
+javaApp(forTarget = KTarget.javafx, mainClassName = "com.lightningkite.koolui.test.MainKt")
 jsApp(forTarget = KTarget.js)

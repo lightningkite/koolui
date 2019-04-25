@@ -93,7 +93,16 @@ kotlin {
         KTarget.javafx.sources {
             main {
                 dependencies {
-                    api("com.jfoenix:jfoenix:8.0.8")
+                    sequenceOf("win", "mac", "linux").forEach {
+                        api("org.openjfx:javafx-base:12:$it")
+                        api("org.openjfx:javafx-graphics:12:$it")
+                        api("org.openjfx:javafx-controls:12:$it")
+                        api("org.openjfx:javafx-media:12:$it")
+                        api("org.openjfx:javafx-web:12:$it")
+                        api("org.openjfx:javafx-swing:12:$it")
+                    }
+
+                    api("com.jfoenix:jfoenix:9.0.3")
                     api("org.apache.xmlgraphics:batik-dom:1.10")
                     api("org.apache.xmlgraphics:batik-anim:1.10")
                     api("org.apache.xmlgraphics:batik-bridge:1.10")
