@@ -599,9 +599,9 @@ open class AndroidMaterialViewFactory(
         lifecycle.listen(options.onListUpdate) {
             newAdapter.notifyDataSetChanged()
             val index = options.indexOf(selected.value)
-            println("update to $index - ${selected.value}")
+//            println("update to $index - ${selected.value}")
             if (index == -1) {
-                println("could not find ${selected.value}")
+//                println("could not find ${selected.value}")
                 setSelection(0)
                 return@listen
             }
@@ -610,9 +610,9 @@ open class AndroidMaterialViewFactory(
 
         lifecycle.bind(selected) { it ->
             val index = options.indexOf(it)
-            println("selected to $index - $it")
+//            println("selected to $index - $it")
             if (index == -1) {
-                println("could not find ${it?.hashCode()} in ${options.joinToString { it?.hashCode().toString() }}")
+//                println("could not find ${it?.hashCode()} in ${options.joinToString { it?.hashCode().toString() }}")
                 setSelection(0)
                 return@bind
             }
