@@ -460,6 +460,8 @@ open class AndroidMaterialViewFactory(
             importance: Importance,
             onClick: () -> Unit
     ): View = ImageButton(context).apply {
+        val padding = (dip * 8).toInt()
+        this.setPadding(padding, padding, padding, padding)
         lifecycle.bind(label) {
             if (Build.VERSION.SDK_INT > 26) {
                 this.tooltipText = it
