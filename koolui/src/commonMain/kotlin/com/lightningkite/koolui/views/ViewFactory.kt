@@ -189,7 +189,7 @@ interface ViewFactory<VIEW> {
     fun <T> picker(
             options: ObservableList<T>,
             selected: MutableObservableProperty<T>,
-            makeView: (obs: ObservableProperty<T>) -> VIEW = { obs -> text(obs.transform { it.toString() }) }
+            toString: (T) -> String = { it.toString() }
     ): VIEW
 
     /**

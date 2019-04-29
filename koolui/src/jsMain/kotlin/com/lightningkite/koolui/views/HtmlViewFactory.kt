@@ -396,12 +396,12 @@ class HtmlViewFactory(
     override fun <T> picker(
         options: ObservableList<T>,
         selected: MutableObservableProperty<T>,
-        makeView: (obs: ObservableProperty<T>) -> HTMLElement
+        toString: (T) -> String
     ): HTMLElement = makeElement<HTMLSelectElement>("select") {
         lifecycle.bind(options.onListUpdate) {
             it.forEachIndexed { index, option ->
                 this.options.add(document.createElement("option").let { it as HTMLOptionElement }.apply {
-                    this.text = option.toString()
+                    this.text = toString(option)
                     this.value = index.toString()
                 })
             }

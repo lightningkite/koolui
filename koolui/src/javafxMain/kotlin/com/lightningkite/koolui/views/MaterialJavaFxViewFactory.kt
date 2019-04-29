@@ -409,7 +409,7 @@ data class MaterialJavaFxViewFactory(
     override fun <T> picker(
             options: ObservableList<T>,
             selected: MutableObservableProperty<T>,
-            makeView: (obs: ObservableProperty<T>) -> Node
+            toString: (T)->String
     ) = JFXComboBox<T>().apply {
 
         focusColor = colorSet.backgroundHighlighted.toJavaFX()
@@ -424,25 +424,29 @@ data class MaterialJavaFxViewFactory(
                 this.selectionModel.select(it)
             }
         }
-        this.onAction = EventHandler {
+        this.selectionModel.selectedItemProperty().addListener { observable, oldValue, newValue ->
             localSet = true
-            selected.value = this.value
+            selected.value = newValue
         }
 
         setCellFactory {
             object : ListCell<T>() {
+                init {
+                    font = Font.font(TextSize.Body.javafx)
+                    textFill = colorSet.foreground.toJavaFX()
+                    background = Background(BackgroundFill(colorSet.background.toJavaFX(), CornerRadii.EMPTY, Insets.EMPTY))
+                }
+
                 val obs = StandardObservableProperty<T>(options.firstOrNull() as T)
 
-                init {
-                    this.graphic = makeView(obs)
+                override fun updateItem(item: T, empty: Boolean) {
+                    this.text = toString(item)
+                    super.updateItem(item, empty)
                 }
 
-                override fun updateItem(item: T, empty: Boolean) {
-                    obs.value = item
-                    this.text = item.toString()
-                }
             }
         }
+        this.buttonCell = cellFactory.call(null)
     }
 
     override fun textField(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Node =

@@ -127,21 +127,8 @@ open class VirtualViewFactory(
         override fun listViews(): List<View> = listOf(currentView)
     }
 
-    override fun <T> picker(options: ObservableList<T>, selected: MutableObservableProperty<T>, makeView: (obs: ObservableProperty<T>) -> View): PickerView<T> = PickerView(options, selected, makeView)
-    class PickerView<T>(var options: ObservableList<T>, var selected: MutableObservableProperty<T>, var makeView: (obs: ObservableProperty<T>) -> View)  : ContainerView(){
-        //TODO: Make this recycle
-        var views:List<View> = listOf()
-        fun update(){
-            views = options.map { makeView(ConstantObservableProperty(it)) }
-        }
-        init{
-            update()
-            attached.listen(options.onListUpdate){
-                update()
-            }
-        }
-        override fun listViews(): List<View> = views
-    }
+    override fun <T> picker(options: ObservableList<T>, selected: MutableObservableProperty<T>, makeView: (T) -> String): PickerView<T> = PickerView(options, selected, makeView)
+    class PickerView<T>(var options: ObservableList<T>, var selected: MutableObservableProperty<T>, var makeView: (T) -> String) : View()
 
     override fun progress(view: View, progress: ObservableProperty<Float>): ProgressView = ProgressView(view, progress)
     class ProgressView(var view: View, var progress: ObservableProperty<Float>)  : ContainerView(){

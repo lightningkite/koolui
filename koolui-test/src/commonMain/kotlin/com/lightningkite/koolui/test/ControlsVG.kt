@@ -73,9 +73,7 @@ class ControlsVG<VIEW>() : MyViewGenerator<VIEW> {
             )
             -entryContext(
                     label = "picker",
-                    field = picker(observableListOf("A", "B", "C"), StandardObservableProperty("A")) {
-                        text(it)
-                    }
+                    field = picker(observableListOf("A", "B", "C"), StandardObservableProperty("A"))
             )
             -entryContext(
                     label = "toggle",

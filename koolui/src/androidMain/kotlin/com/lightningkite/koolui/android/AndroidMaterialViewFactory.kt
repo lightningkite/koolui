@@ -541,7 +541,7 @@ open class AndroidMaterialViewFactory(
     inner class StandardListAdapter<T>(
             list: List<T>,
             val parent: TreeObservableProperty,
-            val makeView: (obs: ObservableProperty<T>) -> View
+            val toString: (T) -> String
     ) : BaseAdapter() {
 
         inner class ItemObservable(init: T) : StandardObservableProperty<T>(init) {
@@ -565,7 +565,9 @@ open class AndroidMaterialViewFactory(
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
             return if (convertView == null) {
                 val newObs = ItemObservable(list[position])
-                val newView = makeView(newObs)
+                val newView = text(
+                        text = newObs.transform(toString)
+                )
                 newView.lifecycle.parent = this.parent
                 newView.tag = newObs
                 newObs.index = position
@@ -591,9 +593,9 @@ open class AndroidMaterialViewFactory(
     override fun <T> picker(
             options: ObservableList<T>,
             selected: MutableObservableProperty<T>,
-            makeView: (obs: ObservableProperty<T>) -> View
+            toString: (T)->String
     ): View = Spinner(context).apply {
-        val newAdapter: StandardListAdapter<T> = StandardListAdapter<T>(options, lifecycle, makeView)
+        val newAdapter: StandardListAdapter<T> = StandardListAdapter<T>(options, lifecycle, toString)
         adapter = newAdapter
 
         var indexAlreadySet = false
@@ -864,6 +866,9 @@ open class AndroidMaterialViewFactory(
                 lifecycle.bind(working) {
                     this.isRefreshing = it
                 }
+                this.setOnRefreshListener {
+                    onRefresh()
+                }
             }
 
     override fun scrollVertical(view: View, amount: MutableObservableProperty<Float>): View =
@@ -1085,7 +1090,7 @@ open class AndroidMaterialViewFactory(
     override fun card(view: View): View = CardView(context).apply {
         setCardBackgroundColor(colorSet.backgroundHighlighted.toInt())
         view.lifecycle.parent = this.lifecycle
-        addView(view, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+        addView(view, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
             view.desiredMargins.let {
                 setMargins(
                         (it.left * dip).toInt(),
