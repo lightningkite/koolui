@@ -14,6 +14,7 @@ import android.support.annotation.DrawableRes
 import android.support.v4.app.NotificationCompat
 import com.lightningkite.koolui.android.NotificationHandlerService
 import com.lightningkite.koolui.android.access.ActivityAccess
+import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty

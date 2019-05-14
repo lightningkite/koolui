@@ -2,7 +2,7 @@ package com.lightningkite.koolui.layout
 
 import com.lightningkite.koolui.geometry.Measurement
 
-class LeafDimensionCalculator(val startMargin: Float, val size: Float, val endMargin: Float) : BaseDimensionCalculator() {
+class LeafDimensionCalculator(var startMargin: Float, var size: Float, var endMargin: Float) : BaseDimensionCalculator() {
     override fun measure(output: Measurement) {
         output.startMargin = startMargin
         output.size = size

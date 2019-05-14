@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.recktangle.Point

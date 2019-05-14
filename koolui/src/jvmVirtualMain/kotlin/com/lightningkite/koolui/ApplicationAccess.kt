@@ -8,6 +8,7 @@ import com.lightningkite.recktangle.Point
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.lightningkite.koolui.notification.Notification
 
 actual object ApplicationAccess {
 

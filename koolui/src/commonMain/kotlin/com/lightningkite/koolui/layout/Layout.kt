@@ -46,11 +46,13 @@ class Layout<out S : V, V>(val viewAdapter: ViewAdapter<S, V>, x: DimensionCalcu
     }
 
     fun addChild(layout: Layout<*, V>) {
+        viewAdapter.onAddChild(layout)
         layout.parent = this
         isAttached.parent = this.isAttached
     }
 
     fun removeChild(layout: Layout<*, V>) {
+        viewAdapter.onRemoveChild(layout)
         layout.parent = null
         isAttached.parent = null
     }

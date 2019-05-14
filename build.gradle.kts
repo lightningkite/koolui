@@ -5,6 +5,6 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:3.3.1")
+        classpath("com.android.tools.build:gradle:3.4.0")
     }
 }

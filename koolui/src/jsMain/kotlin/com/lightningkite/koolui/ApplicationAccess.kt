@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty

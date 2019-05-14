@@ -4,6 +4,7 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.recktangle.Rectangle
 import kotlin.test.Test
+import kotlin.test.fail
 
 class LayoutsTest {
 
@@ -167,5 +168,6 @@ class LayoutsTest {
 
         layout.layout(Rectangle(left = 0f, right = 80f, top = 0f, bottom = 60f))
         println(buildString { (layout.viewAdapter as DummyAdapter).chars2D().print(this) })
+        fail()
     }
 }

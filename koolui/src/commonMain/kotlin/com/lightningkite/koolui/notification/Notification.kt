@@ -1,4 +1,4 @@
-package com.lightningkite.koolui
+package com.lightningkite.koolui.notification
 
 data class Notification(
     val id: Int = 0,

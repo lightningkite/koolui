@@ -87,6 +87,11 @@ kotlin {
                     api("com.android.support:gridlayout-v7:$compatVersion")
                     api("com.android.support:recyclerview-v7:$compatVersion")
                     api("com.android.support:design:$compatVersion")
+
+//                    api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
+//                    api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")
+//                    api("com.lightningkite:recktangle-jvm:${versions.getProperty("recktangle")}")
+                    api("com.google.firebase:firebase-messaging:18.0.0")
                 }
             }
         }
