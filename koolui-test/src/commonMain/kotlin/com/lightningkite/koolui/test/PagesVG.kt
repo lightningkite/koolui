@@ -5,8 +5,6 @@ import com.lightningkite.koolui.builders.pagesEmbedded
 import com.lightningkite.koolui.builders.text
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
-import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
 
 class PagesVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Pages"
@@ -16,16 +14,16 @@ class PagesVG<VIEW>() : MyViewGenerator<VIEW> {
                 dependency,
                 StandardObservableProperty(0),
                 {
-                    text(size = TextSize.Header, text = "First page", alignPair = AlignPair.CenterCenter)
+                    text(text = "First page", size = TextSize.Header, align = AlignPair.CenterCenter)
                 },
                 {
-                    text(size = TextSize.Header, text = "Second page", alignPair = AlignPair.CenterCenter)
+                    text(text = "Second page", size = TextSize.Header, align = AlignPair.CenterCenter)
                 },
                 {
-                    text(size = TextSize.Header, text = "Third page", alignPair = AlignPair.CenterCenter)
+                    text(text = "Third page", size = TextSize.Header, align = AlignPair.CenterCenter)
                 },
                 {
-                    text(size = TextSize.Header, text = "Last page", alignPair = AlignPair.CenterCenter)
+                    text(text = "Last page", size = TextSize.Header, align = AlignPair.CenterCenter)
                 }
         )
     }

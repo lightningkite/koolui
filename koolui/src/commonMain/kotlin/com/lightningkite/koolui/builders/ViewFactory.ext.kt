@@ -13,16 +13,16 @@ import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
 
 fun <VIEW> ViewFactory<VIEW>.text(
+        text: String,
         size: TextSize = TextSize.Body,
-        alignPair: AlignPair = AlignPair.CenterLeft,
+        align: AlignPair = AlignPair.CenterLeft,
         importance: Importance = Importance.Normal,
-        maxLines: Int = Int.MAX_VALUE,
-        text: String
+        maxLines: Int = Int.MAX_VALUE
 ): VIEW = text(
         text = ConstantObservableProperty(text),
         size = size,
         importance = importance,
-        align = alignPair,
+        align = align,
         maxLines = maxLines
 )
 

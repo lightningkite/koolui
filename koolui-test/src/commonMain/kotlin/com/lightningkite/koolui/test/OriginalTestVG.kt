@@ -1,6 +1,5 @@
 package com.lightningkite.koolui.test
 
-import com.lightningkite.kommon.collection.*
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.reacktive.property.transform
@@ -10,12 +9,10 @@ import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
-import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.MaterialIcon
 import com.lightningkite.koolui.image.withSizing
 import com.lightningkite.koolui.image.color
 import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.recktangle.Point
 
 class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
@@ -40,7 +37,7 @@ class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
             -button(label = ConstantObservableProperty("Button"), onClick = {
                 stack.value = {
                     num++
-                    text(text = "Number $num", size = TextSize.Header, alignPair = AlignPair.CenterCenter)
+                    text(text = "Number $num", size = TextSize.Header, align = AlignPair.CenterCenter)
                 }
             })
 

@@ -14,7 +14,7 @@ class FrameVG<VIEW>() : MyViewGenerator<VIEW> {
                 AlignPair.BottomLeft to text(text = "Bottom Left", size = TextSize.Body),
                 AlignPair.TopCenter to text(text = "Top Center", size = TextSize.Body),
                 AlignPair.CenterCenter to text(text = "Center Center", size = TextSize.Body),
-                AlignPair.FillFill to text(text = "Fill", size = TextSize.Header, alignPair = AlignPair.TopLeft),
+                AlignPair.FillFill to text(text = "Fill", size = TextSize.Header, align = AlignPair.TopLeft),
                 AlignPair.BottomCenter to text(text = "Bottom Center", size = TextSize.Body),
                 AlignPair.TopRight to text(text = "Top Right", size = TextSize.Body),
                 AlignPair.CenterRight to text(text = "Center Right", size = TextSize.Body),

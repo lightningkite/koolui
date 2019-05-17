@@ -8,10 +8,6 @@ import com.lightningkite.koolui.Notification
 import com.lightningkite.koolui.builders.button
 import com.lightningkite.koolui.builders.text
 import com.lightningkite.koolui.builders.vertical
-import com.lightningkite.koolui.concepts.TextSize
-import com.lightningkite.koolui.geometry.AlignPair
-import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
 
 class NotificationTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Notifications"
