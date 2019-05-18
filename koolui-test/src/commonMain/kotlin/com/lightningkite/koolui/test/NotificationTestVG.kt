@@ -4,10 +4,10 @@ import com.lightningkite.lokalize.*
 import com.lightningkite.lokalize.time.*
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.koolui.ApplicationAccess
-import com.lightningkite.koolui.Notification
 import com.lightningkite.koolui.builders.button
 import com.lightningkite.koolui.builders.text
 import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.notification.Notification
 
 class NotificationTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Notifications"
