@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.kommon.string.Uri
 import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.recktangle.Point
@@ -13,7 +14,7 @@ expect object ApplicationAccess {
     val onBackPressed: MutableList<() -> Boolean>
     val onAnimationFrame: MutableCollection<() -> Unit>
 
-    fun openUri(uri: String)
+    fun openUri(uri: Uri)
 
     fun showNotification(notification: Notification)
     /**

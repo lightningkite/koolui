@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.kommon.string.Uri
 import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.ConstantObservableProperty
@@ -26,8 +27,8 @@ actual object ApplicationAccess {
         list
     }
 
-    actual fun openUri(uri: String) {
-        window.location.href = uri
+    actual fun openUri(uri: Uri) {
+        window.open(uri.string)
     }
 
     //TODO: Web notifications

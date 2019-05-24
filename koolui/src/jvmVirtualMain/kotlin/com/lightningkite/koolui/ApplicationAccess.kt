@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.kommon.string.Uri
 import com.lightningkite.koolui.resources.Resources
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
@@ -22,7 +23,7 @@ actual object ApplicationAccess {
     val onAnimationFramePrivate = ArrayList<() -> Unit>()
     actual val onAnimationFrame: MutableCollection<() -> Unit> get() = onAnimationFramePrivate
 
-    actual fun openUri(uri: String){
+    actual fun openUri(uri: Uri){
         println("Opening URI $uri")
     }
 

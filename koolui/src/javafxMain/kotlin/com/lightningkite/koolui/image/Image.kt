@@ -3,6 +3,7 @@ package com.lightningkite.koolui.image
 import com.lightningkite.recktangle.Point
 import javafx.scene.image.Image
 import javafx.scene.image.WritableImage
+import java.io.ByteArrayInputStream
 
 actual class Image(val get: (scale: Float, setSize: Point?) -> Image) {
 
@@ -11,6 +12,11 @@ actual class Image(val get: (scale: Float, setSize: Point?) -> Image) {
             return Image { scale, size ->
                 if (size != null) SVGRenderer.render(svg, size) else SVGRenderer.render(svg, scale)
             }
+        }
+
+        actual fun fromByteArray(byteArray: ByteArray): com.lightningkite.koolui.image.Image {
+            val backing = Image(ByteArrayInputStream(byteArray))
+            return Image { _, _ -> backing }
         }
 
         actual val blank: com.lightningkite.koolui.image.Image = Image { _, _ -> WritableImage(1, 1) }

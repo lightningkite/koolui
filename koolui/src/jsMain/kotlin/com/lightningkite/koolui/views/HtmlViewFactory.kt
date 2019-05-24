@@ -1,5 +1,6 @@
 package com.lightningkite.koolui.views
 
+import com.lightningkite.kommon.asInt8Array
 import com.lightningkite.koolui.appendLifecycled
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.*
@@ -32,7 +33,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.w3c.dom.*
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
+import org.w3c.dom.url.URL
+import org.w3c.files.Blob
 import kotlin.browser.document
 import kotlin.collections.set
 import kotlin.dom.addClass
@@ -286,9 +290,18 @@ class HtmlViewFactory(
         }
     }
 
-    override fun image(image: ObservableProperty<ImageWithSizing>): HTMLImageElement = makeElement<HTMLImageElement>("img") {
-        lifecycle.bind(image) {
-            src = it.image.image
+    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>): HTMLImageElement = makeElement<HTMLImageElement>("img") {
+        lifecycle.bind(imageWithSizing) {
+            it.image.url?.let { url ->
+                src = url
+            } ?: it.image.data?.let { data ->
+                val url = URL.createObjectURL(Blob(arrayOf(data.asInt8Array().buffer)))
+                src = url
+                onload?.invoke(Event("")) //Stops memory leaks when switching images rapidly
+                onload = {
+                    URL.revokeObjectURL(url)
+                }
+            }
             style.objectFit = when (it.scaleType) {
                 ImageScaleType.Crop -> "cover"
                 ImageScaleType.Fill -> "scale-down"

@@ -7,6 +7,10 @@ actual class Image(val data: ByteArray) {
             return Image(svg.toByteArray())
         }
 
+        actual fun fromByteArray(byteArray: ByteArray): Image {
+            return Image(byteArray)
+        }
+
         actual val blank: Image = Image(byteArrayOf())
     }
 }

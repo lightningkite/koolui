@@ -150,7 +150,7 @@ open class AndroidMaterialViewFactory(
                 })
             }.background(theme.bar.background).apply {
                 ViewCompat.setElevation(this, dip * 4f)
-            }
+            }.setHeight(42f)
         }
 
         +swap(stack.lastOrNullObservableWithAnimations().transform {
