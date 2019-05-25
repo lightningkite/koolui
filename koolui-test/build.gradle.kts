@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.util.*
 
 plugins {
-    id("com.android.application")// version "3.3.1"
+    id("com.android.application") version "3.3.1"
     kotlin("multiplatform") version "1.3.21"
 //    kotlin("dce-js") version "1.3.21"
 //    id("org.jetbrains.kotlin.frontend") version "0.0.45"
@@ -58,6 +58,7 @@ kotlin {
         main {
             dependency(standardLibrary)
             dependency(coroutines(versions.getProperty("kotlinx_coroutines")).type(KDependencyType.Api))
+            dependency(ktorClient(versions.getProperty("ktor")).type(KDependencyType.Api))
             dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon"), groupings = KTargetPredicates.binary))
             dependency(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize"), groupings = KTargetPredicates.binary))
             dependency(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive"), groupings = KTargetPredicates.binary))
@@ -67,6 +68,12 @@ kotlin {
         test {
             dependency(testing)
             dependency(testingAnnotations)
+        }
+
+        KTarget.android.sources {
+            main {
+                apiSingle(maven("com.android.support", "multidex", "1.0.3"))
+            }
         }
     }
 }
@@ -82,6 +89,7 @@ android {
 
         versionCode = 1
         versionName = "1.0"
+        multiDexEnabled = true
     }
 
 //    lintOptions {

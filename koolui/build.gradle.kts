@@ -6,7 +6,7 @@ import java.util.*
 plugins {
     kotlin("multiplatform") version "1.3.21"
     `maven-publish`
-    id("com.android.library")// version "3.3.1"
+    id("com.android.library") version "3.3.1"
 }
 
 buildscript {
@@ -66,16 +66,16 @@ kotlin {
     }
     sources(tryTargets = tryTargets) {
         main {
-            dependency(standardLibrary)
-            dependency(coroutines(versions.getProperty("kotlinx_coroutines")))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon"), groupings = KTargetPredicates.binary))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize"), groupings = KTargetPredicates.binary))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive"), groupings = KTargetPredicates.binary))
-            dependency(projectOrMavenDashPlatform("com.lightningkite", "recktangle", versions.getProperty("recktangle"), groupings = KTargetPredicates.binary))
+            implementationSet(standardLibrary)
+            implementationSet(coroutines(versions.getProperty("kotlinx_coroutines")))
+            apiSet(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon"), groupings = KTargetPredicates.binary))
+            apiSet(projectOrMavenDashPlatform("com.lightningkite", "lokalize", versions.getProperty("lokalize"), groupings = KTargetPredicates.binary))
+            apiSet(projectOrMavenDashPlatform("com.lightningkite", "reacktive", versions.getProperty("reacktive"), groupings = KTargetPredicates.binary))
+            apiSet(projectOrMavenDashPlatform("com.lightningkite", "recktangle", versions.getProperty("recktangle"), groupings = KTargetPredicates.binary))
         }
         test {
-            dependency(testing)
-            dependency(testingAnnotations)
+            implementationSet(testing)
+            implementationSet(testingAnnotations)
         }
         KTarget.android.sources {
             main {

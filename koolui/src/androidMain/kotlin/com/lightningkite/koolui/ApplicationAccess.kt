@@ -59,10 +59,6 @@ actual object ApplicationAccess {
 
     actual val onAnimationFrame: MutableCollection<() -> Unit> = ArrayList()
 
-    actual fun openUri(uri: com.lightningkite.kommon.string.Uri) {
-        access?.context?.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(uri.string)))
-    }
-
     val defaultChannelId = "default_channel"
     var channelCreated = false
 

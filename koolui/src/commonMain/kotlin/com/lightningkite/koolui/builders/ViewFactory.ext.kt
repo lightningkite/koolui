@@ -1,16 +1,17 @@
 package com.lightningkite.koolui.builders
 
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.concepts.Importance
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
-import com.lightningkite.reacktive.property.ConstantObservableProperty
-import com.lightningkite.reacktive.property.MutableObservableProperty
-import com.lightningkite.reacktive.property.ObservableProperty
-import com.lightningkite.reacktive.property.transform
+import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 fun <VIEW> ViewFactory<VIEW>.text(
         text: String,
@@ -71,6 +72,16 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.pagesEmbedded(
 fun <VIEW> ViewFactory<VIEW>.loadingImage(
         imageWithSizingObservable: ObservableProperty<ImageWithSizing?>
 ) = work(image(imageWithSizing = imageWithSizingObservable.transform { it ?: ImageWithSizing.none }), imageWithSizingObservable.transform { it == null })
+
+fun <VIEW> ViewFactory<VIEW>.loadingImage(
+        load: suspend ()->ImageWithSizing
+): VIEW {
+    val obs = StandardObservableProperty<ImageWithSizing?>(null)
+    GlobalScope.launch(Dispatchers.UI){
+        obs.value = load()
+    }
+    return loadingImage(obs)
+}
 
 fun <VIEW> ViewFactory<VIEW>.launchConfirmationDialog(
         title: String = "",

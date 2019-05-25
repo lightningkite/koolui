@@ -27,10 +27,6 @@ actual object ApplicationAccess {
         list
     }
 
-    actual fun openUri(uri: Uri) {
-        window.open(uri.string)
-    }
-
     //TODO: Web notifications
     actual fun showNotification(notification: Notification) {}
 

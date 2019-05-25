@@ -23,10 +23,6 @@ actual object ApplicationAccess {
     val onAnimationFramePrivate = ArrayList<() -> Unit>()
     actual val onAnimationFrame: MutableCollection<() -> Unit> get() = onAnimationFramePrivate
 
-    actual fun openUri(uri: Uri){
-        println("Opening URI $uri")
-    }
-
     actual fun showNotification(notification: Notification) {
         println("show notification $notification")
     }

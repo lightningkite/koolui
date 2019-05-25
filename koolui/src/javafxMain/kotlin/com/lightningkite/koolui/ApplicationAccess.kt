@@ -45,14 +45,6 @@ actual object ApplicationAccess {
     val onAnimationFramePrivate = ArrayList<() -> Unit>()
     actual val onAnimationFrame: MutableCollection<() -> Unit> get() = onAnimationFramePrivate
 
-    actual fun openUri(uri: Uri) {
-        try {
-            Desktop.getDesktop().browse(URI.create(uri.string))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     //TODO: JavaFX notifications
     actual fun showNotification(notification: Notification) {}
 

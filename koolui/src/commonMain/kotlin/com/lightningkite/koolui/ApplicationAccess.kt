@@ -14,8 +14,6 @@ expect object ApplicationAccess {
     val onBackPressed: MutableList<() -> Boolean>
     val onAnimationFrame: MutableCollection<() -> Unit>
 
-    fun openUri(uri: Uri)
-
     fun showNotification(notification: Notification)
     /**
      * Event for when a notification action is fired.

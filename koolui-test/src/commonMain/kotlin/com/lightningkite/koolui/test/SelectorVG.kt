@@ -14,6 +14,10 @@ class SelectorVG<VIEW>(
     override val title: String = "KotlinX UI Test"
 
     val tests = observableListOf(
+            "GeolocationTest" to { GeolocationTestVG<VIEW>() },
+            "OpenUriTest" to { OpenUriTestVG<VIEW>() },
+            "FilesTest" to { FilesTestVG<VIEW>() },
+            "UrlImageTest" to { UrlImageTestVG<VIEW>() },
             "Space Test" to { SpaceTestVG<VIEW>() },
             "Original Test" to { OriginalTestVG<VIEW>() },
             "Alpha" to { AlphaTestVG<VIEW>() },
