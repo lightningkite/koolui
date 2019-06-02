@@ -37,7 +37,11 @@ actual object Location {
         ApplicationAccess.access?.requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) {
             if (it) {
                 val criteria = Criteria()
-                criteria.horizontalAccuracy = accuracyBetterThanMeters.toInt()
+                criteria.horizontalAccuracy = when(accuracyBetterThanMeters){
+                    in 0f..100f -> Criteria.ACCURACY_HIGH
+                    in 100f..500f-> Criteria.ACCURACY_MEDIUM
+                    else -> Criteria.ACCURACY_LOW
+                }
                 locationManager!!.requestSingleUpdate(criteria, object : LocationListener {
                     override fun onLocationChanged(location: android.location.Location) {
                         onResult(LocationResult(

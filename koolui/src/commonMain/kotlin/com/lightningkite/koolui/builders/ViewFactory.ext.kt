@@ -8,6 +8,7 @@ import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.reacktive.property.*
+import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.recktangle.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -81,6 +82,20 @@ fun <VIEW> ViewFactory<VIEW>.loadingImage(
         obs.value = load()
     }
     return loadingImage(obs)
+}
+
+fun <VIEW, T> ViewFactory<VIEW>.loadingImage(
+        observable: ObservableProperty<T>,
+        load: suspend (T)->ImageWithSizing
+): VIEW {
+    val obs = StandardObservableProperty<ImageWithSizing?>(null)
+    return loadingImage(obs).apply {
+        lifecycle.bind(observable){
+            GlobalScope.launch(Dispatchers.UI){
+                obs.value = load(it)
+            }
+        }
+    }
 }
 
 fun <VIEW> ViewFactory<VIEW>.launchConfirmationDialog(

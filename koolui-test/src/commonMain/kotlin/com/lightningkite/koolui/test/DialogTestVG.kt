@@ -14,6 +14,7 @@ class DialogTestVG<VIEW>() : MyViewGenerator<VIEW> {
                     card(vertical {
                         -text(text = "Hello world!")
                         -button(label = "I'm good now") {
+                            println("I was clicked!")
                             dismiss()
                         }
                     })

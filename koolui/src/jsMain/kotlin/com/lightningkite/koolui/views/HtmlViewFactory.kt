@@ -908,12 +908,16 @@ class HtmlViewFactory(
     }
 
     override fun HTMLElement.clickable(onClick: () -> Unit): HTMLElement = this.apply {
-        onclick = { onClick.invoke() }
+        onclick = {
+            it.stopPropagation()
+            onClick.invoke()
+        }
     }
 
     override fun HTMLElement.altClickable(onAltClick: () -> Unit): HTMLElement = this.apply {
         oncontextmenu = {
             it.preventDefault()
+            it.stopPropagation()
             onAltClick.invoke()
         }
     }
@@ -925,9 +929,12 @@ class HtmlViewFactory(
     ) {
         document.getElementById("root")?.let { it as HTMLDivElement }?.apply {
             var dialogDismisser = {}
-            val newView = align(AlignPair.CenterCenter to makeView { dialogDismisser.invoke() })
+            val newView = align(AlignPair.CenterCenter to makeView { dialogDismisser.invoke() }.clickable { })
                     .background(Color.black.copy(alpha = .5f))
-                    .clickable { dialogDismisser() }
+                    .clickable {
+                        println("Dialog dismissed")
+                        dialogDismisser()
+                    }
                     .apply {
                         //position:fixed;top:0;right:0;bottom:0;left:0;z-index:99999999;background-color:rgba(0,0,0,.2);overflow:auto
                         style.position = "fixed"
@@ -939,7 +946,14 @@ class HtmlViewFactory(
                         style.zIndex = "99999999"
                     }
             appendLifecycled(newView)
-            dialogDismisser = { removeLifecycled(newView) }
+            var stillActive = true
+            dialogDismisser = {
+                if(stillActive) {
+                    stillActive = false
+                    onDismiss()
+                    removeLifecycled(newView)
+                }
+            }
         }
     }
 
@@ -960,7 +974,7 @@ class HtmlViewFactory(
                 style.display = "inline-block"
                 style.marginLeft = mousePosition.x.toString() + "px"
                 style.marginTop = mousePosition.y.toString() + "px"
-            }
+            }.clickable { }
             val newView = makeElement<HTMLDivElement>("div") {
                 style.position = "fixed"
                 style.top = "0"

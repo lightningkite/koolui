@@ -1,5 +1,6 @@
 package com.lightningkite.koolui
 
+import com.lightningkite.kommon.exception.stackTraceString
 import org.w3c.dom.HTMLElement
 import kotlin.browser.document
 
@@ -9,8 +10,12 @@ fun HTMLElement.appendLifecycled(other: HTMLElement) {
 }
 
 fun HTMLElement.removeLifecycled(other: HTMLElement) {
-    removeChild(other)
-    other.lifecycle.parent = null
+    try {
+        removeChild(other)
+        other.lifecycle.parent = null
+    } catch(e: Exception){
+        println(e.stackTraceString())
+    }
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -225,7 +225,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
             +space(Point(5f, 5f))
 
             -swap(stack.lastOrNullObservable().transform {
-                (it?.generateActions(dependency) ?: space(1f)) to com.lightningkite.koolui.concepts.Animation.Fade
+                (it?.generateActions(dependency) ?: space(1f)) to Animation.Fade
             })
         }.background(theme.bar.background)
     }
@@ -237,11 +237,11 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
         +horizontal {
             -scrollVertical(vertical {
                 for (tab in tabs) {
-                    -button(tab.first.text, tab.first.imageWithSizing) {
+                    -button(tab.first.text, tab.first.imageWithSizing, importance = Importance.Low) {
                         stack.reset(tab.second)
                     }
                 }
-            }.background(theme.main.backgroundHighlighted))
+            }).background(theme.main.backgroundHighlighted)
             +swap(stack.lastOrNullObservableWithAnimations().transform { (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second })
                     .background(theme.main.background)
 
@@ -277,7 +277,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
             +space(Point(5f, 5f))
 
             -swap(stack.lastOrNullObservable().transform {
-                (it?.generateActions(dependency) ?: space(1f)) to com.lightningkite.koolui.concepts.Animation.Fade
+                (it?.generateActions(dependency) ?: space(1f)) to Animation.Fade
             })
         }.background(theme.bar.background)
     }
