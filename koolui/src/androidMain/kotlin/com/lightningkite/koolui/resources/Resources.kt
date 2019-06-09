@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.resources
 
 import com.lightningkite.koolui.ApplicationAccess
+import com.lightningkite.koolui.image.Image
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -17,5 +18,9 @@ actual object Resources {
         filename: String
     ): ByteArray = GlobalScope.async {
         ApplicationAccess.access!!.context.assets.open(filename).use { it.readBytes() }
+    }.await()
+
+    actual suspend fun getImage(filename: String): Image = GlobalScope.async {
+        Image.fromByteArray(ApplicationAccess.access!!.context.assets.open(filename).use { it.readBytes() })
     }.await()
 }

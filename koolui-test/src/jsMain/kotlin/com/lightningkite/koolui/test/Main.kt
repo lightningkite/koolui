@@ -10,7 +10,11 @@ import kotlin.browser.document
 import kotlin.browser.window
 
 
-class Factory() : MyViewFactory<HTMLElement>, ViewFactory<HTMLElement> by HtmlViewFactory(Theme.dark()) {}
+class Factory(
+        colorSet: ColorSet = theme.main
+) : MyViewFactory<HTMLElement>, ViewFactory<HTMLElement> by HtmlViewFactory(theme, colorSet) {
+    override fun withColorSet(colorSet: ColorSet): ViewFactory<HTMLElement> = Factory(colorSet)
+}
 
 fun main(args: Array<String>) {
     window.onload = {

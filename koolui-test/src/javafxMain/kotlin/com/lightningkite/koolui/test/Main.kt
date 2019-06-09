@@ -17,7 +17,10 @@ class Main : Application() {
         val mainVg = MainVG<Node>()
     }
 
-    class Factory() : MyViewFactory<Node>, ViewFactory<Node> by MaterialJavaFxViewFactory(Theme.dark(), scale = 1.0) {}
+    class Factory(colorSet: ColorSet = theme.main) : MyViewFactory<Node>, ViewFactory<Node> by MaterialJavaFxViewFactory(theme, colorSet, scale = 1.0) {
+
+        override fun withColorSet(colorSet: ColorSet): ViewFactory<Node> = Factory(colorSet)
+    }
 
     override fun start(primaryStage: Stage) {
         ApplicationAccess.init(Main::class.java.classLoader, primaryStage)

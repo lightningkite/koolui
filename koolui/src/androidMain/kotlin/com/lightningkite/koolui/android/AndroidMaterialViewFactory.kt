@@ -67,6 +67,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+
 open class AndroidMaterialViewFactory(
         val access: ActivityAccess,
         override val theme: Theme,
@@ -124,13 +125,14 @@ open class AndroidMaterialViewFactory(
             stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>,
             tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>
     ): View = vertical {
-        -with(withColorSet(theme.bar)) {
+        val withColorSet = (dependency as ViewFactory<View>).withColorSet(theme.bar)
+        -with(withColorSet) {
             horizontal {
                 defaultAlign = Align.Center
                 -imageButton(
                         importance = Importance.Low,
                         imageWithSizing = ConstantObservableProperty(
-                                MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
+                                MaterialIcon.arrowBack.color(colorSet.foreground).withSizing(
                                         Point(
                                                 24f,
                                                 24f
@@ -142,13 +144,14 @@ open class AndroidMaterialViewFactory(
 
                 -text(text = stack.onListUpdate.transform {
                     it.lastOrNull()?.title ?: ""
-                }, size = com.lightningkite.koolui.concepts.TextSize.Header)
+                }, size = TextSize.Header)
 
                 +space(Point(5f, 5f))
                 -swap(stack.lastOrNullObservable().transform {
-                    (it?.generateActions(dependency) ?: space(1f)) to com.lightningkite.koolui.concepts.Animation.Fade
+                    (it?.generateActions(withColorSet as DEPENDENCY)
+                            ?: space(1f)) to Animation.Fade
                 })
-            }.background(theme.bar.background).apply {
+            }.background(colorSet.background).apply {
                 ViewCompat.setElevation(this, dip * 4f)
             }.setHeight(42f)
         }
@@ -160,14 +163,14 @@ open class AndroidMaterialViewFactory(
 
         if (!tabs.isEmpty()) {
             val selected = StandardObservableProperty(tabs.first().first)
-            -tabs(WrapperObservableList(tabs.map { it.first }.toMutableList()), selected)
+            -withColorSet.tabs(WrapperObservableList(tabs.map { it.first }.toMutableList()), selected)
             selected += { sel ->
                 tabs.find { it.first == sel }?.second?.let { stack.reset(it) }
             }
         }
     }.apply {
         lifecycle.listen(access.onBackPressed) {
-            if(stack.size > 1){
+            if (stack.size > 1) {
                 stack.pop()
                 true
             } else false
@@ -222,7 +225,11 @@ open class AndroidMaterialViewFactory(
     override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): View =
             TabLayout(context).apply {
                 var uiSet = false
+                this.setTabTextColors(colorSet.foregroundDisabled.toInt(), colorSet.foregroundHighlighted.toInt())
+                this.setSelectedTabIndicatorColor(colorSet.backgroundHighlighted.toInt())
+                this.setBackgroundColor(colorSet.background.toInt())
                 lifecycle.bind(options.onListUpdate) {
+                    this.tabMode = if (it.size <= 4) TabLayout.MODE_FIXED else TabLayout.MODE_SCROLLABLE
                     removeAllTabs()
                     for (item in it) {
                         addTab(newTab().apply {
@@ -267,7 +274,7 @@ open class AndroidMaterialViewFactory(
         var property: StandardObservableProperty<T>? = null
         var index: StandardObservableProperty<Int> = StandardObservableProperty(0)
         fun update(item: T, newIndex: Int) {
-            GlobalScope.launch(Dispatchers.UI) {
+            itemView.post {
                 index.value = newIndex
                 if (property == null) {
                     property = StandardObservableProperty(item)
@@ -568,6 +575,7 @@ open class AndroidMaterialViewFactory(
                 val newView = text(
                         text = newObs.transform(toString)
                 )
+                newView.setBackgroundColor(colorSet.background.toInt())
                 newView.lifecycle.parent = this.parent
                 newView.tag = newObs
                 newObs.index = position
@@ -593,10 +601,13 @@ open class AndroidMaterialViewFactory(
     override fun <T> picker(
             options: ObservableList<T>,
             selected: MutableObservableProperty<T>,
-            toString: (T)->String
+            toString: (T) -> String
     ): View = Spinner(context).apply {
         val newAdapter: StandardListAdapter<T> = StandardListAdapter<T>(options, lifecycle, toString)
         adapter = newAdapter
+
+        this.background.mutate().setColorFilter(colorSet.foreground.toInt(), PorterDuff.Mode.MULTIPLY)
+        this.popupBackground.mutate().setColorFilter(colorSet.background.toInt(), PorterDuff.Mode.MULTIPLY)
 
         var indexAlreadySet = false
 
@@ -798,6 +809,7 @@ open class AndroidMaterialViewFactory(
     override fun work(view: View, isWorking: ObservableProperty<Boolean>): View {
         val bar = ProgressBar(context).apply {
             isIndeterminate = true
+            indeterminateDrawable = indeterminateDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
         }
         return swap(
                 view = isWorking.transform {
@@ -810,6 +822,7 @@ open class AndroidMaterialViewFactory(
     override fun progress(view: View, progress: ObservableProperty<Float>): View {
         val bar = ProgressBar(context).apply {
             isIndeterminate = false
+            indeterminateDrawable = indeterminateDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
             max = 100
             lifecycle.bind(progress) {
                 this.progress = (it * 100).toInt()
@@ -831,6 +844,8 @@ open class AndroidMaterialViewFactory(
                 this.progress = newProg
             }
         }
+        thumb = thumb.mutate().apply { setColorFilter(colorSet.foreground.toInt(), PorterDuff.Mode.MULTIPLY) }
+        progressDrawable = progressDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
         setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
             override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
@@ -949,7 +964,7 @@ open class AndroidMaterialViewFactory(
         }
 
         lifecycle.bind(view) {
-            GlobalScope.launch(Dispatchers.UI) {
+            post {
                 swap(it.first, it.second.android())
             }
         }

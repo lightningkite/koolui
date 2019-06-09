@@ -3,6 +3,7 @@ package com.lightningkite.koolui
 import com.lightningkite.kommon.Closeable
 import com.lightningkite.kommon.atomic.AtomicReference
 import com.lightningkite.lokalize.location.Geohash
+import com.lightningkite.reacktive.property.ObservableProperty
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
@@ -10,14 +11,10 @@ actual object Location {
     actual val available: Boolean
         get() = false
 
-    actual fun requestOnce(reason: String, accuracyBetterThanMeters: Double, onRejected: () -> Unit, onResult: (LocationResult) -> Unit) {
-        onRejected()
-    }
+    actual suspend fun requestOnce(reason: String, accuracyBetterThanMeters: Double): LocationResult = throw UnsupportedOperationException()
 
-    actual fun requestOngoing(reason: String, accuracyBetterThanMeters: Double, onRejected: () -> Unit, onResult: (LocationResult) -> Unit): Closeable {
-        onRejected()
-        return Closeable { }
-    }
+    actual suspend fun requestOngoing(reason: String, accuracyBetterThanMeters: Double): ObservableProperty<LocationResult> = throw UnsupportedOperationException()
+
 
     private var getAddressImplementationAtomic: AtomicReference<suspend (Geohash) -> String?> = AtomicReference { input ->
         null

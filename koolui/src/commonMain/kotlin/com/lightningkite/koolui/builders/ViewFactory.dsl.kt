@@ -16,6 +16,13 @@ class LinearBuilder<VIEW>() : MutableList<Pair<LinearPlacement, VIEW>> by ArrayL
     operator fun VIEW.unaryPlus() {
         add(LinearPlacement(1f, defaultAlign) to this)
     }
+
+    operator fun LinearPlacement.minus(view: VIEW) {
+        add(this to view)
+    }
+    operator fun LinearPlacement.plus(view: VIEW) {
+        add(this to view)
+    }
 }
 
 fun <VIEW> ViewFactory<VIEW>.horizontal(setup: LinearBuilder<VIEW>.() -> Unit): VIEW {

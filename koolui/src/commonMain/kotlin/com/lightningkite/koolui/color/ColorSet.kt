@@ -6,9 +6,9 @@ data class ColorSet(
     val background: Color = Color.white,
     val backgroundDisabled: Color = background.copy(alpha = background.alpha / 2),
     val backgroundHighlighted: Color = background.highlight(.2f),
-    val foreground: Color = Color.gray(.2f),
+    val foreground: Color = Color.black.copy(alpha = .8f),
     val foregroundDisabled: Color = foreground.copy(alpha = foreground.alpha / 2),
-    val foregroundHighlighted: Color = foreground.highlight(.2f)
+    val foregroundHighlighted: Color = foreground.copy(alpha = 1f)
 ) {
 
     fun importance(value: Importance): Color = when (value) {
@@ -21,7 +21,12 @@ data class ColorSet(
     companion object {
         fun basedOnBack(color: Color) = ColorSet(
             background = color,
-            foreground = if (color.average > .7f) Color.black else Color.white
+            foreground = if (color.average > .7f) Color.black.copy(alpha = .8f) else Color.white.copy(alpha = .8f)
+        )
+        fun basedOnBackBold(color: Color) = ColorSet(
+            background = color,
+            foreground = if (color.average > .7f) Color.black else Color.white,
+            foregroundHighlighted = if (color.average > .7f) Color.black else Color.white
         )
 
         val destructive = basedOnBack(Color.red)

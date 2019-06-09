@@ -5,20 +5,27 @@ import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.MutableObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-inline fun <A, B> ObservableProperty<A>.suspendingTransform(default: B, crossinline transformStarted: MutableObservableProperty<B>.(A)->Unit = {}, crossinline transform: suspend (A)->B): MutableObservableProperty<B> {
+inline fun <A, B> ObservableProperty<A>.suspendingTransform(
+        default: B,
+        crossinline transformStarted: MutableObservableProperty<B>.(A)->Unit = {},
+        scope: CoroutineScope = GlobalScope,
+        crossinline transform: suspend (A)->B
+): MutableObservableProperty<B> {
     return object : EnablingMutableCollection<(B)->Unit>(), MutableObservableProperty<B> {
         val listener = { it: A ->
             transformStarted(it)
-            GlobalScope.launch(Dispatchers.UI){
+            scope.launch(Dispatchers.UI){
                 value = transform(it)
             }
             Unit
         }
         override fun enable() {
+            listener(this@suspendingTransform.value)
             this@suspendingTransform.add(listener)
         }
 

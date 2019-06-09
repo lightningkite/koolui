@@ -27,6 +27,7 @@ repositories {
     mavenCentral()
     maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     maven("https://kotlin.bintray.com/kotlinx")
+    maven("https://dl.bintray.com/pixplicity/android")
 }
 
 val versions = Properties().apply {
@@ -87,6 +88,8 @@ kotlin {
                     api("com.android.support:gridlayout-v7:$compatVersion")
                     api("com.android.support:recyclerview-v7:$compatVersion")
                     api("com.android.support:design:$compatVersion")
+                    api("com.pixplicity.sharp:library:1.1.0")
+                    api("com.squareup.picasso:picasso:2.71828")
 
 //                    api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
 //                    api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")

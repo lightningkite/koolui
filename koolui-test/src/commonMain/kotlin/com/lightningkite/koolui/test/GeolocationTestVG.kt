@@ -23,8 +23,12 @@ class GeolocationTestVG<VIEW>() : MyViewGenerator<VIEW> {
             -text(text = "Location:")
             -text(data.transform { "${it.latitude}, ${it.longitude}" })
             -button("Get My Location"){
-                Location.requestOnce("As requested") {
-                    data.value = it.location
+                GlobalScope.launch(Dispatchers.UI) {
+                    try {
+                        data.value = Location.requestOnce("Get your location once to insert it into the form", 100.0).location
+                    } catch(e:Exception){
+
+                    }
                 }
             }
             -button("Load address info") {

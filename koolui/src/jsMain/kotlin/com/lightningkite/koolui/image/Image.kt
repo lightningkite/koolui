@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.image
 
 import com.lightningkite.kommon.asInt8Array
+import com.lightningkite.kommon.string.Uri
 import org.w3c.dom.url.URL
 import org.w3c.files.Blob
 
@@ -21,5 +22,8 @@ actual class Image(val url: String? = null, val data: ByteArray? = null) {
         }
 
         actual val blank: Image = Image("")
+
+        actual suspend fun fromUrlUnsafe(url: Uri): Image = Image(url.string)
+        actual suspend fun fromUrlUnsafe(url: String): Image = Image(url)
     }
 }

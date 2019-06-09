@@ -4,6 +4,7 @@ import com.jfoenix.controls.*
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.MousePosition
 import com.lightningkite.koolui.async.UI
+
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -346,7 +347,7 @@ data class MaterialJavaFxViewFactory(
 
     override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>) = ImageView().apply {
         lifecycle.bind(imageWithSizing) {
-            GlobalScope.launch(Dispatchers.UI) {
+            scope.launch(Dispatchers.UI) {
                 it.defaultSize?.x?.times(scale)?.let { this@apply.fitWidth = it }
                 it.defaultSize?.y?.times(scale)?.let { this@apply.fitHeight = it }
                 //TODO: Scale type
@@ -677,7 +678,7 @@ data class MaterialJavaFxViewFactory(
         clip = clipRect
 
         lifecycle.bind(view) { (view, animation) ->
-            GlobalScope.launch(Dispatchers.UI) {
+            scope.launch(Dispatchers.UI) {
                 val containerSize = Point(
                         width.toFloat(),
                         height.toFloat()

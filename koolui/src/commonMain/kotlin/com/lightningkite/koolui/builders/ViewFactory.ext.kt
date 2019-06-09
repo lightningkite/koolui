@@ -78,10 +78,11 @@ fun <VIEW> ViewFactory<VIEW>.loadingImage(
         load: suspend ()->ImageWithSizing
 ): VIEW {
     val obs = StandardObservableProperty<ImageWithSizing?>(null)
-    GlobalScope.launch(Dispatchers.UI){
-        obs.value = load()
+    return loadingImage(obs).apply {
+        scope.launch(Dispatchers.UI) {
+            obs.value = load()
+        }
     }
-    return loadingImage(obs)
 }
 
 fun <VIEW, T> ViewFactory<VIEW>.loadingImage(
@@ -91,7 +92,8 @@ fun <VIEW, T> ViewFactory<VIEW>.loadingImage(
     val obs = StandardObservableProperty<ImageWithSizing?>(null)
     return loadingImage(obs).apply {
         lifecycle.bind(observable){
-            GlobalScope.launch(Dispatchers.UI){
+            obs.value = null
+            scope.launch(Dispatchers.UI){
                 obs.value = load(it)
             }
         }

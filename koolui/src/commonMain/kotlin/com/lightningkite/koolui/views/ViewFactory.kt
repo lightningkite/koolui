@@ -1,5 +1,6 @@
 package com.lightningkite.koolui.views
 
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -15,6 +16,7 @@ import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
+import kotlinx.coroutines.*
 
 /**
  * PHILOSOPHY
@@ -443,6 +445,27 @@ interface ViewFactory<VIEW> {
      * Gets the lifecycle of a view.
      */
     val VIEW.lifecycle: ObservableProperty<Boolean>
+
+    /**
+     * Gets the coroutine scope of a view.
+     */
+    val VIEW.scope: CoroutineScope
+        get() {
+            val scope = CoroutineScope(Dispatchers.UI)
+            GlobalScope.launch(Dispatchers.UI) {
+                var willHoldLambda: (Boolean) -> Unit = {}
+                willHoldLambda = {
+                    if (!it) {
+                        scope.cancel()
+                        GlobalScope.launch(Dispatchers.UI) {
+                            lifecycle.remove(willHoldLambda)
+                        }
+                    }
+                }
+                lifecycle.add(willHoldLambda)
+            }
+            return scope
+        }
 
 
     //Dialogs and Selectors

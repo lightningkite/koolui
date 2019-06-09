@@ -2,29 +2,32 @@ package com.lightningkite.koolui
 
 import com.lightningkite.kommon.Closeable
 import com.lightningkite.kommon.atomic.AtomicReference
+import com.lightningkite.kommon.exception.ForbiddenException
 import com.lightningkite.lokalize.location.Geohash
+import com.lightningkite.reacktive.property.ObservableProperty
+import com.lightningkite.reacktive.property.StandardObservableProperty
 
 actual object Location {
     actual val available: Boolean
         get() = true
 
-    var mockLocation: LocationResult = LocationResult(Geohash(0))
+    var mockLocation = StandardObservableProperty(LocationResult(Geohash(0)))
     var shouldReject = false
 
-    actual fun requestOnce(reason: String, accuracyBetterThanMeters: Double, onRejected: () -> Unit, onResult: (LocationResult) -> Unit) {
+    actual suspend fun requestOnce(reason: String, accuracyBetterThanMeters: Double): LocationResult {
         if(shouldReject)
-            onRejected()
+            throw ForbiddenException()
         else
-            onResult(mockLocation)
+            return mockLocation.value
     }
 
-    actual fun requestOngoing(reason: String, accuracyBetterThanMeters: Double, onRejected: () -> Unit, onResult: (LocationResult) -> Unit): Closeable {
+    actual suspend fun requestOngoing(reason: String, accuracyBetterThanMeters: Double): ObservableProperty<LocationResult> {
         if(shouldReject)
-            onRejected()
+            throw ForbiddenException()
         else
-            onResult(mockLocation)
-        return Closeable {  }
+            return mockLocation
     }
+
 
     private var getAddressImplementationAtomic: AtomicReference<suspend (Geohash) -> String?> = AtomicReference { input ->
         null

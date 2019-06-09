@@ -1,22 +1,30 @@
 package com.lightningkite.koolui
 
-import com.lightningkite.kommon.Closeable
 import com.lightningkite.kommon.atomic.AtomicReference
+import com.lightningkite.kommon.exception.ForbiddenException
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.lokalize.location.Geohash
+import com.lightningkite.reacktive.EnablingMutableCollection
+import com.lightningkite.reacktive.invokeAll
+import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.recktangle.Angle
-import kotlin.browser.document
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.browser.window
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 actual object Location {
     actual val available: Boolean
         get() = window.navigator.asDynamic().geolocation != null
 
-    actual fun requestOnce(
+    actual suspend fun requestOnce(
             reason: String,
-            accuracyBetterThanMeters: Double,
-            onRejected: () -> Unit,
-            onResult: (LocationResult) -> Unit
-    ) {
+            accuracyBetterThanMeters: Double
+    ): LocationResult = suspendCoroutine { continuation ->
         window.navigator.asDynamic().geolocation?.getCurrentPosition(
                 { position: dynamic ->
                     println("latitude = ${position.coords.latitude as Double}")
@@ -26,7 +34,7 @@ actual object Location {
                     println("altitudeAccuracyMeters = ${position.coords.altitudeAccuracy as? Double ?: 100.0}")
                     println("headingFromNorth = ${Angle.degrees(position.coords.heading as? Float ?: 0f)}")
                     println("speedMetersPerSecond = ${position.coords.speed as? Double ?: 0.0}")
-                    onResult(LocationResult(
+                    continuation.resume(LocationResult(
                             location = Geohash(
                                     latitude = position.coords.latitude as Double,
                                     longitude = position.coords.longitude as Double
@@ -38,37 +46,63 @@ actual object Location {
                             speedMetersPerSecond = position.coords.speed as? Double ?: 0.0
                     ))
                 },
-                { error: dynamic -> onRejected() }
-        ) ?: onRejected()
+                { error: dynamic -> continuation.resumeWithException(throw ForbiddenException()) }
+        ) as? Unit ?: continuation.resumeWithException(throw ForbiddenException())
     }
 
-    actual fun requestOngoing(
-            reason: String,
-            accuracyBetterThanMeters: Double,
-            onRejected: () -> Unit,
-            onResult: (LocationResult) -> Unit
-    ): Closeable {
-        window.navigator.asDynamic().geolocation?.watchPosition(
-                { position: dynamic ->
-                    onResult(LocationResult(
-                            location = Geohash(
-                                    latitude = position.coords.latitude as Double,
-                                    longitude = position.coords.longitude as Double
-                            ),
-                            accuracyMeters = position.coords.accuracy as Double,
-                            altitudeMeters = position.coords.altitude as Double,
-                            altitudeAccuracyMeters = position.coords.altitudeAccuracy as Double,
-                            headingFromNorth = Angle.degrees(position.coords.heading as Float),
-                            speedMetersPerSecond = position.coords.speed as Double
-                    ))
-                },
-                { error: dynamic -> onRejected() }
-        )
-        return object : Closeable {
-            override fun close() {
-                window.navigator.asDynamic().geolocation?.clearWatch()
+    var subCount = 0
+    actual suspend fun requestOngoing(reason: String, accuracyBetterThanMeters: Double): ObservableProperty<LocationResult> = suspendCoroutine { cont ->
+        val event = object: EnablingMutableCollection<(LocationResult)->Unit>(), ObservableProperty<LocationResult>{
+            override lateinit var value: LocationResult
+            var returned = false
+
+            var id = 0
+            var actuallyListening = false
+            override fun enable() {
+                if(actuallyListening) return
+                actuallyListening = true
+                id = window.navigator.asDynamic().geolocation?.watchPosition(
+                        { position: dynamic ->
+                            if(!returned) {
+                                returned = true
+                                cont.resume(this)
+                            }
+                            value = LocationResult(
+                                    location = Geohash(
+                                            latitude = position.coords.latitude as Double,
+                                            longitude = position.coords.longitude as Double
+                                    ),
+                                    accuracyMeters = position.coords.accuracy as Double,
+                                    altitudeMeters = position.coords.altitude as Double,
+                                    altitudeAccuracyMeters = position.coords.altitudeAccuracy as Double,
+                                    headingFromNorth = Angle.degrees(position.coords.heading as Float),
+                                    speedMetersPerSecond = position.coords.speed as Double
+                            )
+                            invokeAll(value)
+                            Unit
+                        },
+                        { error: dynamic ->
+                            if(returned) {
+                                println("Location error: $error")
+                            } else {
+                                returned = true
+                                cont.resumeWithException(Exception(error.toString()))
+                            }
+                        }
+                ) as Int
+            }
+
+            override fun disable() {
+                GlobalScope.launch(Dispatchers.UI){
+                    delay(1000)
+                    if(size == 0) {
+                        window.navigator.asDynamic().geolocation?.clearWatch(id)
+                        actuallyListening = false
+                    }
+                }
             }
         }
+        event.enable()
     }
 
     private var getAddressImplementationAtomic: AtomicReference<suspend (Geohash) -> String?> = AtomicReference { input ->

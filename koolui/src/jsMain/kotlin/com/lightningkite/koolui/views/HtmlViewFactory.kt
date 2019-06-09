@@ -31,6 +31,7 @@ import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
