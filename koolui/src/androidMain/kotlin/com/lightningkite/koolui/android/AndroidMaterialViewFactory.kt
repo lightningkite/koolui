@@ -8,17 +8,15 @@ import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.os.Build
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.TabLayout
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.ViewPager
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.CardView
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.viewpager.widget.PagerAdapter
+import androidx.core.view.ViewCompat
+import androidx.viewpager.widget.ViewPager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
@@ -28,6 +26,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebView
 import android.widget.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.align
@@ -311,7 +311,7 @@ open class AndroidMaterialViewFactory(
                 if (direction.vertical) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL,
                 !direction.uiPositive
         )
-        adapter = object : RecyclerView.Adapter<ListViewHolder<T>>() {
+        val newAdapter = object : RecyclerView.Adapter<ListViewHolder<T>>() {
             override fun getItemCount(): Int = data.size
 
             override fun onCreateViewHolder(
@@ -323,6 +323,7 @@ open class AndroidMaterialViewFactory(
                 holder.update(data[position], position)
             }
         }
+        adapter = newAdapter
 
         var setByAndroid = false
         this.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -370,17 +371,17 @@ open class AndroidMaterialViewFactory(
         }
 
         lifecycle.bind(data, ObservableListListenerSet<T>(
-                onAddListener = { item, position -> adapter.notifyItemInserted(position); updateIndices() },
-                onRemoveListener = { item, position -> adapter.notifyItemRemoved(position); updateIndices() },
-                onChangeListener = { oldItem, newItem, position -> adapter.notifyItemChanged(position) },
+                onAddListener = { item, position -> newAdapter.notifyItemInserted(position); updateIndices() },
+                onRemoveListener = { item, position -> newAdapter.notifyItemRemoved(position); updateIndices() },
+                onChangeListener = { oldItem, newItem, position -> newAdapter.notifyItemChanged(position) },
                 onMoveListener = { item, oldPosition, newPosition ->
-                    adapter.notifyItemMoved(
+                    newAdapter.notifyItemMoved(
                             oldPosition,
                             newPosition
                     )
                     updateIndices()
                 },
-                onReplaceListener = { list -> adapter.notifyDataSetChanged() }
+                onReplaceListener = { list -> newAdapter.notifyDataSetChanged() }
         ))
     }
 

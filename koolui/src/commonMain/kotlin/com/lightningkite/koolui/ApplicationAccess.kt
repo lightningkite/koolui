@@ -6,6 +6,9 @@ import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.recktangle.Point
 
 expect object ApplicationAccess {
+
+    fun post(action: () -> Unit)
+
     val displaySize: ObservableProperty<Point> //can change on rotation, etc.
     val isInForeground: ObservableProperty<Boolean>
     /**

@@ -66,7 +66,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.pagesEmbedded(
 ) = pages(dependency, page, *pageGenerators.map {
     object : ViewGenerator<DEPENDENCY, VIEW> {
         @Suppress("UNCHECKED_CAST")
-        override fun generate(dependency: DEPENDENCY): VIEW = (dependency as ViewFactory<VIEW>).space(5f)
+        override fun generate(dependency: DEPENDENCY): VIEW = it(dependency)
     }
 }.toTypedArray())
 

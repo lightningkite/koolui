@@ -8,9 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import java.util.*
 
 /**
@@ -18,7 +15,7 @@ import java.util.*
  *
  * Created by jivie on 10/12/15.
  */
-abstract class AccessibleActivity : AppCompatActivity(), ActivityAccess {
+abstract class AccessibleActivity : Activity(), ActivityAccess {
 
     override val activity: Activity?
         get() = this
@@ -99,7 +96,11 @@ abstract class AccessibleActivity : AppCompatActivity(), ActivityAccess {
      */
     override fun requestPermissions(permission: Array<String>, onResult: (Map<String, Int>) -> Unit) {
         val ungranted = permission.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
+            } else {
+                false
+            }
         }
 
         if (ungranted.isNotEmpty()) {
@@ -107,7 +108,7 @@ abstract class AccessibleActivity : AppCompatActivity(), ActivityAccess {
 
             requestReturns[generated] = onResult
 
-            ActivityCompat.requestPermissions(this, ungranted.toTypedArray(), generated)
+            requestPermissions(ungranted.toTypedArray(), generated)
 
         } else {
             onResult(emptyMap())
@@ -118,13 +119,13 @@ abstract class AccessibleActivity : AppCompatActivity(), ActivityAccess {
      * Requests a single permissions and returns whether it was granted or not.
      */
     override fun requestPermission(permission: String, onResult: (Boolean) -> Unit) {
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
 
             val generated: Int = (Math.random() * 0xFFFF).toInt()
             requestReturns[generated] = {
                 onResult(it[permission] == PackageManager.PERMISSION_GRANTED)
             }
-            ActivityCompat.requestPermissions(this, arrayOf(permission), generated)
+            requestPermissions(arrayOf(permission), generated)
 
         } else {
             onResult(true)

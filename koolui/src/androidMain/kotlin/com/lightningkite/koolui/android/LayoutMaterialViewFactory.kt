@@ -8,16 +8,16 @@ import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.os.Build
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.TabLayout
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.CardView
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager.widget.PagerAdapter
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
@@ -50,7 +50,6 @@ import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.recktangle.Point
-import com.lightningkite.recktangle.Rectangle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -58,6 +57,7 @@ import java.text.DecimalFormat
 import java.text.ParseException
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 open class LayoutMaterialViewFactory(
@@ -65,10 +65,9 @@ open class LayoutMaterialViewFactory(
         override val theme: Theme,
         override val colorSet: ColorSet = theme.main
 ) : LayoutViewFactory<View>() {
+    override fun withColorSet(colorSet: ColorSet) =
+            LayoutMaterialViewFactory(access = access, theme = theme, colorSet = colorSet)
 
-    companion object {
-        val NOTSET = -1.1f
-    }
 
     val context = access.context
 
@@ -78,121 +77,40 @@ open class LayoutMaterialViewFactory(
         dip = context.resources.displayMetrics.density
     }
 
-    override fun withColorSet(colorSet: ColorSet) =
-            LayoutMaterialViewFactory(access = access, theme = theme, colorSet = colorSet)
 
-    class LayoutView(context: Context) : ViewGroup(context) {
-        var layout: Layout<*, View>? = null
-        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {}
-        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        }
+    override fun applyEntranceTransition(view: View, animation: Animation) {
+        animation.android().animateIn.invoke(view, view.parent as ViewGroup)
     }
 
-    override fun defaultView(): View = View(context)
-
-    override fun <SPECIFIC : View> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, View> = adapter(true)
-    fun <SPECIFIC : View> SPECIFIC.adapter(addView: Boolean): ViewAdapter<SPECIFIC, View> = object : ViewAdapter<SPECIFIC, View> {
-        override val view: SPECIFIC = this@adapter
-        override val viewAsBase: View = this@adapter
-
-        val rect = Rectangle(
-                NOTSET,
-                NOTSET,
-                NOTSET,
-                NOTSET
-        )
-
-        override fun updatePlacementX(start: Float, end: Float) {
-            rect.left = start
-            rect.right = end
-            if (rect.top != NOTSET && rect.bottom != NOTSET) {
-                layout(
-                        (rect.left * dip).toInt(),
-                        (rect.top * dip).toInt(),
-                        (rect.right * dip).toInt(),
-                        (rect.bottom * dip).toInt()
-                )
-            }
-        }
-
-        override fun updatePlacementY(start: Float, end: Float) {
-            rect.top = start
-            rect.bottom = end
-            if (rect.left != NOTSET && rect.right != NOTSET) {
-                layout(
-                        (rect.left * dip).toInt(),
-                        (rect.top * dip).toInt(),
-                        (rect.right * dip).toInt(),
-                        (rect.bottom * dip).toInt()
-                )
-            }
-        }
-
-        override fun onAddChild(layout: Layout<*, View>) {
-            if (addView && view is ViewGroup) {
-                view.addView(layout.viewAdapter.viewAsBase)
-            }
-        }
-
-        override fun onRemoveChild(layout: Layout<*, View>) {
-            if (addView && view is ViewGroup) {
-                view.removeView(layout.viewAdapter.viewAsBase)
-            }
-        }
+    override fun applyExitTransition(view: View, animation: Animation, onComplete: () -> Unit) {
+        animation.android().animateOut.invoke(view, view.parent as ViewGroup).withEndAction(onComplete)
     }
 
-    class IntrinsicSizeCalculators(val view: View) {
+    override fun defaultViewContainer(): View = ManualLayout(context)
 
-        var freeX: Boolean = false
-        var freeY: Boolean = false
+    override fun <SPECIFIC : View> SPECIFIC.adapter() = adapter(true)
+    fun <SPECIFIC : View> SPECIFIC.adapter(addView: Boolean) = AndroidLayoutAdapter(this, addView)
 
-        inner class X() : BaseDimensionCalculator() {
-            override fun measure(output: Measurement) {
-                if (!freeX) {
-                    freeY = true
-                    view.measure(
-                            View.MeasureSpec.makeMeasureSpec(10_000, View.MeasureSpec.UNSPECIFIED),
-                            View.MeasureSpec.makeMeasureSpec(10_000, View.MeasureSpec.UNSPECIFIED)
-                    )
-                }
-                output.size = view.measuredWidth.toFloat()
-            }
-
-            override fun layoutChildren(size: Float) {}
-        }
-
-        inner class Y() : BaseDimensionCalculator() {
-            override fun measure(output: Measurement) {
-                if (!freeY) {
-                    freeX = true
-                    view.measure(
-                            View.MeasureSpec.makeMeasureSpec(10_000, View.MeasureSpec.UNSPECIFIED),
-                            View.MeasureSpec.makeMeasureSpec(10_000, View.MeasureSpec.UNSPECIFIED)
-                    )
-                }
-                output.size = view.measuredHeight.toFloat()
-            }
-
-            override fun layoutChildren(size: Float) {}
-        }
-
-        val x = X()
-        val y = Y()
-    }
-
-    fun <SPECIFIC : View> SPECIFIC.intrinsicLayout(addView: Boolean = true): Layout<SPECIFIC, View> {
-        val calc = IntrinsicSizeCalculators(this)
-        return Layout<SPECIFIC, View>(
-                viewAdapter = adapter(addView = addView),
+    fun <SPECIFIC : View> intrinsicLayout(
+            view: SPECIFIC,
+            addView: Boolean = true,
+            setup: SPECIFIC.(layout: Layout<SPECIFIC, View>) -> Unit
+    ): Layout<SPECIFIC, View> {
+        val adapter = view.adapter(addView = addView)
+        val calc = IntrinsicDimensionLayouts(view)
+        val result = Layout(
+                viewAdapter = adapter,
                 x = calc.x,
                 y = calc.y
         )
+        setup(view, result)
+        return result
     }
 
 
     override fun contentRoot(view: Layout<*, View>): Layout<*, View> {
-        return super.contentRoot(view)
+        view.isAttached.alwaysOn = true
+        return view
     }
 
     override fun entryContext(
@@ -218,29 +136,47 @@ open class LayoutMaterialViewFactory(
     override fun <DEPENDENCY> pages(dependency: DEPENDENCY, page: MutableObservableProperty<Int>, vararg pageGenerator: ViewGenerator<DEPENDENCY, Layout<*, View>>): Layout<*, View> = align {
         AlignPair.FillFill + Layout(
                 ViewPager(context).adapter(addView = false),
-                LeafDimensionCalculator(0f, 100f, 0f),
-                LeafDimensionCalculator(0f, 100f, 0f)
+                LeafDimensionLayout(0f, 100f, 0f),
+                LeafDimensionLayout(0f, 100f, 0f)
         ).apply {
-            viewAdapter.view.apply {
-                var iSet = false
-                adapter = object : PagerAdapter() {
-                    override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
+            val newAdapter = object : PagerAdapter() {
+                override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
 
-                    override fun getCount(): Int = pageGenerator.size
+                override fun getCount(): Int = pageGenerator.size
 
-                    override fun instantiateItem(container: ViewGroup, position: Int): Any {
-                        val layout = pageGenerator[position].generate(dependency)
-                        container.addView(layout.viewAdapter.viewAsBase)
-                        addChild(layout)
-                        return layout
+                override fun instantiateItem(container: ViewGroup, position: Int): Any {
+                    val layout = pageGenerator[position].generate(dependency)
+                    val newView = LayoutToAndroidView(context).also { it.layout = layout }
+                    newView.setBackgroundColor(Color.blue.copy(alpha = .4f).toInt())
+                    newView.attachParent(isAttached)
+                    newView.layoutParams = ViewPager.LayoutParams().apply {
+                        width = MATCH_PARENT
+                        height = MATCH_PARENT
                     }
-
-                    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-                        val casted = `object` as Layout<*, View>
-                        removeChild(casted)
-                        container.removeView(casted.viewAdapter.viewAsBase)
-                    }
+                    container.addView(newView)
+//                    val newView = View(context).apply {
+//                        setBackgroundColor(Color.blue.copy(alpha = .4f).toInt())
+//                        minimumHeight = 100
+//                        minimumWidth = 100
+//                    }
+//                    newView.layoutParams = ViewPager.LayoutParams().apply {
+//                        width = MATCH_PARENT
+//                        height = MATCH_PARENT
+//                    }
+//                    container.addView(newView)
+                    return newView
                 }
+
+                override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+                    val casted = `object` as LayoutToAndroidView
+                    casted.isAttached.parent = null
+                    container.removeView(casted)
+                }
+            }
+            viewAdapter.view.apply {
+                setBackgroundColor(Color.green.copy(alpha = .4f).toInt())
+                adapter = newAdapter
+                var iSet = false
                 this.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                     override fun onPageScrollStateChanged(state: Int) {}
                     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
@@ -256,6 +192,9 @@ open class LayoutMaterialViewFactory(
                     }
                     this.setCurrentItem(it, false)
                 }
+//                post {
+                newAdapter.notifyDataSetChanged()
+//                }
             }
         }
         AlignPair.BottomCenter + text(
@@ -264,9 +203,9 @@ open class LayoutMaterialViewFactory(
         )
     }
 
-    override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): Layout<*, View> = TabLayout(context).apply {
+    override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): Layout<*, View> = intrinsicLayout(TabLayout(context)) { layout ->
         var uiSet = false
-        lifecycle.bind(options.onListUpdate) {
+        layout.isAttached.bind(options.onListUpdate) {
             removeAllTabs()
             for (item in it) {
                 addTab(newTab().apply {
@@ -299,21 +238,24 @@ open class LayoutMaterialViewFactory(
                 (tab?.tag as? TabItem)?.let { selected.value = it }
             }
         })
-    }.intrinsicLayout()
+    }
 
     inner class ListViewHolder<T>(
             context: Context,
+            val direction: Direction,
             val makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> Layout<*, View>,
-            val parent: TreeObservableProperty
-    ) : RecyclerView.ViewHolder(LayoutView(context).apply {
-        layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-    }) {
-        var childLayout: Layout<*, View>? = null
-        val parentLayout = Layout(
-                viewAdapter = this.itemView.adapter(),
-                x = FrameDimensionCalculator(child = { childLayout?.x ?: LeafDimensionCalculator(0f, 0f, 0f) }),
-                y = FrameDimensionCalculator(child = { childLayout?.y ?: LeafDimensionCalculator(0f, 0f, 0f) })
-        )
+            val parent: TreeObservableProperty,
+            val frame: LayoutToAndroidView = LayoutToAndroidView(context)
+    ) : RecyclerView.ViewHolder(frame) {
+        init {
+            frame.layoutParams = if (direction.vertical) {
+                RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            } else {
+                RecyclerView.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+            }
+            frame.attachParent(parent)
+        }
+
         var property: StandardObservableProperty<T>? = null
         var index: StandardObservableProperty<Int> = StandardObservableProperty(0)
         fun update(item: T, newIndex: Int) {
@@ -322,8 +264,7 @@ open class LayoutMaterialViewFactory(
                 if (property == null) {
                     property = StandardObservableProperty(item)
                     val newView = makeView.invoke(property!!, index)
-                    parentLayout.addChild(newView)
-                    newView.invalidate()
+                    frame.layout = newView
                 } else {
                     property!!.value = item
                 }
@@ -337,24 +278,26 @@ open class LayoutMaterialViewFactory(
             lastIndex: MutableObservableProperty<Int>,
             direction: Direction,
             makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> Layout<*, View>
-    ): Layout<*, View> = RecyclerView(context).apply {
+    ): Layout<*, View> = intrinsicLayout(RecyclerView(context)) { layout ->
+
         layoutManager = LinearLayoutManager(
                 context,
-                if (direction.vertical) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL,
+                if (direction.vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL,
                 !direction.uiPositive
         )
-        adapter = object : RecyclerView.Adapter<ListViewHolder<T>>() {
+        val newAdapter = object : RecyclerView.Adapter<ListViewHolder<T>>() {
             override fun getItemCount(): Int = data.size
 
             override fun onCreateViewHolder(
                     parent: ViewGroup,
                     viewType: Int
-            ): ListViewHolder<T> = ListViewHolder<T>(context, makeView, this@apply.lifecycle)
+            ): ListViewHolder<T> = ListViewHolder<T>(context, direction, makeView, layout.isAttached)
 
             override fun onBindViewHolder(holder: ListViewHolder<T>, position: Int) {
                 holder.update(data[position], position)
             }
         }
+        adapter = newAdapter
 
         var setByAndroid = false
         this.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -366,28 +309,26 @@ open class LayoutMaterialViewFactory(
                     is GridLayoutManager -> lm.findFirstVisibleItemPosition()
                     else -> 0
                 }
-                setByAndroid = true
                 lastIndex.value = when (
                     val lm = recyclerView.layoutManager) {
                     is LinearLayoutManager -> lm.findLastVisibleItemPosition()
                     is GridLayoutManager -> lm.findLastVisibleItemPosition()
                     else -> 0
                 }
+                setByAndroid = false
             }
         })
 
-        lifecycle.bind(firstIndex) {
+        layout.isAttached.bind(firstIndex) {
             if (setByAndroid) {
-                setByAndroid = false
                 return@bind
             }
             scrollToPosition(it)
         }
 
-        lifecycle.bind(lastIndex) {
+        layout.isAttached.listen(lastIndex) {
             if (setByAndroid) {
-                setByAndroid = false
-                return@bind
+                return@listen
             }
             scrollToPosition(it)
         }
@@ -401,33 +342,40 @@ open class LayoutMaterialViewFactory(
             }
         }
 
-        lifecycle.bind(data, ObservableListListenerSet<T>(
-                onAddListener = { item, position -> adapter.notifyItemInserted(position); updateIndices() },
-                onRemoveListener = { item, position -> adapter.notifyItemRemoved(position); updateIndices() },
-                onChangeListener = { oldItem, newItem, position -> adapter.notifyItemChanged(position) },
+        layout.isAttached.bind(data, ObservableListListenerSet<T>(
+                onAddListener = { item, position -> newAdapter.notifyItemInserted(position); updateIndices() },
+                onRemoveListener = { item, position -> newAdapter.notifyItemRemoved(position); updateIndices() },
+                onChangeListener = { oldItem, newItem, position -> newAdapter.notifyItemChanged(position) },
                 onMoveListener = { item, oldPosition, newPosition ->
-                    adapter.notifyItemMoved(
+                    newAdapter.notifyItemMoved(
                             oldPosition,
                             newPosition
                     )
                     updateIndices()
                 },
-                onReplaceListener = { list -> adapter.notifyDataSetChanged() }
+                onReplaceListener = { list -> newAdapter.notifyDataSetChanged() }
         ))
-    }.intrinsicLayout()
+    }
 
-    override fun text(text: ObservableProperty<String>, importance: Importance, size: TextSize, align: AlignPair, maxLines: Int) = TextView(context).apply {
+    override fun text(
+            text: ObservableProperty<String>,
+            importance: Importance,
+            size: TextSize,
+            align: AlignPair,
+            maxLines: Int
+    ) = intrinsicLayout(TextView(context)) { layout ->
         textSize = size.sp()
-        lifecycle.bind(text) {
+        layout.isAttached.bind(text) {
             this.text = it
+            layout.requestMeasurement()
         }
         setTextColor(colorSet.importance(importance).toInt())
         gravity = align.android()
         setMaxLines(maxLines)
-    }.intrinsicLayout()
+    }
 
-    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>) = ImageView(context).apply {
-        lifecycle.bind(imageWithSizing) {
+    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>) = intrinsicLayout(ImageView(context)) { layout ->
+        layout.isAttached.bind(imageWithSizing) {
             this.scaleType = when (it.scaleType) {
                 ImageScaleType.Crop -> ImageView.ScaleType.CENTER_CROP
                 ImageScaleType.Fill -> ImageView.ScaleType.FIT_CENTER
@@ -439,24 +387,30 @@ open class LayoutMaterialViewFactory(
                 minimumWidth = (it.x * dip).toInt()
                 minimumHeight = (it.y * dip).toInt()
             }
+            layout.requestMeasurement()
         }
-    }.intrinsicLayout()
+    }
 
-    override fun web(content: ObservableProperty<String>) = WebView(context).apply {
-        lifecycle.bind(content) {
+    override fun web(content: ObservableProperty<String>) = intrinsicLayout(WebView(context)) { layout ->
+        layout.isAttached.bind(content) {
             if (it.startsWith("http"))
                 loadUrl(it)
             else
                 loadData(it, "text/html", Charsets.UTF_8.toString())
         }
-    }.intrinsicLayout()
+    }
 
-    override fun space(size: Point) = Space(context).apply {
+    override fun space(size: Point) = intrinsicLayout(Space(context)) { layout ->
         minimumWidth = (size.x * dip).toInt()
         minimumHeight = (size.y * dip).toInt()
-    }.intrinsicLayout()
+    }
 
-    override fun button(label: ObservableProperty<String>, imageWithSizing: ObservableProperty<ImageWithSizing?>, importance: Importance, onClick: () -> Unit) = Button(context).apply {
+    override fun button(
+            label: ObservableProperty<String>,
+            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            importance: Importance,
+            onClick: () -> Unit
+    ) = intrinsicLayout(Button(context)) { layout ->
         val colorSet = theme.importance(importance)
         if (importance == Importance.Low) {
             setBackgroundResource(selectableItemBackgroundResource)
@@ -464,72 +418,83 @@ open class LayoutMaterialViewFactory(
             background.setColorFilter(colorSet.background.toInt(), PorterDuff.Mode.MULTIPLY)
         }
         setTextColor(colorSet.foreground.toInt())
-        lifecycle.bind(label) {
+        layout.isAttached.bind(label) {
             this.text = it
+            layout.requestMeasurement()
         }
-        lifecycle.bind(imageWithSizing) {
+        layout.isAttached.bind(imageWithSizing) {
             setCompoundDrawablesWithIntrinsicBounds(it?.android(), null, null, null)
+            layout.requestMeasurement()
         }
         setOnClickListener { onClick.invoke() }
-    }.intrinsicLayout()
+    }
 
-    override fun imageButton(imageWithSizing: ObservableProperty<ImageWithSizing>, label: ObservableProperty<String?>, importance: Importance, onClick: () -> Unit) = when (importance) {
+    override fun imageButton(
+            imageWithSizing: ObservableProperty<ImageWithSizing>,
+            label: ObservableProperty<String?>,
+            importance: Importance,
+            onClick: () -> Unit
+    ) = when (importance) {
         Importance.Low -> imageButtonEmbedded(imageWithSizing, label, importance, onClick)
         Importance.Normal -> imageButtonFAB(imageWithSizing, label, importance, onClick)
         Importance.High -> imageButtonFAB(imageWithSizing, label, importance, onClick)
         Importance.Danger -> imageButtonFAB(imageWithSizing, label, importance, onClick)
-    }.intrinsicLayout()
-
-
-    override fun <T> picker(options: ObservableList<T>, selected: MutableObservableProperty<T>, toString: (T) -> String): Layout<Spinner, View> {
-        val view = Spinner(context)
-        val layout = view.intrinsicLayout()
-        view.apply {
-            val newAdapter: StandardListAdapter<T> = StandardListAdapter<T>(options, layout, toString)
-            adapter = newAdapter
-
-            var indexAlreadySet = false
-
-            lifecycle.listen(options.onListUpdate) {
-                newAdapter.notifyDataSetChanged()
-                val index = options.indexOf(selected.value)
-                //            println("update to $index - ${selected.value}")
-                if (index == -1) {
-                    //                println("could not find ${selected.value}")
-                    setSelection(0)
-                    return@listen
-                }
-                setSelection(index)
-            }
-
-            lifecycle.bind(selected) { it ->
-                val index = options.indexOf(it)
-                //            println("selected to $index - $it")
-                if (index == -1) {
-                    //                println("could not find ${it?.hashCode()} in ${options.joinToString { it?.hashCode().toString() }}")
-                    setSelection(0)
-                    return@bind
-                }
-                if (!indexAlreadySet) {
-                    setSelection(index)
-                } else {
-                    indexAlreadySet = false
-                }
-            }
-
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    println("set to $position - ${options[position]}")
-                    indexAlreadySet = true
-                    selected.value = (options[position])
-                }
-            }
-        }
-        return layout
     }
 
-    override fun textField(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType) = EditText(context).apply {
+
+    override fun <T> picker(
+            options: ObservableList<T>,
+            selected: MutableObservableProperty<T>,
+            toString: (T) -> String
+    ): Layout<Spinner, View> = intrinsicLayout(Spinner(context)) { layout ->
+        val newAdapter: StandardListAdapter<T> = StandardListAdapter<T>(options, layout.isAttached, toString)
+        adapter = newAdapter
+
+        var indexAlreadySet = false
+
+        layout.isAttached.listen(options.onListUpdate) {
+            newAdapter.notifyDataSetChanged()
+            val index = options.indexOf(selected.value)
+            //            println("update to $index - ${selected.value}")
+            if (index == -1) {
+                //                println("could not find ${selected.value}")
+                setSelection(0)
+                return@listen
+            }
+            setSelection(index)
+        }
+
+        layout.isAttached.bind(selected) { it ->
+            val index = options.indexOf(it)
+            //            println("selected to $index - $it")
+            if (index == -1) {
+                //                println("could not find ${it?.hashCode()} in ${options.joinToString { it?.hashCode().toString() }}")
+                setSelection(0)
+                return@bind
+            }
+            if (!indexAlreadySet) {
+                setSelection(index)
+            } else {
+                indexAlreadySet = false
+            }
+            layout.requestMeasurement()
+        }
+
+        onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                println("set to $position - ${options[position]}")
+                indexAlreadySet = true
+                selected.value = (options[position])
+            }
+        }
+    }
+
+    override fun textField(
+            text: MutableObservableProperty<String>,
+            placeholder: String,
+            type: TextInputType
+    ) = intrinsicLayout(EditText(context)) { layout ->
         inputType = type.android()
         hint = placeholder
         setText(text.value)
@@ -542,17 +507,21 @@ open class LayoutMaterialViewFactory(
                 }
             }
         })
-        lifecycle.listen(text) {
-            if (it != this@apply.text.toString()) {
+        layout.isAttached.listen(text) {
+            if (it != this@intrinsicLayout.text.toString()) {
                 this.setText(it)
             }
         }
 
         setTextColor(colorSet.foreground.toInt())
         setHintTextColor(colorSet.foregroundDisabled.toInt())
-    }.intrinsicLayout()
+    }
 
-    override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType) = textField(text, placeholder, type).apply {
+    override fun textArea(
+            text: MutableObservableProperty<String>,
+            placeholder: String,
+            type: TextInputType
+    ) = textField(text, placeholder, type).apply {
         this.viewAdapter.view.apply {
             gravity = Gravity.TOP or Gravity.START
             maxLines = Int.MAX_VALUE
@@ -560,7 +529,12 @@ open class LayoutMaterialViewFactory(
         }
     }
 
-    override fun numberField(value: MutableObservableProperty<Number?>, placeholder: String, type: NumberInputType, decimalPlaces: Int) = EditText(context).apply {
+    override fun numberField(
+            value: MutableObservableProperty<Number?>,
+            placeholder: String,
+            type: NumberInputType,
+            decimalPlaces: Int
+    ) = intrinsicLayout(EditText(context)) { layout ->
         inputType = type.android()
         hint = placeholder
 
@@ -600,7 +574,7 @@ open class LayoutMaterialViewFactory(
             }
         })
 
-        lifecycle.bind(value) {
+        layout.isAttached.bind(value) {
             if (it basicallyDifferent lastValue) {
                 if (it == null) this.setText("")
                 else this.setText(format.format(it))
@@ -608,7 +582,7 @@ open class LayoutMaterialViewFactory(
         }
 
         setHintTextColor(colorSet.foregroundDisabled.toInt())
-    }.intrinsicLayout()
+    }
 
     override fun datePicker(observable: MutableObservableProperty<Date>) = button(
             label = observable.transform { Locale.default.renderDate(it) },
@@ -620,7 +594,7 @@ open class LayoutMaterialViewFactory(
                             start.set(Calendar.YEAR, year)
                             start.set(Calendar.MONTH, monthOfYear)
                             start.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                            observable.value = start.toDate()
+                            observable.value = start.toDate() as Date
                         },
                         start.get(Calendar.YEAR),
                         start.get(Calendar.MONTH),
@@ -667,7 +641,7 @@ open class LayoutMaterialViewFactory(
                         TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
                             start.set(Calendar.HOUR_OF_DAY, hourOfDay)
                             start.set(Calendar.MINUTE, minute)
-                            observable.value = start.toTime()
+                            observable.value = start.toTime() as Time
                         },
                         start.get(Calendar.HOUR_OF_DAY),
                         start.get(Calendar.MINUTE),
@@ -676,9 +650,9 @@ open class LayoutMaterialViewFactory(
             }
     )
 
-    override fun slider(range: IntRange, observable: MutableObservableProperty<Int>): Layout<*, View> = SeekBar(context).apply {
+    override fun slider(range: IntRange, observable: MutableObservableProperty<Int>): Layout<*, View> = intrinsicLayout(SeekBar(context)) { layout ->
         max = range.endInclusive - range.start + 1
-        lifecycle.bind(observable) {
+        layout.isAttached.bind(observable) {
             val newProg = it - range.start
             if (this.progress != newProg) {
                 this.progress = newProg
@@ -696,120 +670,114 @@ open class LayoutMaterialViewFactory(
                 }
             }
         })
-    }.intrinsicLayout()
+    }
 
-    override fun toggle(observable: MutableObservableProperty<Boolean>) = CheckBox(context).apply {
+    override fun toggle(observable: MutableObservableProperty<Boolean>) = intrinsicLayout(CheckBox(context)) { layout ->
         this.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
             if (isChecked != observable.value) {
                 observable.value = (isChecked)
             }
         }
-        lifecycle.bind(observable) {
+        layout.isAttached.bind(observable) {
             val value = observable.value
             if (isChecked != value) {
                 isChecked = value
             }
         }
-    }.intrinsicLayout()
+    }
 
-    override fun refresh(contains: Layout<*, View>, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Layout<SwipeRefreshLayout, View> {
+    override fun refresh(
+            contains: Layout<*, View>,
+            working: ObservableProperty<Boolean>,
+            onRefresh: () -> Unit
+    ): Layout<SwipeRefreshLayout, View> {
         val view = SwipeRefreshLayout(context)
-        val layout = view.intrinsicLayout()
-        view.apply {
-            layout.addChild(contains)
-            contains.viewAdapter.viewAsBase.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        val layout = Layout.frame(view.adapter(false), contains)
+        view.addView(contains.viewAdapter.viewAsBase)
+        contains.viewAdapter.viewAsBase.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
 
-            lifecycle.bind(working) {
-                this.isRefreshing = it
-            }
-            this.setOnRefreshListener {
-                onRefresh()
-            }
+        layout.isAttached.bind(working) {
+            view.isRefreshing = it
+        }
+        view.setOnRefreshListener {
+            onRefresh()
         }
         return layout
     }
 
     override fun work(view: Layout<*, View>, isWorking: ObservableProperty<Boolean>): Layout<*, View> {
-        val bar = ProgressBar(context).apply {
+        val bar = intrinsicLayout(ProgressBar(context)) { layout ->
             isIndeterminate = true
-        }.intrinsicLayout()
-        return swap(
-                view = isWorking.transform {
+        }
+        return Layout.swapStatic(
+                viewAdapter = defaultViewContainer().adapter(),
+                child = isWorking.transform {
                     val nextView = if (it) bar else view
                     nextView to Animation.Fade
-                }
+                },
+                sizingChild = view
         )
     }
 
     override fun progress(view: Layout<*, View>, progress: ObservableProperty<Float>): Layout<*, View> {
-        val bar = ProgressBar(context).apply {
+        val bar = intrinsicLayout(ProgressBar(context,  null, android.R.attr.progressBarStyleHorizontal)) { layout ->
             isIndeterminate = false
             max = 100
-            lifecycle.bind(progress) {
-                this.progress = (it * 100).toInt()
+            layout.isAttached.bind(progress) {
+                this.setProgress((it * 100).toInt(), true)
             }
-        }.intrinsicLayout()
-        return swap(
-                view = progress.transform {
+        }
+        return Layout.swapStatic(
+                viewAdapter = defaultViewContainer().adapter(),
+                child = progress.transform {
                     val nextView = if (it == 1f) view else bar
                     nextView to Animation.Fade
-                }
+                },
+                sizingChild = view
         )
     }
 
-    override fun scrollBoth(view: Layout<*, View>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>) = scrollVertical(scrollHorizontal(view, amountX), amountY)
+    override fun scrollBoth(view: Layout<*, View>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): Layout<*, View> {
+        val adapter = AndroidLayoutAdapter(HorizontalScrollView(context).apply{
+            addView(ScrollView(context))
+        }, true)
+        val intrinsic = IntrinsicDimensionLayouts(adapter.view)
+        val layout = Layout(
+                viewAdapter = adapter,
+                x = intrinsic.x,
+                y = intrinsic.y
+        )
+        adapter.view.addView(LayoutToAndroidView(context).also{ it.layout = view })
+        return layout
+    }
 
     override fun scrollVertical(view: Layout<*, View>, amount: MutableObservableProperty<Float>): Layout<*, View> {
-        val scrollView = ScrollView(context)
-        val layout = scrollView.intrinsicLayout()
-        scrollView.apply {
-            isFillViewport = true
-            view.viewAdapter.viewAsBase.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            layout.addChild(view)
-
-            var suppressListener = false
-            lifecycle.bind(amount) {
-                suppressListener = true
-                scrollX = it.roundToInt()
-            }
-            viewTreeObserver.addOnScrollChangedListener {
-                if (suppressListener) {
-                    suppressListener = false
-                    return@addOnScrollChangedListener
-                }
-                amount.value = scrollX.toFloat()
-            }
-        }
+        val adapter = AndroidLayoutAdapter(ScrollView(context), true)
+        val intrinsic = IntrinsicDimensionLayouts(adapter.view)
+        val layout = Layout(
+                viewAdapter = adapter,
+                x = intrinsic.x,
+                y = intrinsic.y
+        )
+        adapter.view.addView(LayoutToAndroidView(context).also{ it.layout = view })
         return layout
     }
 
     override fun scrollHorizontal(view: Layout<*, View>, amount: MutableObservableProperty<Float>): Layout<*, View> {
-        val scrollView = HorizontalScrollView(context)
-        val layout = scrollView.intrinsicLayout()
-        scrollView.apply {
-            isFillViewport = true
-            view.viewAdapter.viewAsBase.layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
-            layout.addChild(view)
-
-            var suppressListener = false
-            lifecycle.bind(amount) {
-                suppressListener = true
-                scrollY = it.roundToInt()
-            }
-            viewTreeObserver.addOnScrollChangedListener {
-                if (suppressListener) {
-                    suppressListener = false
-                    return@addOnScrollChangedListener
-                }
-                amount.value = scrollY.toFloat()
-            }
-        }
+        val adapter = AndroidLayoutAdapter(HorizontalScrollView(context), true)
+        val intrinsic = IntrinsicDimensionLayouts(adapter.view)
+        val layout = Layout(
+                viewAdapter = adapter,
+                x = intrinsic.x,
+                y = intrinsic.y
+        )
+        adapter.view.addView(LayoutToAndroidView(context).also{ it.layout = view })
         return layout
     }
 
     override fun card(view: Layout<*, View>): Layout<*, View> {
         val cardView = CardView(context)
-        val layout = cardView.intrinsicLayout()
+        val layout = Layout.frame(cardView.adapter(), view)
         view.viewAdapter.viewAsBase.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         layout.addChild(view)
         cardView.setCardBackgroundColor(colorSet.backgroundHighlighted.toInt())
@@ -845,7 +813,7 @@ open class LayoutMaterialViewFactory(
             onDismiss: () -> Unit,
             makeView: (dismissDialog: () -> Unit) -> Layout<*, View>
     ) {
-        TODO()
+//        TODO()
 //        val frame = access.activity?.findViewById<FrameLayout>(frameId) ?: return
 //        var dismisser: () -> Unit = {}
 //        val generatedView = makeView { dismisser() }
@@ -869,7 +837,7 @@ open class LayoutMaterialViewFactory(
 //                }
 //        frame.addView(wrapper, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
 //        wrapper.animate().alpha(1f).setDuration(250).start()
-//        wrapper.lifecycle.parent = frame.lifecycle
+//        wrapper.isAttached.parent = frame.isAttached
 //        dismisser = {
 //            wrapper.animate().alpha(0f).setDuration(250).withEndAction {
 //                frame.removeView(wrapper)
@@ -898,15 +866,15 @@ open class LayoutMaterialViewFactory(
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
-    ): View = ImageButton(context).apply {
+    ) = intrinsicLayout(ImageButton(context)) { layout ->
         val padding = (dip * 8).toInt()
         this.setPadding(padding, padding, padding, padding)
-        lifecycle.bind(label) {
+        layout.isAttached.bind(label) {
             if (Build.VERSION.SDK_INT > 26) {
                 this.tooltipText = it
             }
         }
-        lifecycle.bind(imageWithSizing) {
+        layout.isAttached.bind(imageWithSizing) {
             setBackgroundResource(selectableItemBackgroundResource)
             setImageDrawable(it.android())
         }
@@ -918,13 +886,13 @@ open class LayoutMaterialViewFactory(
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
-    ): View = ImageButton(context).apply {
-        lifecycle.bind(label) {
+    ) = intrinsicLayout(ImageButton(context)) { layout ->
+        layout.isAttached.bind(label) {
             if (Build.VERSION.SDK_INT > 26) {
                 this.tooltipText = it
             }
         }
-        lifecycle.bind(imageWithSizing) {
+        layout.isAttached.bind(imageWithSizing) {
             if (importance == Importance.Low) {
                 setBackgroundResource(selectableItemBackgroundResource)
                 setImageDrawable(it.android())
@@ -954,15 +922,15 @@ open class LayoutMaterialViewFactory(
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
-    ): View = FloatingActionButton(context).apply {
+    ) = intrinsicLayout(FloatingActionButton(context)) { layout ->
         backgroundTintList = theme.importance(importance).androidBackground()
         rippleColor = theme.importance(importance).backgroundHighlighted.toInt()
-        lifecycle.bind(label) {
+        layout.isAttached.bind(label) {
             if (Build.VERSION.SDK_INT > 26) {
                 this.tooltipText = it
             }
         }
-        lifecycle.bind(imageWithSizing) {
+        layout.isAttached.bind(imageWithSizing) {
             setImageDrawable(it.android())
         }
         setOnClickListener { onClick.invoke() }
@@ -970,7 +938,7 @@ open class LayoutMaterialViewFactory(
 
     inner class StandardListAdapter<T>(
             list: List<T>,
-            val parent: Layout<*, View>,
+            val parent: TreeObservableProperty,
             val toString: (T) -> String
     ) : BaseAdapter() {
 
@@ -998,7 +966,7 @@ open class LayoutMaterialViewFactory(
                 val newLayout = text(
                         text = newObs.transform(toString)
                 )
-                this.parent.addChild(newLayout)
+                newLayout.isAttached.parent = this.parent
                 val newView = newLayout.viewAdapter.view
                 newView.tag = newObs
                 newObs.index = position

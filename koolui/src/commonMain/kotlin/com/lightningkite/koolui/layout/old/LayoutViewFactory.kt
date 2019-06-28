@@ -1,4 +1,4 @@
-package com.lightningkite.koolui.layout
+package com.lightningkite.koolui.layout.old
 
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
@@ -31,8 +31,6 @@ abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
 
     abstract fun defaultViewContainer(): VIEW
     abstract fun <SPECIFIC: VIEW> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, VIEW>
-    abstract fun applyEntranceTransition(view: VIEW, animation: Animation)
-    abstract fun applyExitTransition(view: VIEW, animation: Animation, onComplete: () -> Unit)
 
     override fun horizontal(vararg views: Pair<LinearPlacement, Layout<*, VIEW>>): Layout<*, VIEW> = Layout.horizontal(
             viewAdapter = defaultViewContainer().adapter(),
@@ -56,9 +54,7 @@ abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
 
     override fun swap(view: ObservableProperty<Pair<Layout<*, VIEW>, Animation>>): Layout<*, VIEW> = Layout.swap(
             viewAdapter = defaultViewContainer().adapter(),
-            child = view,
-            applyEntranceTransition = { view, animation -> applyEntranceTransition(view, animation) },
-            applyExitTransition = { view, animation, onComplete -> applyExitTransition(view, animation, onComplete) }
+            child = view.transform { it.first }
     )
 
     override fun Layout<*, VIEW>.margin(left: Float, top: Float, right: Float, bottom: Float): Layout<*, VIEW> {

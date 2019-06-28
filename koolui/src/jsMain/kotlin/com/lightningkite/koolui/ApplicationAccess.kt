@@ -1,18 +1,28 @@
 package com.lightningkite.koolui
 
 import com.lightningkite.kommon.string.Uri
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.recktangle.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.browser.window
 
 actual object ApplicationAccess {
 
+    actual fun post(action: () -> Unit) {
+        window.setTimeout({ action() }, 1)
+    }
+
     fun init(appPath: String) {
         ApplicationAccess.appPath = appPath
     }
+
     lateinit var appPath: String
 
     //TODO: Handle dynamic display size changes

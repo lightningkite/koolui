@@ -38,11 +38,14 @@ group = "com.lightningkite"
 version = versions.getProperty(project.name)
 
 android {
-    compileSdkVersion(27)
+    project.ext.set("android.useAndroidX", true)
+    project.ext.set("android.enableJetifier", true)
+
+    compileSdkVersion(28)
 
     defaultConfig {
         minSdkVersion(16)
-        targetSdkVersion(27)
+        targetSdkVersion(28)
     }
 
     buildTypes {
@@ -82,18 +85,18 @@ kotlin {
             main {
                 dependencies {
 
-                    val compatVersion = "27.1.1"
-                    api("com.android.support:appcompat-v7:$compatVersion")
-                    api("com.android.support:cardview-v7:$compatVersion")
-                    api("com.android.support:gridlayout-v7:$compatVersion")
-                    api("com.android.support:recyclerview-v7:$compatVersion")
-                    api("com.android.support:design:$compatVersion")
+                    api("androidx.appcompat:appcompat:1.0.2")
+                    api("androidx.cardview:cardview:1.0.0")
+                    api("androidx.gridlayout:gridlayout:1.0.0")
+                    api("androidx.recyclerview:recyclerview:1.0.0")
+                    api("com.google.android.material:material:1.1.0-alpha07")
                     api("com.pixplicity.sharp:library:1.1.0")
                     api("com.squareup.picasso:picasso:2.71828")
 
 //                    api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
 //                    api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")
 //                    api("com.lightningkite:recktangle-jvm:${versions.getProperty("recktangle")}")
+
                     api("com.google.firebase:firebase-messaging:18.0.0")
                 }
             }

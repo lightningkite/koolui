@@ -1,6 +1,7 @@
 package com.lightningkite.koolui
 
 import com.lightningkite.kommon.string.Uri
+import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.resources.Resources
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
@@ -10,8 +11,16 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.lightningkite.koolui.notification.Notification
+import kotlinx.coroutines.Dispatchers
 
 actual object ApplicationAccess {
+
+    actual fun post(action: () -> Unit) {
+        GlobalScope.launch(Dispatchers.UI){
+            delay(1)
+            action()
+        }
+    }
 
     fun init(classLoader: ClassLoader) {
         Resources.classLoader = classLoader

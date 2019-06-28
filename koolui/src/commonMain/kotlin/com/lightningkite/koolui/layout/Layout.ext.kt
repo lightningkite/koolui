@@ -1,17 +1,34 @@
 package com.lightningkite.koolui.layout
 
+import com.lightningkite.koolui.ApplicationAccess
+import com.lightningkite.koolui.async.UI
+import com.lightningkite.koolui.concepts.Animation
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.reacktive.property.ObservableProperty
+import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+fun <S : V, V> Layout.Companion.align(
+        viewAdapter: ViewAdapter<S, V>,
+        children: List<Pair<AlignPair, Layout<*, V>>>
+) = Layout<S, V>(
+        viewAdapter = viewAdapter,
+        x = AlignDimensionLayout(children.map { it.first.horizontal to it.second.x }),
+        y = AlignDimensionLayout(children.map { it.first.vertical to it.second.y })
+).apply { children.forEach { addChild(it.second) } }
 
 fun <S : V, V> Layout.Companion.vertical(
         viewAdapter: ViewAdapter<S, V>,
         children: List<Pair<LinearPlacement, Layout<*, V>>>
 ) = Layout<S, V>(
         viewAdapter = viewAdapter,
-        x = AlignDimensionCalculator(children.asSequence().map { it.first.align to it.second.x }),
-        y = LinearDimensionCalculator(children.asSequence().map { it.first.weight to it.second.y })
+        x = AlignDimensionLayout(children.map { it.first.align to it.second.x }),
+        y = LinearDimensionLayout(children.map { it.first.weight to it.second.y })
 ).apply { children.forEach { addChild(it.second) } }
 
 fun <S : V, V> Layout.Companion.horizontal(
@@ -19,17 +36,8 @@ fun <S : V, V> Layout.Companion.horizontal(
         children: List<Pair<LinearPlacement, Layout<*, V>>>
 ) = Layout<S, V>(
         viewAdapter = viewAdapter,
-        x = LinearDimensionCalculator(children.asSequence().map { it.first.weight to it.second.x }),
-        y = AlignDimensionCalculator(children.asSequence().map { it.first.align to it.second.y })
-).apply { children.forEach { addChild(it.second) } }
-
-fun <S : V, V> Layout.Companion.align(
-        viewAdapter: ViewAdapter<S, V>,
-        children: List<Pair<AlignPair, Layout<*, V>>>
-) = Layout<S, V>(
-        viewAdapter = viewAdapter,
-        x = AlignDimensionCalculator(children.asSequence().map { it.first.horizontal to it.second.x }),
-        y = AlignDimensionCalculator(children.asSequence().map { it.first.vertical to it.second.y })
+        x = LinearDimensionLayout(children.map { it.first.weight to it.second.x }),
+        y = AlignDimensionLayout(children.map { it.first.align to it.second.y })
 ).apply { children.forEach { addChild(it.second) } }
 
 fun <S : V, V> Layout.Companion.frame(
@@ -41,55 +49,107 @@ fun <S : V, V> Layout.Companion.frame(
         bottomMargin: Float = 0f
 ) = Layout<S, V>(
         viewAdapter = viewAdapter,
-        x = FrameDimensionCalculator(leftMargin, rightMargin) { child.x },
-        y = FrameDimensionCalculator(topMargin, bottomMargin) { child.y }
+        x = FrameDimensionLayout(child.x, leftMargin, rightMargin),
+        y = FrameDimensionLayout(child.y, topMargin, bottomMargin)
 ).apply { addChild(child) }
 
-fun <S : V, V> Layout.Companion.swap(
+inline fun <S : V, V> Layout.Companion.swap(
         viewAdapter: ViewAdapter<S, V>,
-        child: ObservableProperty<Layout<*, V>>,
-        leftMargin: Float = 0f,
-        rightMargin: Float = 0f,
-        topMargin: Float = 0f,
-        bottomMargin: Float = 0f
-) = Layout<S, V>(
-        viewAdapter = viewAdapter,
-        x = FrameDimensionCalculator(leftMargin, rightMargin) { child.value.x },
-        y = FrameDimensionCalculator(topMargin, bottomMargin) { child.value.y }
-).apply {
-    var currentChild: Layout<*, V> = child.value
-    addChild(currentChild)
-    isAttached.listen(child){
-        removeChild(currentChild)
-        addChild(it)
-        currentChild = it
-        invalidate()
+        child: ObservableProperty<Pair<Layout<*, V>, Animation>>,
+        crossinline applyExitTransition: (V, Animation, onComplete: () -> Unit) -> Unit = { _, _, complete -> complete() },
+        crossinline applyEntranceTransition: (V, Animation) -> Unit = { _, _ -> }
+): Layout<S, V> {
+    var currentChild: Layout<*, V>? = null
+    val x = SwapDimensionLayout(child.value.first.x)
+    val y = SwapDimensionLayout(child.value.first.y)
+    return Layout<S, V>(
+            viewAdapter = viewAdapter,
+            x = x,
+            y = y
+    ).apply {
+        isAttached.bind(child) {
+            val newLayout = it.first
+            if (child == currentChild) return@bind
+
+            ApplicationAccess.post {
+                val old = currentChild
+                if (old != null) {
+                    applyExitTransition(old.viewAsBase, it.second) {
+                        removeChild(old)
+                    }
+
+                    currentChild = newLayout
+                    addChild(newLayout)
+                    x.child = newLayout.x
+                    y.child = newLayout.y
+                    applyEntranceTransition(newLayout.viewAsBase, it.second)
+                } else {
+                    currentChild = newLayout
+                    addChild(newLayout)
+                    x.child = newLayout.x
+                    y.child = newLayout.y
+                }
+            }
+        }
     }
 }
 
-fun <S : V, V> Layout.Companion.leaf(
+inline fun <S : V, V> Layout.Companion.swapStatic(
         viewAdapter: ViewAdapter<S, V>,
-        margin: Float,
-        width: Float,
-        height: Float
-) = Layout<S, V>(
-        viewAdapter = viewAdapter,
-        x = LeafDimensionCalculator(margin, width, margin),
-        y = LeafDimensionCalculator(margin, height, margin)
-)
+        child: ObservableProperty<Pair<Layout<*, V>, Animation>>,
+        sizingChild: Layout<*, V>,
+        crossinline applyExitTransition: (V, Animation, onComplete: () -> Unit) -> Unit = { _, _, complete -> complete() },
+        crossinline applyEntranceTransition: (V, Animation) -> Unit = { _, _ -> }
+): Layout<S, V> {
+    var currentChild: Layout<*, V>? = null
+    val x = SwapDimensionLayout(child.value.first.x)
+    x.measurementChild = sizingChild.x
+    val y = SwapDimensionLayout(child.value.first.y)
+    y.measurementChild = sizingChild.y
+    return Layout<S, V>(
+            viewAdapter = viewAdapter,
+            x = x,
+            y = y
+    ).apply {
+        isAttached.bind(child) {
+            val newLayout = it.first
+            if (child == currentChild) return@bind
+
+            ApplicationAccess.post {
+                val old = currentChild
+                if (old != null) {
+                    applyExitTransition(old.viewAsBase, it.second) {
+                        removeChild(old)
+                    }
+
+                    currentChild = newLayout
+                    addChild(newLayout)
+                    x.layoutChild = newLayout.x
+                    y.layoutChild = newLayout.y
+                    applyEntranceTransition(newLayout.viewAsBase, it.second)
+                } else {
+                    currentChild = newLayout
+                    addChild(newLayout)
+                    x.layoutChild = newLayout.x
+                    y.layoutChild = newLayout.y
+                }
+            }
+        }
+    }
+}
 
 fun Layout<*, *>.forceWidth(width: Float) {
-    x = ForceSizeDimensionCalculator(x, width)
+    x = ForceSizeDimensionLayout(x, width)
 }
 
 fun Layout<*, *>.forceHeight(height: Float) {
-    y = ForceSizeDimensionCalculator(y, height)
+    y = ForceSizeDimensionLayout(y, height)
 }
 
 fun Layout<*, *>.forceXMargins(left: Float, right: Float) {
-    x = ForceMarginDimensionCalculator(x, left, right)
+    x = ForceMarginsDimensionLayout(x, left, right)
 }
 
 fun Layout<*, *>.forceYMargins(top: Float, bottom: Float) {
-    y = ForceMarginDimensionCalculator(y, top, bottom)
+    y = ForceMarginsDimensionLayout(y, top, bottom)
 }

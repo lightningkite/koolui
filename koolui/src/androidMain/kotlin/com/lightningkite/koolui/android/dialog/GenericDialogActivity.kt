@@ -39,7 +39,8 @@ open class GenericDialogActivity(private val containers: HashMap<Int, ContainerD
         myContainerData = containers[myIndex]
         myContainerData?.themeResource?.let { setTheme(it) }
         super.onCreate(savedInstanceState)
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+//        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         if (myContainerData != null) {
             setContentView(myContainerData!!.viewGenerator.invoke(this))
             setFinishOnTouchOutside(intent.getBooleanExtra(EXTRA_DISMISS_ON_TOUCH_OUTSIDE, true))

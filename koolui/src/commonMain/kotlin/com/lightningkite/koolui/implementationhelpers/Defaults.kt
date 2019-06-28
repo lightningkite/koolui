@@ -257,7 +257,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
         tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
 ) = vertical {
     -with(barBuilder) {
-        horizontal {
+        frame(horizontal {
             defaultAlign = Align.Center
             -imageButton(
                 imageWithSizing = ConstantObservableProperty(
@@ -279,20 +279,20 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
             -swap(stack.lastOrNullObservable().transform {
                 (it?.generateActions(dependency) ?: space(1f)) to Animation.Fade
             })
-        }.background(theme.bar.background)
+        }).background(theme.bar.background)
     }
 
-    +swap(stack.lastOrNullObservableWithAnimations().transform { (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second })
-        .background(theme.main.background)
+    +frame(swap(stack.lastOrNullObservableWithAnimations().transform { (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second })
+    ).background(theme.main.background)
 
     if (!tabs.isEmpty()) {
-        -horizontal {
+        -frame(horizontal {
             for (tab in tabs) {
                 +button(tab.first.text, tab.first.imageWithSizing) {
                     stack.reset(tab.second)
                 }
             }
-        }.background(theme.bar.background)
+        }).background(theme.bar.background)
     }
 }
 

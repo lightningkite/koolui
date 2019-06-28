@@ -79,11 +79,14 @@ kotlin {
 }
 
 android {
-    compileSdkVersion(27)
+    project.ext.set("android.useAndroidX", true)
+    project.ext.set("android.enableJetifier", true)
+    
+    compileSdkVersion(28)
 
     defaultConfig {
         minSdkVersion(16)
-        targetSdkVersion(27)
+        targetSdkVersion(28)
 
         applicationId = "com.lightningkite.kotlinx.test"
 

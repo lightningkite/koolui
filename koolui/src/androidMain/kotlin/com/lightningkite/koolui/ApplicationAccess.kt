@@ -10,8 +10,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.DrawableRes
-import android.support.v4.app.NotificationCompat
+import androidx.annotation.DrawableRes
+import androidx.core.app.NotificationCompat
 import com.lightningkite.koolui.android.NotificationHandlerService
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.notification.Notification
@@ -48,6 +48,11 @@ actual object ApplicationAccess {
 
     var dip: Float = 1f
 
+    val handler = Handler(Looper.getMainLooper())
+    actual fun post(action: () -> Unit) {
+        handler.post(action)
+    }
+
     private val privateDisplaySize = StandardObservableProperty(Point())
     actual val displaySize: ObservableProperty<Point> //can change on rotation, etc.
         get() = privateDisplaySize
@@ -65,28 +70,28 @@ actual object ApplicationAccess {
     actual fun showNotification(notification: Notification) {
         val context = access!!.context
         NotificationCompat.Builder(context, defaultChannelId)
-            .setSmallIcon(notificationIcon)
-            .setContentTitle(notification.title)
-            .setContentText(notification.content)
-            .setPriority(notification.priority.times(4).minus(2).roundToInt())
-            .setAutoCancel(true)
-            .let {
-                val pending = getNotificationPendingIntent(context, notification.action)
-                it.setContentIntent(pending)
-            }
-            .let {
-                for (action in notification.actions) {
-                    val pending = getNotificationPendingIntent(context, action.value)
-                    it.addAction(0, action.key, pending)
+                .setSmallIcon(notificationIcon)
+                .setContentTitle(notification.title)
+                .setContentText(notification.content)
+                .setPriority(notification.priority.times(4).minus(2).roundToInt())
+                .setAutoCancel(true)
+                .let {
+                    val pending = getNotificationPendingIntent(context, notification.action)
+                    it.setContentIntent(pending)
                 }
-                it
-            }
-            .build()
-            .let {
-                ApplicationAccess.access!!.context.getSystemService(Context.NOTIFICATION_SERVICE)
-                    .let { it as NotificationManager }
-                    .notify(notification.id, it)
-            }
+                .let {
+                    for (action in notification.actions) {
+                        val pending = getNotificationPendingIntent(context, action.value)
+                        it.addAction(0, action.key, pending)
+                    }
+                    it
+                }
+                .build()
+                .let {
+                    ApplicationAccess.access!!.context.getSystemService(Context.NOTIFICATION_SERVICE)
+                            .let { it as NotificationManager }
+                            .notify(notification.id, it)
+                }
     }
 
     fun getNotificationPendingIntent(context: Context, action: String): PendingIntent? {
@@ -109,7 +114,7 @@ actual object ApplicationAccess {
     }
 
     fun init(
-        @DrawableRes notificationIcon: Int
+            @DrawableRes notificationIcon: Int
     ) {
         this.notificationIcon = notificationIcon
     }
@@ -125,8 +130,8 @@ actual object ApplicationAccess {
         this.access = access
         privateDisplaySize.value = access.context.resources.displayMetrics.let {
             Point(
-                it.widthPixels / it.density,
-                it.heightPixels / it.density
+                    it.widthPixels / it.density,
+                    it.heightPixels / it.density
             )
         }
         privateIsInForeground.value = true
@@ -137,10 +142,10 @@ actual object ApplicationAccess {
         if (!channelCreated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             channelCreated = true
             ApplicationAccess.access!!.context.getSystemService(Context.NOTIFICATION_SERVICE)
-                .let { it as NotificationManager }
-                .createNotificationChannel(
-                    NotificationChannel(defaultChannelId, "Default", NotificationManager.IMPORTANCE_DEFAULT)
-                )
+                    .let { it as NotificationManager }
+                    .createNotificationChannel(
+                            NotificationChannel(defaultChannelId, "Default", NotificationManager.IMPORTANCE_DEFAULT)
+                    )
         }
     }
 

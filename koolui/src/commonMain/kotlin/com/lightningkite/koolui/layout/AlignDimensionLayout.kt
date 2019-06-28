@@ -3,14 +3,21 @@ package com.lightningkite.koolui.layout
 import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.Measurement
 
-class AlignDimensionCalculator(
-        val children: Sequence<Pair<Align, DimensionCalculator>>
-) : BaseDimensionCalculator() {
+class AlignDimensionLayout(
+        val children: List<Pair<Align, DimensionLayout>>
+) : BaseDimensionLayout() {
+    init {
+        children.forEach { it.second.parent = this }
+    }
+
+    val childToAlign = children.associate { it.second to it.first }
+
+    override fun childInvalidatesLayout(fromChild: DimensionLayout): Boolean = childToAlign[fromChild] != Align.Fill
 
     override fun measure(output: Measurement) {
-        output.startMargin = children.map { it.second.measurement.startMargin }.min() ?: 0f
-        output.endMargin = children.map { it.second.measurement.endMargin }.min() ?: 0f
-        output.size = children.map {
+        output.startMargin = children.asSequence().map { it.second.measurement.startMargin }.min() ?: 0f
+        output.endMargin = children.asSequence().map { it.second.measurement.endMargin }.min() ?: 0f
+        output.size = children.asSequence().map {
             it.second.measurement.size +
                     (it.second.measurement.startMargin - output.startMargin).coerceAtLeast(0f) +
                     (it.second.measurement.endMargin - output.endMargin).coerceAtLeast(0f)
@@ -50,4 +57,7 @@ class AlignDimensionCalculator(
         }
     }
 
+    override val childSequence: Sequence<DimensionLayout>
+        get() = children.asSequence().map { it.second }
 }
+

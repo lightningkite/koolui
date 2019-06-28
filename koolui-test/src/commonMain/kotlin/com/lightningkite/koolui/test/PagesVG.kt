@@ -3,6 +3,7 @@ package com.lightningkite.koolui.test
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.koolui.builders.pagesEmbedded
 import com.lightningkite.koolui.builders.text
+import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
 
@@ -14,16 +15,16 @@ class PagesVG<VIEW>() : MyViewGenerator<VIEW> {
                 dependency,
                 StandardObservableProperty(0),
                 {
-                    text(text = "First page", size = TextSize.Header, align = AlignPair.CenterCenter)
+                    text(text = "First page", size = TextSize.Header, align = AlignPair.CenterCenter).background(Color.black)
                 },
                 {
-                    text(text = "Second page", size = TextSize.Header, align = AlignPair.CenterCenter)
+                    text(text = "Second page", size = TextSize.Header, align = AlignPair.CenterCenter).background(Color.black)
                 },
                 {
-                    text(text = "Third page", size = TextSize.Header, align = AlignPair.CenterCenter)
+                    text(text = "Third page", size = TextSize.Header, align = AlignPair.CenterCenter).background(Color.black)
                 },
                 {
-                    text(text = "Last page", size = TextSize.Header, align = AlignPair.CenterCenter)
+                    text(text = "Last page", size = TextSize.Header, align = AlignPair.CenterCenter).background(Color.black)
                 }
         )
     }

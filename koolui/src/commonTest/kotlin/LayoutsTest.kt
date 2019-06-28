@@ -2,9 +2,10 @@ package com.lightningkite.koolui.layout
 
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement
+import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.recktangle.Rectangle
+import kotlin.math.roundToInt
 import kotlin.test.Test
-import kotlin.test.fail
 
 class LayoutsTest {
 
@@ -33,7 +34,9 @@ class LayoutsTest {
 
         fun blit(left: Int, top: Int, other: Chars2D) {
             other.forEach { x, y, value ->
-                set(left + x, top + y, value)
+                if (value != default) {
+                    set(left + x, top + y, value)
+                }
             }
         }
 
@@ -85,89 +88,112 @@ class LayoutsTest {
             rect.bottom = end
         }
 
-        fun chars2D(): Chars2D = Chars2D(rect.width.toInt().plus(1), rect.height.toInt().plus(1), '.').apply {
+        fun chars2D(): Chars2D = Chars2D(rect.width.roundToInt().plus(1), rect.height.roundToInt().plus(1), '.').apply {
             if (name.isNotEmpty()) {
-                box(0, 0, rect.width.toInt(), rect.height.toInt())
-                text(2, 0, rect.width.toInt().minus(3), name)
+                box(0, 0, rect.width.roundToInt(), rect.height.roundToInt())
+                text(2, 0, rect.width.roundToInt().minus(3), name)
             }
 
             for (child in children) {
                 blit(child.rect.left.toInt(), child.rect.top.toInt(), child.chars2D())
             }
         }
+
+        override fun onAddChild(layout: Layout<*, Unit>) {
+            children.add(layout.viewAdapter as DummyAdapter)
+        }
+
+        override fun onRemoveChild(layout: Layout<*, Unit>) {
+            children.remove(layout.viewAdapter as DummyAdapter)
+        }
     }
 
-    fun leaf(text: String) = Layout.leaf(DummyAdapter(text), 2f, text.length.toFloat() + 3f, 3f)
-    fun vertical(
-            text: String = "",
-            children: List<Pair<LinearPlacement, Layout<*, Unit>>>
-    ): Layout<*, Unit> {
-        val viewAdapter = DummyAdapter(text)
-        return Layout.vertical(viewAdapter, children.also { it.forEach { viewAdapter.children.add(it.second.viewAdapter as DummyAdapter) } })
-    }
-
-    fun horizontal(
-            text: String = "",
-            children: List<Pair<LinearPlacement, Layout<*, Unit>>>
-    ): Layout<*, Unit> {
-        val viewAdapter = DummyAdapter(text)
-        return Layout.horizontal(viewAdapter, children.also { it.forEach { viewAdapter.children.add(it.second.viewAdapter as DummyAdapter) } })
-    }
-
-    fun align(
-            text: String = "",
-            children: List<Pair<AlignPair, Layout<*, Unit>>>
-    ): Layout<*, Unit> {
-        val viewAdapter = DummyAdapter(text)
-        return Layout.align(viewAdapter, children.also { it.forEach { viewAdapter.children.add(it.second.viewAdapter as DummyAdapter) } })
-    }
-
-    fun frame(
-            text: String = "",
-            child: Layout<*, Unit>,
-            leftMargin: Float = 0f,
-            rightMargin: Float = 0f,
-            topMargin: Float = 0f,
-            bottomMargin: Float = 0f
-    ): Layout<*, Unit> {
-        val viewAdapter = DummyAdapter(text)
-        return Layout.frame(viewAdapter, child.also { viewAdapter.children.add(it.viewAdapter as DummyAdapter) }, leftMargin, rightMargin, topMargin, bottomMargin)
-    }
+    fun Layout.Companion.leaf(dummyAdapter: DummyAdapter) = Layout(
+            viewAdapter = dummyAdapter,
+            x = LeafDimensionLayout {
+                it.startMargin = 2f
+                it.endMargin = 2f
+                it.size = dummyAdapter.name.length.toFloat() + 3f
+            },
+            y = LeafDimensionLayout {
+                it.startMargin = 2f
+                it.endMargin = 2f
+                it.size = 3f
+            }
+    )
 
     @Test
     fun test() {
-        val layout = frame("align",
-                horizontal("", listOf(
-                        LinearPlacement.fillFill to vertical("", listOf(
-                                LinearPlacement.wrapStart to leaf("wrapStart"),
-                                LinearPlacement.wrapCenter to leaf("wrapCenter"),
-                                LinearPlacement.wrapEnd to leaf("wrapEnd"),
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.wrapStart to leaf("wrapStart"),
-                                LinearPlacement.wrapCenter to leaf("wrapCenter"),
-                                LinearPlacement.wrapEnd to leaf("wrapEnd")
+        val layout = Layout.frame(DummyAdapter("test"),
+                Layout.horizontal(DummyAdapter(""), listOf(
+                        LinearPlacement.fillFill to Layout.vertical(DummyAdapter(""), listOf(
+                                LinearPlacement.wrapStart to Layout.leaf(DummyAdapter("wrapStart")),
+                                LinearPlacement.wrapCenter to Layout.leaf(DummyAdapter("wrapCenter")),
+                                LinearPlacement.wrapEnd to Layout.leaf(DummyAdapter("wrapEnd")),
+                                LinearPlacement.fillFill to Layout.leaf(DummyAdapter("fillFill")),
+                                LinearPlacement.wrapStart to Layout.leaf(DummyAdapter("wrapStart")),
+                                LinearPlacement.wrapCenter to Layout.leaf(DummyAdapter("wrapCenter")),
+                                LinearPlacement.wrapEnd to Layout.leaf(DummyAdapter("wrapEnd"))
                         )),
-                        LinearPlacement.wrapFill to vertical("", listOf(
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.wrapStart to leaf("wrapStart"),
-                                LinearPlacement.wrapCenter to leaf("wrapCenter"),
-                                LinearPlacement.wrapEnd to leaf("wrapEnd"),
-                                LinearPlacement.fillFill to leaf("fillFill")
+                        LinearPlacement.wrapFill to Layout.vertical(DummyAdapter(""), listOf(
+                                LinearPlacement.fillFill to Layout.leaf(DummyAdapter("fillFill")),
+                                LinearPlacement.wrapStart to Layout.leaf(DummyAdapter("wrapStart")),
+                                LinearPlacement.wrapCenter to Layout.leaf(DummyAdapter("wrapCenter")),
+                                LinearPlacement.wrapEnd to Layout.leaf(DummyAdapter("wrapEnd")),
+                                LinearPlacement.fillFill to Layout.leaf(DummyAdapter("fillFill"))
                         )),
-                        LinearPlacement.fillFill to vertical("", listOf(
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.fillFill to leaf("fillFill"),
-                                LinearPlacement.fillFill to leaf("fillFill")
+                        LinearPlacement.fillFill to Layout.align(DummyAdapter(""), listOf(
+                                AlignPair.TopLeft to Layout.leaf(DummyAdapter("TopLeft")),
+                                AlignPair.TopCenter to Layout.leaf(DummyAdapter("TopCenter")),
+                                AlignPair.TopRight to Layout.leaf(DummyAdapter("TopRight")),
+                                AlignPair.CenterLeft to Layout.leaf(DummyAdapter("CenterLeft")),
+                                AlignPair.CenterCenter to Layout.leaf(DummyAdapter("CenterCenter")),
+                                AlignPair.CenterRight to Layout.leaf(DummyAdapter("CenterRight")),
+                                AlignPair.BottomLeft to Layout.leaf(DummyAdapter("BottomLeft")),
+                                AlignPair.BottomCenter to Layout.leaf(DummyAdapter("BottomCenter")),
+                                AlignPair.BottomRight to Layout.leaf(DummyAdapter("BottomRightl"))
                         ))
                 ))
         )
 
-        layout.layout(Rectangle(left = 0f, right = 80f, top = 0f, bottom = 60f))
+        layout.layout(Rectangle(left = 0f, right = 120f, top = 0f, bottom = 60f))
         println(buildString { (layout.viewAdapter as DummyAdapter).chars2D().print(this) })
-        fail()
+    }
+
+    @Test
+    fun testDumbFrame() {
+        val layout = Layout.frame(DummyAdapter("testDumbFrame"),
+                Layout.horizontal(DummyAdapter(""), listOf(
+                        LinearPlacement.wrapFill to Layout.frame(DummyAdapter(), Layout.leaf(DummyAdapter("asdf"))),
+                        LinearPlacement.fillFill to Layout.frame(DummyAdapter(), Layout.leaf(DummyAdapter("asdf"))),
+                        LinearPlacement.wrapFill to Layout.frame(DummyAdapter(), Layout.leaf(DummyAdapter("asdf")))
+                ))
+        )
+
+        layout.layout(Rectangle(left = 0f, right = 120f, top = 0f, bottom = 60f))
+        println(buildString { (layout.viewAdapter as DummyAdapter).chars2D().print(this) })
+    }
+
+    @Test
+    fun testRelayout() {
+        val obsA = StandardObservableProperty<Layout<*, Unit>>(Layout.leaf(DummyAdapter("Initial Value A")))
+        val obsB = StandardObservableProperty<Layout<*, Unit>>(Layout.leaf(DummyAdapter("Initial Value B")))
+        val obsC = StandardObservableProperty<Layout<*, Unit>>(Layout.leaf(DummyAdapter("Initial Value C")))
+        val layout = Layout.frame(DummyAdapter("testRelayout"),
+                Layout.horizontal(DummyAdapter(""), listOf(
+                        LinearPlacement.wrapFill to Layout.swap(DummyAdapter(), obsA),
+                        LinearPlacement.fillFill to Layout.swap(DummyAdapter(), obsB),
+                        LinearPlacement.wrapFill to Layout.swap(DummyAdapter(), obsC),
+                        LinearPlacement.wrapFill to Layout.leaf(DummyAdapter("Non-changing"))
+                ))
+        )
+        layout.isAttached.alwaysOn = true
+        layout.layout(Rectangle(left = 0f, right = 120f, top = 0f, bottom = 60f))
+        println(buildString { (layout.viewAdapter as DummyAdapter).chars2D().print(this) })
+        obsA.value = Layout.leaf(DummyAdapter("New Value"))
+        obsB.value = Layout.leaf(DummyAdapter("New Value"))
+        obsC.value = Layout.leaf(DummyAdapter("New Value"))
+        layout.refresh()
+        println(buildString { (layout.viewAdapter as DummyAdapter).chars2D().print(this) })
     }
 }

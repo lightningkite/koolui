@@ -33,6 +33,10 @@ actual object ApplicationAccess {
     }
     actual val displaySize: ObservableProperty<Point> get() = displaySizePrivate
 
+    actual fun post(action: () -> Unit) {
+        Platform.runLater(action)
+    }
+
     //TODO: Listen
     val isInForegroundPrivate by lazy { StandardObservableProperty<Boolean>(stage.isFocused) }
     actual val isInForeground: ObservableProperty<Boolean> get() = isInForegroundPrivate

@@ -4,7 +4,7 @@ import com.lightningkite.koolui.concepts.Animation
 
 
 fun Animation.android(): AnimationSet = when (this) {
-    Animation.None -> AnimationSet({ animate().setDuration(0) }, { animate().setDuration(0) })
+    Animation.None -> AnimationSet({ animate().alpha(1f).setDuration(1) }, { animate().alpha(0f).setDuration(1) })
     Animation.Push -> AnimationSet.slidePush
     Animation.Pop -> AnimationSet.slidePop
     Animation.MoveUp -> AnimationSet.slideDown
