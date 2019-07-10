@@ -110,8 +110,11 @@ open class VirtualViewFactory(
         override fun listViews(): List<View> = views
     }
 
-    override fun numberField(value: MutableObservableProperty<Number?>, placeholder: String, type: NumberInputType, decimalPlaces: kotlin.Int): NumberFieldView = NumberFieldView(value, placeholder, type, decimalPlaces)
-    class NumberFieldView(var value: MutableObservableProperty<Number?>, var placeholder: String, var type: NumberInputType, var decimalPlaces: kotlin.Int) : View()
+    override fun integerField(value: MutableObservableProperty<Long?>, placeholder: String, allowNegatives: Boolean): View = IntegerFieldView(value, placeholder, allowNegatives)
+    class IntegerFieldView(var value: MutableObservableProperty<Long?>, var placeholder: String, var allowNegatives: Boolean) : View()
+
+    override fun numberField(value: MutableObservableProperty<Double?>, placeholder: String, allowNegatives: Boolean, decimalPlaces: Int): NumberFieldView = NumberFieldView(value, placeholder, allowNegatives, decimalPlaces)
+    class NumberFieldView(var value: MutableObservableProperty<Double?>, var placeholder: String, var allowNegatives: Boolean, var decimalPlaces: kotlin.Int) : View()
 
     override fun <DEPENDENCY> pages(dependency: DEPENDENCY, page: MutableObservableProperty<Int>, pageGenerator: Array<out ViewGenerator<DEPENDENCY, View>>): PagesView<DEPENDENCY> = PagesView(dependency, page, pageGenerator)
     class PagesView<DEPENDENCY>(var dependency: DEPENDENCY, var page: MutableObservableProperty<Int>, var pageGenerator: Array<out ViewGenerator<DEPENDENCY, View>>)  : ContainerView(){
@@ -130,11 +133,8 @@ open class VirtualViewFactory(
     override fun <T> picker(options: ObservableList<T>, selected: MutableObservableProperty<T>, makeView: (T) -> String): PickerView<T> = PickerView(options, selected, makeView)
     class PickerView<T>(var options: ObservableList<T>, var selected: MutableObservableProperty<T>, var makeView: (T) -> String) : View()
 
-    override fun progress(view: View, progress: ObservableProperty<Float>): ProgressView = ProgressView(view, progress)
-    class ProgressView(var view: View, var progress: ObservableProperty<Float>)  : ContainerView(){
-        override fun listViews(): List<View> = listOf(view)
-        init{ listViews().forEach { it.attached.parent = attached } }
-    }
+    override fun progress(progress: ObservableProperty<Float>): ProgressView = ProgressView(progress)
+    class ProgressView(var progress: ObservableProperty<Float>) : View()
 
     override fun refresh(contains: View, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): RefreshView = RefreshView(contains, working, onRefresh)
     class RefreshView(var contains: View, var working: ObservableProperty<Boolean>, var onRefresh: () -> Unit) : ContainerView(){
@@ -166,8 +166,8 @@ open class VirtualViewFactory(
     override fun space(size: Point): SpaceView = SpaceView(size)
     class SpaceView(var size: Point) : View()
 
-    override fun swap(view: ObservableProperty<Pair<View, Animation>>): SwapView = SwapView(view)
-    class SwapView(var view: ObservableProperty<Pair<View, Animation>>) : ContainerView(){
+    override fun swap(view: ObservableProperty<Pair<View, Animation>>, staticViewForSizing: View?): SwapView = SwapView(view, staticViewForSizing)
+    class SwapView(var view: ObservableProperty<Pair<View, Animation>>, var staticViewForSizing: View?) : ContainerView() {
         var current = view.value.first
         init{
             current.attached.parent = attached
@@ -221,11 +221,9 @@ open class VirtualViewFactory(
         override fun listViews(): List<View> = listOfNotNull(current)
     }
 
-    override fun work(view: View, isWorking: ObservableProperty<Boolean>): WorkView = WorkView(view, isWorking)
-    class WorkView(var view: View, var isWorking: ObservableProperty<Boolean>) : ContainerView(){
-        override fun listViews(): List<View> = listOf(view)
-        init{ listViews().forEach { it.attached.parent = attached } }
-    }
+    override fun work(): WorkView = WorkView
+
+    object WorkView : View()
 
     override fun View.alpha(alpha: ObservableProperty<Float>): AlphaView = AlphaView(this, alpha)
     class AlphaView(var receiver: View, var alpha: ObservableProperty<Float>) : ContainerView(){

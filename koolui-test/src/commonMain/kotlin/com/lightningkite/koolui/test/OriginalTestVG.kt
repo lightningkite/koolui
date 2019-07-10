@@ -1,6 +1,6 @@
 package com.lightningkite.koolui.test
 
-import com.lightningkite.koolui.builders.button
+import com.lightningkite.koolui.builders.*
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.reacktive.property.transform

@@ -313,7 +313,7 @@ data class MaterialJavaFxViewFactory(
             makeView = makeView
     )
 
-    override fun work(view: Node, isWorking: ObservableProperty<Boolean>): Node {
+    override fun work(): Node {
         val spinner = JFXSpinner().apply {
             style = "-fx-stroke: ${colorSet.foreground.toWeb()}"
             isVisible = true
@@ -322,27 +322,17 @@ data class MaterialJavaFxViewFactory(
             prefWidth = 30.0 * scale
             prefHeight = 30.0 * scale
         }
-        return swap(
-                view = isWorking.transform {
-                    val nextView = if (it) spinner else view
-                    nextView to Animation.Fade
-                }
-        )
+        return spinner
     }
 
-    override fun progress(view: Node, progress: ObservableProperty<Float>): Node {
+    override fun progress(progress: ObservableProperty<Float>): Node {
         val bar = JFXProgressBar().apply {
             style = "-fx-stroke: ${colorSet.foreground.toWeb()}"
             lifecycle.bind(progress) {
                 this.progress = it.toDouble()
             }
         }
-        return swap(
-                view = progress.transform {
-                    val nextView = if (it == 1f) view else bar
-                    nextView to Animation.Fade
-                }
-        )
+        return bar
     }
 
     override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>) = ImageView().apply {
@@ -479,9 +469,9 @@ data class MaterialJavaFxViewFactory(
             }
 
     override fun numberField(
-            value: MutableObservableProperty<Number?>,
+            value: MutableObservableProperty<Double?>,
             placeholder: String,
-            type: NumberInputType,
+            allowNegatives: Boolean,
             decimalPlaces: Int
     ): Node = JFXTextField().apply {
         this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
@@ -490,11 +480,11 @@ data class MaterialJavaFxViewFactory(
         this.unFocusColor = colorSet.foreground.toJavaFX()
 
         val compareVal = Math.pow(-decimalPlaces.toDouble(), 10.0) / 2
-        val converter = object : StringConverter<Number>() {
-            override fun toString(value: Number?): String =
+        val converter = object : StringConverter<Double>() {
+            override fun toString(value: Double?): String =
                     if (value == null) "" else DecimalFormat("#." + "#".repeat(decimalPlaces)).format(value)
 
-            override fun fromString(string: String?): Number? = string?.toDoubleOrNull()
+            override fun fromString(string: String?): Double? = string?.toDoubleOrNull()
         }
         textFormatter = TextFormatter(converter)
         lifecycle.bind(value) {
@@ -519,6 +509,28 @@ data class MaterialJavaFxViewFactory(
                                     .let { Math.abs(it) > compareVal })
             if (different) {
                 value.value = converter.fromString(newValue)
+            }
+        }
+        this.isLabelFloat = true
+    }
+
+    override fun integerField(value: MutableObservableProperty<Long?>, placeholder: String, allowNegatives: Boolean): Node = JFXTextField().apply {
+        this.style = "-fx-text-fill: ${colorSet.foreground.toWeb()}"
+        font = Font.font(TextSize.Body.javafx)
+        this.focusColor = colorSet.foregroundHighlighted.toJavaFX()
+        this.unFocusColor = colorSet.foreground.toJavaFX()
+
+        lifecycle.bind(value) {
+            if (text.toLongOrNull() != it) {
+                this.text = it?.toString() ?: ""
+            }
+        }
+        textProperty().addListener { _, _, newValue ->
+            val newAsLong = newValue.toLongOrNull()
+            if (newAsLong != null && newAsLong != value.value) {
+                value.value = newAsLong
+            } else if (newValue == "") {
+                value.value = null
             }
         }
         this.isLabelFloat = true
@@ -576,11 +588,6 @@ data class MaterialJavaFxViewFactory(
     override fun toggle(observable: MutableObservableProperty<Boolean>) = JFXCheckBox().apply {
         lifecycle.bindBidirectional(observable, selectedProperty())
     }
-
-    override fun refresh(contains: Node, working: ObservableProperty<Boolean>, onRefresh: () -> Unit): Node = align(
-            AlignPair.FillFill to contains,
-            AlignPair.TopRight to work(space(Point(20f, 20f)), working)
-    )
 
     override fun scrollVertical(view: Node, amount: MutableObservableProperty<Float>): Node = ScrollPane(view).apply {
         vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
@@ -664,7 +671,7 @@ data class MaterialJavaFxViewFactory(
 
     }
 
-    override fun swap(view: ObservableProperty<Pair<Node, Animation>>) = StackPane().apply {
+    override fun swap(view: ObservableProperty<Pair<Node, Animation>>, staticViewForSizing: Node?) = StackPane().apply {
         val parent = this
         var currentView: Node? = null
 

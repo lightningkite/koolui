@@ -69,16 +69,19 @@ inline fun <S : V, V> Layout.Companion.swap(
     ).apply {
         isAttached.bind(child) {
             val newLayout = it.first
-            if (child == currentChild) return@bind
+            if (newLayout == currentChild) return@bind
 
             ApplicationAccess.post {
                 val old = currentChild
                 if (old != null) {
                     applyExitTransition(old.viewAsBase, it.second) {
-                        removeChild(old)
+                        if (old != child.value.first) {
+                            removeChild(old)
+                        }
                     }
 
                     currentChild = newLayout
+                    newLayout.parent?.removeChild(newLayout)
                     addChild(newLayout)
                     x.child = newLayout.x
                     y.child = newLayout.y
@@ -113,22 +116,26 @@ inline fun <S : V, V> Layout.Companion.swapStatic(
     ).apply {
         isAttached.bind(child) {
             val newLayout = it.first
-            if (child == currentChild) return@bind
+            if (newLayout == currentChild) return@bind
 
             ApplicationAccess.post {
                 val old = currentChild
                 if (old != null) {
                     applyExitTransition(old.viewAsBase, it.second) {
-                        removeChild(old)
+                        if (old != child.value.first) {
+                            removeChild(old)
+                        }
                     }
 
                     currentChild = newLayout
+                    newLayout.parent?.removeChild(newLayout)
                     addChild(newLayout)
                     x.layoutChild = newLayout.x
                     y.layoutChild = newLayout.y
                     applyEntranceTransition(newLayout.viewAsBase, it.second)
                 } else {
                     currentChild = newLayout
+                    newLayout.parent?.removeChild(newLayout)
                     addChild(newLayout)
                     x.layoutChild = newLayout.x
                     y.layoutChild = newLayout.y

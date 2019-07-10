@@ -65,7 +65,7 @@ class ControlsVG<VIEW>() : MyViewGenerator<VIEW> {
             )
             -entryContext(
                     label = "numberField",
-                    field = numberField(value = StandardObservableProperty(22))
+                    field = numberField(value = StandardObservableProperty(22.0))
             )
             -entryContext(
                     label = "slider",

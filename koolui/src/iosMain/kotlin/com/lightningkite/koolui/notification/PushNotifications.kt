@@ -5,5 +5,7 @@ import com.lightningkite.reacktive.property.ObservableProperty
 
 actual object PushNotifications {
     actual val token: ObservableProperty<PushNotificationToken?> = ConstantObservableProperty(null)
-    actual fun requestNotificationsPermission() = TODO()
+    actual fun requestNotificationsPermission() {
+        TODO()
+    }
 }

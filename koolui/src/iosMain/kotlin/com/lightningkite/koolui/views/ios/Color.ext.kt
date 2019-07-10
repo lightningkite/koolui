@@ -3,7 +3,7 @@ package com.lightningkite.koolui.views.ios
 import com.lightningkite.koolui.color.Color
 import platform.UIKit.UIColor
 
-val Color.ios
+val Color.ios: UIColor
     get() = UIColor.colorWithRed(
             red = red.toDouble(),
             green = green.toDouble(),

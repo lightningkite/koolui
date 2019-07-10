@@ -5,6 +5,7 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.reacktive.property.*
+import com.lightningkite.recktangle.Point
 
 /**
  * PHILOSOPHY
@@ -27,10 +28,10 @@ import com.lightningkite.reacktive.property.*
  * The returned view objects are only meant to be used in composing with other views in the factory.
  * Do not attempt to store references to them long-term or anything of the sort.
  */
-abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
+abstract class LayoutViewFactory<VIEW> : ViewFactory<Layout<*, VIEW>> {
 
     abstract fun defaultViewContainer(): VIEW
-    abstract fun <SPECIFIC: VIEW> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, VIEW>
+    abstract fun <SPECIFIC : VIEW> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, VIEW>
 
     override fun horizontal(vararg views: Pair<LinearPlacement, Layout<*, VIEW>>): Layout<*, VIEW> = Layout.horizontal(
             viewAdapter = defaultViewContainer().adapter(),
@@ -52,10 +53,18 @@ abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
             children = views.toList()
     )
 
-    override fun swap(view: ObservableProperty<Pair<Layout<*, VIEW>, Animation>>): Layout<*, VIEW> = Layout.swap(
+    override fun swap(
+            view: ObservableProperty<Pair<Layout<*, VIEW>, Animation>>,
+            staticViewForSizing: Layout<*, VIEW>?
+    ): Layout<*, VIEW> = if (staticViewForSizing == null) Layout.swap(
             viewAdapter = defaultViewContainer().adapter(),
             child = view.transform { it.first }
+    ) else Layout.swapStatic(
+            viewAdapter = defaultViewContainer().adapter(),
+            child = view.transform { it.first },
+            sizingChild = staticViewForSizing
     )
+
 
     override fun Layout<*, VIEW>.margin(left: Float, top: Float, right: Float, bottom: Float): Layout<*, VIEW> {
         this.forceXMargins(left, right)
@@ -75,4 +84,6 @@ abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
 
     override val Layout<*, VIEW>.lifecycle: ObservableProperty<Boolean>
         get() = this.isAttached
+
+    override fun space(size: Point): Layout<*, VIEW> = Layout.leaf(defaultViewContainer().adapter(), 0f, size.x, size.y)
 }

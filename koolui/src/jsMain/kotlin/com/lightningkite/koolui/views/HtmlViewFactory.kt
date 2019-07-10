@@ -496,21 +496,14 @@ class HtmlViewFactory(
     }
 
     override fun numberField(
-            value: MutableObservableProperty<Number?>,
+            value: MutableObservableProperty<Double?>,
             placeholder: String,
-            type: NumberInputType,
+            allowNegatives: Boolean,
             decimalPlaces: Int
     ): HTMLElement = makeElement<HTMLInputElement>("input") {
         this.placeholder = placeholder
         this.type = "number"
-        when (type) {
-            NumberInputType.PositiveInteger,
-            NumberInputType.PositiveFloat -> {
-                min = "0"
-            }
-            else -> {
-            }
-        }
+        if (!allowNegatives) min = "0"
         step = if (decimalPlaces >= 1) "." + "0".repeat(decimalPlaces - 1) + "1" else "1"
         this.oninput = { _ ->
             if (valueAsNumber != value.value) {
@@ -519,6 +512,27 @@ class HtmlViewFactory(
         }
         lifecycle.bind(value) { value ->
             if (valueAsNumber != value) {
+                valueAsNumber = value ?: 0.0
+            }
+        }
+    }
+
+    override fun integerField(
+            value: MutableObservableProperty<Long?>,
+            placeholder: String,
+            allowNegatives: Boolean
+    ): HTMLElement = makeElement<HTMLInputElement>("input") {
+        this.placeholder = placeholder
+        this.type = "number"
+        if (!allowNegatives) min = "0"
+        step = "1"
+        this.oninput = { _ ->
+            if (valueAsNumber.toLong() != value.value) {
+                value.value = valueAsNumber.toLong()
+            }
+        }
+        lifecycle.bind(value) { value ->
+            if (valueAsNumber.toLong() != value) {
                 valueAsNumber = value?.toDouble() ?: 0.0
             }
         }
@@ -644,11 +658,10 @@ class HtmlViewFactory(
             )
     )
 
-    override fun work(view: HTMLElement, isWorking: ObservableProperty<Boolean>): HTMLElement {
-        val spinner = image(
-                Image.fromSvgString(
-                        //<!-- By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL -->
-                        """
+    override fun work(): HTMLElement = image(
+            Image.fromSvgString(
+                    //<!-- By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL -->
+                    """
 <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="${colorSet.foreground.toWeb()}">
     <g fill="none" fill-rule="evenodd">
         <g transform="translate(1 1)" stroke-width="2">
@@ -665,34 +678,8 @@ class HtmlViewFactory(
         </g>
     </g>
 </svg>"""
-                ).withSizing(defaultSize = Point(24f, 24f))
-        )
-
-        fun calc(loading: Boolean) = if (loading) spinner else view
-        val currentView = StandardObservableProperty(calc(isWorking.value))
-        return swap(currentView.transform { it to Animation.Fade }).apply {
-            lifecycle.listen(isWorking) {
-                val new = calc(it)
-                if (new != currentView.value) {
-                    currentView.value = new
-                }
-            }
-        }
-    }
-
-    override fun progress(view: HTMLElement, progress: ObservableProperty<Float>): HTMLElement {
-        val textProgress = text(progress.transform { it.times(100).toInt().toString() + "%" })
-        fun calc(prog: Float) = if (prog == 1f) view else textProgress
-        val currentView = StandardObservableProperty(calc(progress.value))
-        return swap(currentView.transform { it to Animation.Fade }).apply {
-            lifecycle.listen(progress) {
-                val new = calc(it)
-                if (new != currentView.value) {
-                    currentView.value = new
-                }
-            }
-        }
-    }
+            ).withSizing(defaultSize = Point(24f, 24f))
+    )
 
     override fun scrollVertical(view: HTMLElement, amount: MutableObservableProperty<Float>): HTMLElement =
             makeElement("div") {
@@ -770,7 +757,7 @@ class HtmlViewFactory(
         }
     }
 
-    override fun swap(view: ObservableProperty<Pair<HTMLElement, Animation>>): HTMLElement =
+    override fun swap(view: ObservableProperty<Pair<HTMLElement, Animation>>, staticViewForSizing: HTMLElement?): HTMLElement =
             makeElement<HTMLDivElement>("div") {
                 style.maxWidth = "100%"
                 style.maxHeight = "100%"

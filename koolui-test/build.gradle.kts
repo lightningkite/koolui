@@ -1,10 +1,12 @@
 import com.lightningkite.konvenience.gradle.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import java.util.*
 
 plugins {
-    id("com.android.application") version "3.3.1"
-    kotlin("multiplatform") version "1.3.21"
+    id("com.android.application") //version "3.3.1"
+    kotlin("multiplatform")
 //    kotlin("dce-js") version "1.3.21"
 //    id("org.jetbrains.kotlin.frontend") version "0.0.45"
     `maven-publish`
@@ -75,13 +77,16 @@ kotlin {
                 apiSingle(maven("com.android.support", "multidex", "1.0.3"))
             }
         }
+        isIos.sources {
+
+        }
     }
 }
 
 android {
     project.ext.set("android.useAndroidX", true)
     project.ext.set("android.enableJetifier", true)
-    
+
     compileSdkVersion(28)
 
     defaultConfig {
@@ -119,3 +124,5 @@ android {
 
 javaApp(forTarget = KTarget.javafx, mainClassName = "com.lightningkite.koolui.test.MainKt")
 jsApp(forTarget = KTarget.js)
+iosApp(frameworkName = "FromKotlin", exportDependencies = true)
+

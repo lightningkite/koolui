@@ -14,8 +14,8 @@
 		5E4591DE225BB3D800E2C1B5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5E4591DC225BB3D800E2C1B5 /* LaunchScreen.storyboard */; };
 		5E4591E9225BB3D800E2C1B5 /* koolui_testTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E4591E8225BB3D800E2C1B5 /* koolui_testTests.swift */; };
 		5E4591F4225BB3D800E2C1B5 /* koolui_testUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E4591F3225BB3D800E2C1B5 /* koolui_testUITests.swift */; };
-		5E45923E225BB43500E2C1B5 /* FromKotlin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E459229225BB43500E2C1B5 /* FromKotlin.framework */; };
-		5E45923F225BB43500E2C1B5 /* FromKotlin.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5E459229225BB43500E2C1B5 /* FromKotlin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5E465A9C22CEE79900EE753B /* FromKotlin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E465A9522CEE79900EE753B /* FromKotlin.framework */; };
+		5E465A9D22CEE79900EE753B /* FromKotlin.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5E465A9522CEE79900EE753B /* FromKotlin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,11 +33,11 @@
 			remoteGlobalIDString = 5E4591CF225BB3D700E2C1B5;
 			remoteInfo = "koolui-test";
 		};
-		5E45923C225BB43500E2C1B5 /* PBXContainerItemProxy */ = {
+		5E465A9A22CEE79900EE753B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5E4591C8225BB3D700E2C1B5 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 5E459228225BB43500E2C1B5;
+			remoteGlobalIDString = 5E465A9422CEE79900EE753B;
 			remoteInfo = FromKotlin;
 		};
 /* End PBXContainerItemProxy section */
@@ -49,7 +49,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				5E45923F225BB43500E2C1B5 /* FromKotlin.framework in Embed Frameworks */,
+				5E465A9D22CEE79900EE753B /* FromKotlin.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,7 +70,8 @@
 		5E4591EF225BB3D800E2C1B5 /* koolui-testUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "koolui-testUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E4591F3225BB3D800E2C1B5 /* koolui_testUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = koolui_testUITests.swift; sourceTree = "<group>"; };
 		5E4591F5225BB3D800E2C1B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5E459229225BB43500E2C1B5 /* FromKotlin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FromKotlin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E465A9522CEE79900EE753B /* FromKotlin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FromKotlin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E465A9822CEE79900EE753B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,7 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5E45923E225BB43500E2C1B5 /* FromKotlin.framework in Frameworks */,
+				5E465A9C22CEE79900EE753B /* FromKotlin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,6 +106,7 @@
 				5E4591D2225BB3D700E2C1B5 /* koolui-test */,
 				5E4591E7225BB3D800E2C1B5 /* koolui-testTests */,
 				5E4591F2225BB3D800E2C1B5 /* koolui-testUITests */,
+				5E465A9622CEE79900EE753B /* FromKotlin */,
 				5E4591D1225BB3D700E2C1B5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -115,7 +117,7 @@
 				5E4591D0225BB3D700E2C1B5 /* koolui-test.app */,
 				5E4591E4225BB3D800E2C1B5 /* koolui-testTests.xctest */,
 				5E4591EF225BB3D800E2C1B5 /* koolui-testUITests.xctest */,
-				5E459229225BB43500E2C1B5 /* FromKotlin.framework */,
+				5E465A9522CEE79900EE753B /* FromKotlin.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -151,6 +153,14 @@
 			path = "koolui-testUITests";
 			sourceTree = "<group>";
 		};
+		5E465A9622CEE79900EE753B /* FromKotlin */ = {
+			isa = PBXGroup;
+			children = (
+				5E465A9822CEE79900EE753B /* Info.plist */,
+			);
+			path = FromKotlin;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -166,7 +176,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				5E45923D225BB43500E2C1B5 /* PBXTargetDependency */,
+				5E465A9B22CEE79900EE753B /* PBXTargetDependency */,
 			);
 			name = "koolui-test";
 			productName = "koolui-test";
@@ -209,12 +219,11 @@
 			productReference = 5E4591EF225BB3D800E2C1B5 /* koolui-testUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		5E459228225BB43500E2C1B5 /* FromKotlin */ = {
+		5E465A9422CEE79900EE753B /* FromKotlin */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 5E459240225BB43500E2C1B5 /* Build configuration list for PBXNativeTarget "FromKotlin" */;
+			buildConfigurationList = 5E465A9E22CEE79900EE753B /* Build configuration list for PBXNativeTarget "FromKotlin" */;
 			buildPhases = (
-				5E459247225BC72000E2C1B5 /* ShellScript */,
-				5E459246225BB46100E2C1B5 /* ShellScript */,
+				5E465AA122CEE7A600EE753B /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -222,7 +231,7 @@
 			);
 			name = FromKotlin;
 			productName = FromKotlin;
-			productReference = 5E459229225BB43500E2C1B5 /* FromKotlin.framework */;
+			productReference = 5E465A9522CEE79900EE753B /* FromKotlin.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -246,8 +255,8 @@
 						CreatedOnToolsVersion = 10.2;
 						TestTargetID = 5E4591CF225BB3D700E2C1B5;
 					};
-					5E459228225BB43500E2C1B5 = {
-						CreatedOnToolsVersion = 10.2;
+					5E465A9422CEE79900EE753B = {
+						CreatedOnToolsVersion = 10.2.1;
 					};
 				};
 			};
@@ -267,7 +276,7 @@
 				5E4591CF225BB3D700E2C1B5 /* koolui-test */,
 				5E4591E3225BB3D800E2C1B5 /* koolui-testTests */,
 				5E4591EE225BB3D800E2C1B5 /* koolui-testUITests */,
-				5E459228225BB43500E2C1B5 /* FromKotlin */,
+				5E465A9422CEE79900EE753B /* FromKotlin */,
 			);
 		};
 /* End PBXProject section */
@@ -300,7 +309,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5E459246225BB46100E2C1B5 /* ShellScript */ = {
+		5E465AA122CEE7A600EE753B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -315,24 +324,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"/Users/josephivie/Documents/GitHub/krosslin/gradlew\" -p \"/Users/josephivie/Documents/GitHub/krosslin\" \":koolui-test-ios:xcodeAccess\" \\\n-Pxcode.ARCHS=\"$ARCHS\"                             \\\n-Pxcode.ONLY_ACTIVE_ARCH=\"$ONLY_ACTIVE_ARCH\"                     \\\n-Pxcode.CONFIGURATION=\"$CONFIGURATION\"                           \\\n-Pxcode.CONFIGURATION_BUILD_DIR=\"$CONFIGURATION_BUILD_DIR\" --stacktrace\n";
-		};
-		5E459247225BC72000E2C1B5 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "export\n";
+			shellScript = "\"/Users/josephivie/StudioProjects/krosslin/gradlew\" -p \"/Users/josephivie/StudioProjects/krosslin\" \":koolui-test:xcodeAccess\" \\\n-Pxcode.ARCHS=\"$ARCHS\"                             \\\n-Pxcode.ONLY_ACTIVE_ARCH=\"$ONLY_ACTIVE_ARCH\"                     \\\n-Pxcode.CONFIGURATION=\"$CONFIGURATION\"                           \\\n-Pxcode.CONFIGURATION_BUILD_DIR=\"$CONFIGURATION_BUILD_DIR\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -375,10 +367,10 @@
 			target = 5E4591CF225BB3D700E2C1B5 /* koolui-test */;
 			targetProxy = 5E4591F0225BB3D800E2C1B5 /* PBXContainerItemProxy */;
 		};
-		5E45923D225BB43500E2C1B5 /* PBXTargetDependency */ = {
+		5E465A9B22CEE79900EE753B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 5E459228225BB43500E2C1B5 /* FromKotlin */;
-			targetProxy = 5E45923C225BB43500E2C1B5 /* PBXContainerItemProxy */;
+			target = 5E465A9422CEE79900EE753B /* FromKotlin */;
+			targetProxy = 5E465A9A22CEE79900EE753B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -636,7 +628,7 @@
 			};
 			name = Release;
 		};
-		5E459241225BB43500E2C1B5 /* Debug */ = {
+		5E465A9F22CEE79900EE753B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
@@ -664,7 +656,7 @@
 			};
 			name = Debug;
 		};
-		5E459242225BB43500E2C1B5 /* Release */ = {
+		5E465AA022CEE79900EE753B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
@@ -731,11 +723,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		5E459240225BB43500E2C1B5 /* Build configuration list for PBXNativeTarget "FromKotlin" */ = {
+		5E465A9E22CEE79900EE753B /* Build configuration list for PBXNativeTarget "FromKotlin" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5E459241225BB43500E2C1B5 /* Debug */,
-				5E459242225BB43500E2C1B5 /* Release */,
+				5E465A9F22CEE79900EE753B /* Debug */,
+				5E465AA022CEE79900EE753B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

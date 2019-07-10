@@ -63,10 +63,11 @@ import kotlin.math.roundToInt
 open class LayoutMaterialViewFactory(
         val access: ActivityAccess,
         override val theme: Theme,
-        override val colorSet: ColorSet = theme.main
-) : LayoutViewFactory<View>() {
+        override val colorSet: ColorSet = theme.main,
+        root: Layout<*, View>? = null
+) : LayoutViewFactory<View>(root) {
     override fun withColorSet(colorSet: ColorSet) =
-            LayoutMaterialViewFactory(access = access, theme = theme, colorSet = colorSet)
+            LayoutMaterialViewFactory(access = access, theme = theme, colorSet = colorSet, root = root)
 
 
     val context = access.context
@@ -79,11 +80,16 @@ open class LayoutMaterialViewFactory(
 
 
     override fun applyEntranceTransition(view: View, animation: Animation) {
-        animation.android().animateIn.invoke(view, view.parent as ViewGroup)
+        val parent = view.parent as? ViewGroup ?: return
+        animation.android().animateIn.invoke(view, parent)
     }
 
     override fun applyExitTransition(view: View, animation: Animation, onComplete: () -> Unit) {
-        animation.android().animateOut.invoke(view, view.parent as ViewGroup).withEndAction(onComplete)
+        val parent = view.parent as? ViewGroup ?: run {
+            onComplete()
+            return
+        }
+        animation.android().animateOut.invoke(view, parent).withEndAction(onComplete)
     }
 
     override fun defaultViewContainer(): View = ManualLayout(context)
@@ -107,11 +113,6 @@ open class LayoutMaterialViewFactory(
         return result
     }
 
-
-    override fun contentRoot(view: Layout<*, View>): Layout<*, View> {
-        view.isAttached.alwaysOn = true
-        return view
-    }
 
     override fun entryContext(
             label: String,
@@ -400,7 +401,7 @@ open class LayoutMaterialViewFactory(
         }
     }
 
-    override fun space(size: Point) = intrinsicLayout(Space(context)) { layout ->
+    override fun space(size: Point) = intrinsicLayout(View(context)) { layout ->
         minimumWidth = (size.x * dip).toInt()
         minimumHeight = (size.y * dip).toInt()
     }
@@ -530,17 +531,16 @@ open class LayoutMaterialViewFactory(
     }
 
     override fun numberField(
-            value: MutableObservableProperty<Number?>,
+            value: MutableObservableProperty<Double?>,
             placeholder: String,
-            type: NumberInputType,
+            allowNegatives: Boolean,
             decimalPlaces: Int
     ) = intrinsicLayout(EditText(context)) { layout ->
-        inputType = type.android()
         hint = placeholder
 
         val format = if (decimalPlaces == 0) DecimalFormat("#") else DecimalFormat("#." + "#".repeat(decimalPlaces))
 
-        infix fun Number?.basicallyDifferent(other: Number?): Boolean {
+        infix fun Double?.basicallyDifferent(other: Double?): Boolean {
             if (this == null && other == null) return false
             if (this == null) return true
             if (other == null) return true
@@ -576,6 +576,48 @@ open class LayoutMaterialViewFactory(
 
         layout.isAttached.bind(value) {
             if (it basicallyDifferent lastValue) {
+                if (it == null) this.setText("")
+                else this.setText(format.format(it))
+            }
+        }
+
+        setHintTextColor(colorSet.foregroundDisabled.toInt())
+    }
+
+    override fun integerField(value: MutableObservableProperty<Long?>, placeholder: String, allowNegatives: Boolean) = intrinsicLayout(EditText(context)) { layout ->
+        hint = placeholder
+
+        val format = DecimalFormat("#")
+
+        var lastValue: Long? = null
+        addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                lastValue = null
+
+                setTextColor(colorSet.foreground.toInt())
+                if (!s.isNullOrBlank()) {
+                    try {
+                        lastValue = format.parse(s.toString()).toLong()
+                    } catch (e: ParseException) {
+                        try {
+                            lastValue = s.toString().toLong()
+                        } catch (e: NumberFormatException) {
+                            //Not a number?
+                            setTextColor(Color.red.toInt())
+                        }
+                    }
+                }
+
+                if (value.value == lastValue) {
+                    value.value = (lastValue)
+                }
+            }
+        })
+
+        layout.isAttached.bind(value) {
+            if (it == lastValue) {
                 if (it == null) this.setText("")
                 else this.setText(format.format(it))
             }
@@ -705,40 +747,20 @@ open class LayoutMaterialViewFactory(
         return layout
     }
 
-    override fun work(view: Layout<*, View>, isWorking: ObservableProperty<Boolean>): Layout<*, View> {
-        val bar = intrinsicLayout(ProgressBar(context)) { layout ->
-            isIndeterminate = true
-        }
-        return Layout.swapStatic(
-                viewAdapter = defaultViewContainer().adapter(),
-                child = isWorking.transform {
-                    val nextView = if (it) bar else view
-                    nextView to Animation.Fade
-                },
-                sizingChild = view
-        )
+    override fun work(): Layout<*, View> = intrinsicLayout(ProgressBar(context)) { layout ->
+        isIndeterminate = true
     }
 
-    override fun progress(view: Layout<*, View>, progress: ObservableProperty<Float>): Layout<*, View> {
-        val bar = intrinsicLayout(ProgressBar(context,  null, android.R.attr.progressBarStyleHorizontal)) { layout ->
-            isIndeterminate = false
-            max = 100
-            layout.isAttached.bind(progress) {
-                this.setProgress((it * 100).toInt(), true)
-            }
+    override fun progress(progress: ObservableProperty<Float>): Layout<*, View> = intrinsicLayout(ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal)) { layout ->
+        isIndeterminate = false
+        max = 100
+        layout.isAttached.bind(progress) {
+            this.setProgress((it * 100).toInt(), true)
         }
-        return Layout.swapStatic(
-                viewAdapter = defaultViewContainer().adapter(),
-                child = progress.transform {
-                    val nextView = if (it == 1f) view else bar
-                    nextView to Animation.Fade
-                },
-                sizingChild = view
-        )
     }
 
     override fun scrollBoth(view: Layout<*, View>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): Layout<*, View> {
-        val adapter = AndroidLayoutAdapter(HorizontalScrollView(context).apply{
+        val adapter = AndroidLayoutAdapter(HorizontalScrollView(context).apply {
             addView(ScrollView(context))
         }, true)
         val intrinsic = IntrinsicDimensionLayouts(adapter.view)
@@ -747,7 +769,7 @@ open class LayoutMaterialViewFactory(
                 x = intrinsic.x,
                 y = intrinsic.y
         )
-        adapter.view.addView(LayoutToAndroidView(context).also{ it.layout = view })
+        adapter.view.addView(LayoutToAndroidView(context).also { it.layout = view })
         return layout
     }
 
@@ -759,7 +781,7 @@ open class LayoutMaterialViewFactory(
                 x = intrinsic.x,
                 y = intrinsic.y
         )
-        adapter.view.addView(LayoutToAndroidView(context).also{ it.layout = view })
+        adapter.view.addView(LayoutToAndroidView(context).also { it.layout = view })
         return layout
     }
 
@@ -771,17 +793,14 @@ open class LayoutMaterialViewFactory(
                 x = intrinsic.x,
                 y = intrinsic.y
         )
-        adapter.view.addView(LayoutToAndroidView(context).also{ it.layout = view })
+        adapter.view.addView(LayoutToAndroidView(context).also { it.layout = view })
         return layout
     }
 
-    override fun card(view: Layout<*, View>): Layout<*, View> {
-        val cardView = CardView(context)
-        val layout = Layout.frame(cardView.adapter(), view)
-        view.viewAdapter.viewAsBase.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        layout.addChild(view)
-        cardView.setCardBackgroundColor(colorSet.backgroundHighlighted.toInt())
-        return layout
+    override fun card(view: Layout<*, View>): Layout<*, View> = super.card(view).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            viewAsBase.elevation = dip * 4
+        }
     }
 
     override fun Layout<*, View>.background(color: ObservableProperty<Color>): Layout<*, View> {
@@ -806,44 +825,6 @@ open class LayoutMaterialViewFactory(
     override fun Layout<*, View>.altClickable(onAltClick: () -> Unit): Layout<*, View> {
         viewAdapter.viewAsBase.setOnLongClickListener { onAltClick(); true }
         return this
-    }
-
-    override fun launchDialog(
-            dismissable: Boolean,
-            onDismiss: () -> Unit,
-            makeView: (dismissDialog: () -> Unit) -> Layout<*, View>
-    ) {
-//        TODO()
-//        val frame = access.activity?.findViewById<FrameLayout>(frameId) ?: return
-//        var dismisser: () -> Unit = {}
-//        val generatedView = makeView { dismisser() }
-//        val wrapper = align(
-//                AlignPair.CenterCenter to generatedView.apply {
-//                    if (!hasOnClickListeners()) {
-//                        setOnClickListener { /*squish*/ }
-//                    }
-//                }
-//        )
-//                .clickable { dismisser() }
-//                .apply {
-//                    setBackgroundColor(Color.black.copy(alpha = .5f).toInt())
-//                    alpha = 0f
-//                    setPadding(
-//                            (16 * dip).toInt(),
-//                            (16 * dip).toInt(),
-//                            (16 * dip).toInt(),
-//                            (16 * dip).toInt()
-//                    )
-//                }
-//        frame.addView(wrapper, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-//        wrapper.animate().alpha(1f).setDuration(250).start()
-//        wrapper.isAttached.parent = frame.isAttached
-//        dismisser = {
-//            wrapper.animate().alpha(0f).setDuration(250).withEndAction {
-//                frame.removeView(wrapper)
-//                onDismiss()
-//            }.start()
-//        }
     }
 
     override fun launchSelector(

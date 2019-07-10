@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.builders
 
 import com.lightningkite.koolui.async.UI
+import com.lightningkite.koolui.concepts.Animation
 import com.lightningkite.koolui.concepts.Importance
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
@@ -32,6 +33,7 @@ fun <VIEW> ViewFactory<VIEW>.image(
         imageWithSizing: ImageWithSizing
 ): VIEW = image(ConstantObservableProperty(imageWithSizing))
 
+fun <VIEW> ViewFactory<VIEW>.space(): VIEW = space(Point(1f, 1f))
 fun <VIEW> ViewFactory<VIEW>.space(size: Float): VIEW = space(Point(size, size))
 fun <VIEW> ViewFactory<VIEW>.space(width: Float, height: Float): VIEW = space(Point(width, height))
 
@@ -53,11 +55,65 @@ fun <VIEW> ViewFactory<VIEW>.imageButton(
         importance: Importance = Importance.Normal,
         onClick: () -> Unit
 ): VIEW = imageButton(
-        label = ConstantObservableProperty(label),
         imageWithSizing = ConstantObservableProperty(imageWithSizing),
+        label = ConstantObservableProperty(label),
         importance = importance,
         onClick = onClick
 )
+
+fun <VIEW> ViewFactory<VIEW>.suspendButton(
+        label: String,
+        imageWithSizing: ImageWithSizing? = null,
+        importance: Importance = Importance.Normal,
+        onClick: suspend () -> Unit
+): VIEW {
+    val working = StandardObservableProperty(false)
+    return work(button(
+            label = ConstantObservableProperty(label),
+            imageWithSizing = ConstantObservableProperty(imageWithSizing),
+            importance = importance,
+            onClick = {
+                GlobalScope.launch(Dispatchers.Main) {
+                    working.value = true
+                    onClick()
+                    working.value = false
+                }
+            }
+    ), working)
+}
+
+fun <VIEW> ViewFactory<VIEW>.suspendImageButton(
+        imageWithSizing: ImageWithSizing,
+        label: String? = null,
+        importance: Importance = Importance.Normal,
+        onClick: suspend () -> Unit
+): VIEW {
+    val working = StandardObservableProperty(false)
+    return work(imageButton(
+            imageWithSizing = ConstantObservableProperty(imageWithSizing),
+            label = ConstantObservableProperty(label),
+            importance = importance,
+            onClick = {
+                GlobalScope.launch(Dispatchers.Main) {
+                    working.value = true
+                    onClick()
+                    working.value = false
+                }
+            }
+    ), working)
+}
+
+fun <VIEW> ViewFactory<VIEW>.suspendRefresh(
+        view: VIEW,
+        working: MutableObservableProperty<Boolean> = StandardObservableProperty(false),
+        refresh: suspend () -> Unit
+) = refresh(view, working) {
+    GlobalScope.launch(Dispatchers.Main) {
+        working.value = true
+        refresh()
+        working.value = false
+    }
+}
 
 fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.pagesEmbedded(
         dependency: DEPENDENCY,
@@ -98,6 +154,26 @@ fun <VIEW, T> ViewFactory<VIEW>.loadingImage(
             }
         }
     }
+}
+
+fun <VIEW> ViewFactory<VIEW>.work(view: VIEW, isWorking: ObservableProperty<Boolean>): VIEW {
+    val work = work()
+    return swap(
+            view = isWorking.transform {
+                (if (it) work else view) to Animation.Fade
+            },
+            staticViewForSizing = view
+    )
+}
+
+fun <VIEW> ViewFactory<VIEW>.progress(view: VIEW, progress: ObservableProperty<Float>): VIEW {
+    val prog = progress(progress)
+    return swap(
+            view = progress.transform {
+                (if (it == 1f) view else prog) to Animation.Fade
+            },
+            staticViewForSizing = view
+    )
 }
 
 fun <VIEW> ViewFactory<VIEW>.launchConfirmationDialog(

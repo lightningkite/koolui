@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import java.util.*
 
 plugins {
-    kotlin("multiplatform") version "1.3.21"
+    kotlin("multiplatform")
     `maven-publish`
-    id("com.android.library") version "3.3.1"
+    id("com.android.library")// version "3.3.1"
 }
 
 buildscript {
@@ -65,7 +65,9 @@ kotlin {
                 android,
                 javafx,
                 jvmVirtual,
-                js
+                js,
+                iosArm64,
+                iosX64
         )
     }
     sources(tryTargets = tryTargets) {
@@ -80,6 +82,9 @@ kotlin {
         test {
             implementationSet(testing)
             implementationSet(testingAnnotations)
+        }
+        isIos.sources {
+
         }
         KTarget.android.sources {
             main {

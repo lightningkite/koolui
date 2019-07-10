@@ -5,16 +5,20 @@ import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.recktangle.Point
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.Dispatchers
 import platform.Foundation.NSDate
 import platform.Foundation.NSURL
 import platform.Foundation.dateWithTimeIntervalSinceNow
-import platform.UIKit.UIApplication
-import platform.UIKit.UILocalNotification
-import platform.UIKit.UIScreen
-import platform.UIKit.scheduleLocalNotification
+import platform.UIKit.*
+import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_global_queue
+import platform.darwin.dispatch_get_main_queue
 
 @ThreadLocal
 actual object ApplicationAccess {
+
+    var baseVC: UIViewController? = null
 
     val mutableDisplaySize = StandardObservableProperty<Point>(UIScreen.mainScreen.bounds.useContents { Point(x = size.width.toFloat(), y = size.height.toFloat()) })
     actual val displaySize: ObservableProperty<Point> = mutableDisplaySize
@@ -26,16 +30,6 @@ actual object ApplicationAccess {
     actual val onBackPressed: MutableList<() -> Boolean> = ArrayList()
 
     actual val onAnimationFrame: MutableCollection<() -> Unit> = ArrayList<() -> Unit>()
-
-    actual fun openUri(uri: String) {
-        println("Opening URI $uri")
-        val url = NSURL.URLWithString(uri)
-        if (url != null && UIApplication.sharedApplication.canOpenURL(url)) {
-            UIApplication.sharedApplication.openURL(url)
-        } else {
-            //TODO: Alert the user?
-        }
-    }
 
     actual fun showNotification(notification: Notification) {
         UIApplication.sharedApplication.scheduleLocalNotification(UILocalNotification().apply {
@@ -57,4 +51,10 @@ actual object ApplicationAccess {
      */
     //TODO: Handle deep link
     actual val onDeepLink: MutableList<(url: String) -> Boolean> = ArrayList()
+
+    actual fun post(action: () -> Unit) {
+        dispatch_async(dispatch_get_main_queue()) {
+            action()
+        }
+    }
 }

@@ -1,10 +1,13 @@
 package com.lightningkite.koolui.layout
 
+import com.lightningkite.koolui.builders.space
 import com.lightningkite.koolui.concepts.*
+import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.reacktive.property.*
+import com.lightningkite.recktangle.Point
 
 /**
  * PHILOSOPHY
@@ -27,12 +30,49 @@ import com.lightningkite.reacktive.property.*
  * The returned view objects are only meant to be used in composing with other views in the factory.
  * Do not attempt to store references to them long-term or anything of the sort.
  */
-abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
+abstract class LayoutViewFactory<VIEW>(var root: Layout<*, VIEW>? = null) : ViewFactory<Layout<*, VIEW>> {
 
     abstract fun defaultViewContainer(): VIEW
-    abstract fun <SPECIFIC: VIEW> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, VIEW>
+    abstract fun <SPECIFIC : VIEW> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, VIEW>
     abstract fun applyEntranceTransition(view: VIEW, animation: Animation)
     abstract fun applyExitTransition(view: VIEW, animation: Animation, onComplete: () -> Unit)
+
+    override fun contentRoot(view: Layout<*, VIEW>): Layout<*, VIEW> {
+        view.isAttached.alwaysOn = true
+        val result = Layout(
+                viewAdapter = defaultViewContainer().adapter(),
+                x = DynamicAlignDimensionLayout(listOf(Align.Fill to view.x)),
+                y = DynamicAlignDimensionLayout(listOf(Align.Fill to view.y))
+        )
+        result.addChild(view)
+        this.root = result
+        return result
+    }
+
+    override fun launchDialog(dismissable: Boolean, onDismiss: () -> Unit, makeView: (dismissDialog: () -> Unit) -> Layout<*, VIEW>) {
+        val root = root ?: return
+        val x = root.x as? DynamicAlignDimensionLayout ?: return
+        val y = root.y as? DynamicAlignDimensionLayout ?: return
+
+        var dismiss: () -> Unit = {}
+        val newView = align(
+                AlignPair.FillFill to space(100f).background(colorSet.backgroundDisabled.copy(alpha = .5f)).clickable { dismiss() }.margin(0f),
+                AlignPair.CenterCenter to makeView { dismiss() }
+        )
+
+        root.addChild(newView)
+        x.addChild(Align.Fill to newView.x)
+        y.addChild(Align.Fill to newView.y)
+        applyEntranceTransition(newView.viewAsBase, Animation.Fade)
+
+        dismiss = {
+            applyExitTransition(newView.viewAsBase, Animation.Fade) {
+                x.removeChild(newView.x)
+                y.removeChild(newView.y)
+                root.removeChild(newView)
+            }
+        }
+    }
 
     override fun horizontal(vararg views: Pair<LinearPlacement, Layout<*, VIEW>>): Layout<*, VIEW> = Layout.horizontal(
             viewAdapter = defaultViewContainer().adapter(),
@@ -54,12 +94,21 @@ abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
             children = views.toList()
     )
 
-    override fun swap(view: ObservableProperty<Pair<Layout<*, VIEW>, Animation>>): Layout<*, VIEW> = Layout.swap(
-            viewAdapter = defaultViewContainer().adapter(),
-            child = view,
-            applyEntranceTransition = { view, animation -> applyEntranceTransition(view, animation) },
-            applyExitTransition = { view, animation, onComplete -> applyExitTransition(view, animation, onComplete) }
-    )
+
+    override fun swap(view: ObservableProperty<Pair<Layout<*, VIEW>, Animation>>, staticViewForSizing: Layout<*, VIEW>?): Layout<*, VIEW> =
+            if (staticViewForSizing == null) Layout.swap(
+                    viewAdapter = defaultViewContainer().adapter(),
+                    child = view,
+                    applyEntranceTransition = { view, animation -> applyEntranceTransition(view, animation) },
+                    applyExitTransition = { view, animation, onComplete -> applyExitTransition(view, animation, onComplete) }
+            )
+            else Layout.swapStatic(
+                    viewAdapter = defaultViewContainer().adapter(),
+                    child = view,
+                    applyEntranceTransition = { view, animation -> applyEntranceTransition(view, animation) },
+                    applyExitTransition = { view, animation, onComplete -> applyExitTransition(view, animation, onComplete) },
+                    sizingChild = staticViewForSizing
+            )
 
     override fun Layout<*, VIEW>.margin(left: Float, top: Float, right: Float, bottom: Float): Layout<*, VIEW> {
         this.forceXMargins(left, right)
@@ -79,4 +128,10 @@ abstract class LayoutViewFactory<VIEW>: ViewFactory<Layout<*, VIEW>> {
 
     override val Layout<*, VIEW>.lifecycle: ObservableProperty<Boolean>
         get() = this.isAttached
+
+    override fun space(size: Point): Layout<*, VIEW> = Layout(
+            viewAdapter = defaultViewContainer().adapter(),
+            x = LeafDimensionLayout(0f, size.x, 0f),
+            y = LeafDimensionLayout(0f, size.y, 0f)
+    )
 }

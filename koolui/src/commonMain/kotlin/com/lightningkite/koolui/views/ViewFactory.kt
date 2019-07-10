@@ -9,6 +9,7 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.ImageWithSizing
+import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
@@ -61,7 +62,7 @@ interface ViewFactory<VIEW> {
             dependency: DEPENDENCY,
             stack: MutableObservableList<ViewGenerator<DEPENDENCY, VIEW>>,
             tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, VIEW>>>
-    ): VIEW
+    ): VIEW = defaultSmallWindow(theme, withColorSet(theme.bar), dependency, stack, tabs)
 
     /**
      * A set of ordered pages you can swap through with the built-in navigator.
@@ -70,7 +71,7 @@ interface ViewFactory<VIEW> {
             dependency: DEPENDENCY,
             page: MutableObservableProperty<Int>,
             vararg pageGenerator: ViewGenerator<DEPENDENCY, VIEW>
-    ): VIEW
+    ): VIEW = defaultPages(colorSet.foreground, dependency, page, *pageGenerator)
 
     /**
      * A set of tabs, with one selected.
@@ -79,7 +80,7 @@ interface ViewFactory<VIEW> {
     fun tabs(
             options: ObservableList<TabItem>,
             selected: MutableObservableProperty<TabItem>
-    ): VIEW
+    ): VIEW = defaultTabs(options, selected)
 
 
     //Collection Views
@@ -93,7 +94,7 @@ interface ViewFactory<VIEW> {
             lastIndex: MutableObservableProperty<Int> = StandardObservableProperty(0),
             direction: Direction = Direction.Down,
             makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> VIEW
-    ): VIEW
+    ): VIEW = defaultList(10, colorSet.foreground, data, direction, firstIndex, lastIndex, makeView)
 
     /**
      * Shows a list of items and notifies you when it's scrolled to the end.
@@ -142,6 +143,17 @@ interface ViewFactory<VIEW> {
      */
     fun space(size: Point): VIEW
 
+    /**
+     * A working indicator.
+     */
+    fun work(): VIEW = text(ConstantObservableProperty("Working..."))
+
+    /**
+     * Shows the given view if not working, otherwise shows a progress indicator.
+     * @param progress A number 0-1 showing the amount of progress made on a task.  When the value is 1,
+     */
+    fun progress(progress: ObservableProperty<Float>): VIEW = text(progress.transform { it.times(100).toInt().toString() + "%" })
+
 
     //Activation Controls
 
@@ -153,7 +165,9 @@ interface ViewFactory<VIEW> {
             imageWithSizing: ObservableProperty<ImageWithSizing?> = ConstantObservableProperty(null),
             importance: Importance = Importance.Normal,
             onClick: () -> Unit
-    ): VIEW
+    ): VIEW = withColorSet(theme.importance(importance)).run {
+        text(label).background(colorSet.background).clickable(onClick)
+    }
 
     /**
      * A button with the given image and label.  Runs [onClick] when the button is interacted with.
@@ -164,7 +178,9 @@ interface ViewFactory<VIEW> {
             label: ObservableProperty<String?> = ConstantObservableProperty(null),
             importance: Importance = Importance.Normal,
             onClick: () -> Unit
-    ): VIEW
+    ): VIEW = withColorSet(theme.importance(importance)).run {
+        image(imageWithSizing).background(colorSet.background).clickable(onClick)
+    }
 
 
     //Entry Controls
@@ -174,7 +190,7 @@ interface ViewFactory<VIEW> {
      * @param label A label for the given field.
      * @param help A helpful description of what is to be entered here.  Showed only through interaction.
      * @param icon An icon that represents the field.
-     * @param feedback Feedback for the untypedUser.
+     * @param feedback Feedback for the user.
      * @param field The field itself.
      */
     fun entryContext(
@@ -183,10 +199,10 @@ interface ViewFactory<VIEW> {
             icon: ImageWithSizing? = null,
             feedback: ObservableProperty<Pair<Importance, String>?> = ConstantObservableProperty(null),
             field: VIEW
-    ): VIEW
+    ): VIEW = defaultEntryContext(label, help, icon, feedback, field)
 
     /**
-     * An element that allows the untypedUser to select an item from a list.
+     * An element that allows the user to select an item from a list.
      */
     fun <T> picker(
             options: ObservableList<T>,
@@ -195,7 +211,7 @@ interface ViewFactory<VIEW> {
     ): VIEW
 
     /**
-     * An element that allows the untypedUser to enter a small piece of text.
+     * An element that allows the user to enter a small piece of text.
      */
     fun textField(
             text: MutableObservableProperty<String>,
@@ -204,7 +220,7 @@ interface ViewFactory<VIEW> {
     ): VIEW
 
     /**
-     * An element that allows the untypedUser to enter a large piece of text.
+     * An element that allows the user to enter a large piece of text.
      */
     fun textArea(
             text: MutableObservableProperty<String>,
@@ -213,38 +229,66 @@ interface ViewFactory<VIEW> {
     ): VIEW
 
     /**
-     * An element that allows the untypedUser to enter a number.
+     * An element that allows the user to enter a number.
      */
-    fun numberField(
-            value: MutableObservableProperty<Number?>,
+    fun integerField(
+            value: MutableObservableProperty<Long?>,
             placeholder: String = "",
-            type: NumberInputType = NumberInputType.PositiveInteger,
-            decimalPlaces: Int = 0
-    ): VIEW
+            allowNegatives: Boolean = false
+    ): VIEW = textField(
+            text = value.transform(
+                    mapper = { it?.toString() ?: "" },
+                    reverseMapper = { it.toLongOrNull() }
+            )
+    )
 
     /**
-     * An element that allows the untypedUser to enter a date.
+     * An element that allows the user to enter a number.
+     */
+    fun numberField(
+            value: MutableObservableProperty<Double?>,
+            placeholder: String = "",
+            allowNegatives: Boolean = false,
+            decimalPlaces: Int = 0
+    ): VIEW = textField(
+            text = value.transform(
+                    mapper = { it?.toString() ?: "" },
+                    reverseMapper = { it.toDoubleOrNull() }
+            )
+    )
+
+    /**
+     * An element that allows the user to enter a date.
      */
     fun datePicker(
             observable: MutableObservableProperty<Date>
-    ): VIEW
+    ): VIEW = defaultDatePicker(observable)
 
     /**
-     * An element that allows the untypedUser to enter a date and time.
+     * An element that allows the user to enter a date and time.
      */
     fun dateTimePicker(
             observable: MutableObservableProperty<DateTime>
-    ): VIEW
+    ): VIEW = horizontal(
+            LinearPlacement.wrapFill to datePicker(observable.transform(
+                    mapper = { it.date },
+                    reverseMapper = { observable.value.copy(date = it) }
+            )),
+            LinearPlacement.wrapFill to timePicker(observable.transform(
+                    mapper = { it.time },
+                    reverseMapper = { observable.value.copy(time = it) }
+            ))
+    )
 
     /**
-     * An element that allows the untypedUser to enter a time.
+     * An element that allows the user to enter a time.
      */
     fun timePicker(
             observable: MutableObservableProperty<Time>
-    ): VIEW
+    ): VIEW = defaultTimePicker(observable)
 
     /**
-     * A slider that lets the untypedUser pick a value within the given range.
+     * A slider that lets the user pick a value within the given range.
      */
     fun slider(
             range: IntRange,
@@ -252,7 +296,7 @@ interface ViewFactory<VIEW> {
     ): VIEW
 
     /**
-     * A switch or checkbox (depending on platform) that the untypedUser can turn on or off.
+     * A switch or checkbox (depending on platform) that the user can turn on or off.
      */
     fun toggle(
             observable: MutableObservableProperty<Boolean>
@@ -269,24 +313,7 @@ interface ViewFactory<VIEW> {
             contains: VIEW,
             working: ObservableProperty<Boolean>,
             onRefresh: () -> Unit
-    ): VIEW
-
-    /**
-     * Shows the given view if not working, otherwise shows a working indicator.
-     */
-    fun work(
-            view: VIEW,
-            isWorking: ObservableProperty<Boolean>
-    ): VIEW
-
-    /**
-     * Shows the given view if not working, otherwise shows a progress indicator.
-     * @param progress A number 0-1 showing the amount of progress made on a task.  When the value is 1,
-     */
-    fun progress(
-            view: VIEW,
-            progress: ObservableProperty<Float>
-    ): VIEW
+    ): VIEW = defaultRefresh(contains, working, onRefresh)
 
     /**
      * Wraps content to make it scroll vertically.
@@ -315,9 +342,11 @@ interface ViewFactory<VIEW> {
 
     /**
      * Shows a single view at a time, which can be switched out with another through animation.
+     * If you provide a [staticViewForSizing], the view's size will always be based on that view instead of another.
      */
     fun swap(
-            view: ObservableProperty<Pair<VIEW, Animation>>
+            view: ObservableProperty<Pair<VIEW, Animation>>,
+            staticViewForSizing: VIEW? = null
     ): VIEW
 
     /**
@@ -364,7 +393,7 @@ interface ViewFactory<VIEW> {
     /**
      * Adds a 'card' background to the given item.
      */
-    fun card(view: VIEW): VIEW
+    fun card(view: VIEW): VIEW = frame(view).margin(8f).background(colorSet.backgroundHighlighted)
 
 
     //Modifiers
@@ -477,7 +506,7 @@ interface ViewFactory<VIEW> {
             dismissable: Boolean = true,
             onDismiss: () -> Unit = {},
             makeView: (dismissDialog: () -> Unit) -> VIEW
-    )
+    ): Unit
 
     /**
      * Launches a selector with options to choose from.
@@ -485,5 +514,5 @@ interface ViewFactory<VIEW> {
     fun launchSelector(
             title: String? = null,
             options: List<Pair<String, () -> Unit>>
-    )
+    ): Unit = defaultLaunchSelector(title, options)
 }

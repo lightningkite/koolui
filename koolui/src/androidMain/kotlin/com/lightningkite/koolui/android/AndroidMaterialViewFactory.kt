@@ -687,17 +687,16 @@ open class AndroidMaterialViewFactory(
     }
 
     override fun numberField(
-            value: MutableObservableProperty<Number?>,
+            value: MutableObservableProperty<Double?>,
             placeholder: String,
-            type: NumberInputType,
+            allowNegatives: Boolean,
             decimalPlaces: Int
     ): View = EditText(context).apply {
-        inputType = type.android()
         hint = placeholder
 
         val format = if (decimalPlaces == 0) DecimalFormat("#") else DecimalFormat("#." + "#".repeat(decimalPlaces))
 
-        infix fun Number?.basicallyDifferent(other: Number?): Boolean {
+        infix fun Double?.basicallyDifferent(other: Double?): Boolean {
             if (this == null && other == null) return false
             if (this == null) return true
             if (other == null) return true
@@ -733,6 +732,48 @@ open class AndroidMaterialViewFactory(
 
         lifecycle.bind(value) {
             if (it basicallyDifferent lastValue) {
+                if (it == null) this.setText("")
+                else this.setText(format.format(it))
+            }
+        }
+
+        setHintTextColor(colorSet.foregroundDisabled.toInt())
+    }
+
+    override fun integerField(value: MutableObservableProperty<Long?>, placeholder: String, allowNegatives: Boolean): View = EditText(context).apply {
+        hint = placeholder
+
+        val format = DecimalFormat("#")
+
+        var lastValue: Long? = null
+        addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                lastValue = null
+
+                setTextColor(colorSet.foreground.toInt())
+                if (!s.isNullOrBlank()) {
+                    try {
+                        lastValue = format.parse(s.toString()).toLong()
+                    } catch (e: ParseException) {
+                        try {
+                            lastValue = s.toString().toLong()
+                        } catch (e: NumberFormatException) {
+                            //Not a number?
+                            setTextColor(Color.red.toInt())
+                        }
+                    }
+                }
+
+                if (value.value == lastValue) {
+                    value.value = (lastValue)
+                }
+            }
+        })
+
+        lifecycle.bind(value) {
+            if (it == lastValue) {
                 if (it == null) this.setText("")
                 else this.setText(format.format(it))
             }
@@ -807,34 +848,18 @@ open class AndroidMaterialViewFactory(
             }
     )
 
-    override fun work(view: View, isWorking: ObservableProperty<Boolean>): View {
-        val bar = ProgressBar(context).apply {
-            isIndeterminate = true
-            indeterminateDrawable = indeterminateDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
-        }
-        return swap(
-                view = isWorking.transform {
-                    val nextView = if (it) bar else view
-                    nextView to Animation.Fade
-                }
-        )
+    override fun work(): View = ProgressBar(context).apply {
+        isIndeterminate = true
+        indeterminateDrawable = indeterminateDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
     }
 
-    override fun progress(view: View, progress: ObservableProperty<Float>): View {
-        val bar = ProgressBar(context).apply {
-            isIndeterminate = false
-            indeterminateDrawable = indeterminateDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
-            max = 100
-            lifecycle.bind(progress) {
-                this.progress = (it * 100).toInt()
-            }
+    override fun progress(progress: ObservableProperty<Float>): View = ProgressBar(context).apply {
+        isIndeterminate = false
+        indeterminateDrawable = indeterminateDrawable.mutate().apply { setColorFilter(colorSet.foregroundDisabled.toInt(), PorterDuff.Mode.MULTIPLY) }
+        max = 10_000
+        lifecycle.bind(progress) {
+            this.progress = (it * 10_000).toInt()
         }
-        return swap(
-                view = progress.transform {
-                    val nextView = if (it == 1f) view else bar
-                    nextView to Animation.Fade
-                }
-        )
     }
 
     override fun slider(range: IntRange, observable: MutableObservableProperty<Int>): View = SeekBar(context).apply {
@@ -933,7 +958,7 @@ open class AndroidMaterialViewFactory(
             amountY: MutableObservableProperty<Float>
     ): View = scrollVertical(scrollHorizontal(view, amountX), amountY)
 
-    override fun swap(view: ObservableProperty<Pair<View, Animation>>): View = FrameLayout(context).apply {
+    override fun swap(view: ObservableProperty<Pair<View, Animation>>, staticViewForSizing: View?): View = FrameLayout(context).apply {
         var currentView: View? = null
 
         fun swap(newView: View, animation: AnimationSet = AnimationSet.fade) {
