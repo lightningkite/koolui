@@ -9,6 +9,7 @@ import platform.CoreGraphics.CGRect
 import platform.Foundation.NSCoder
 import platform.UIKit.UIView
 import platform.UIKit.addSubview
+import platform.UIKit.setNeedsLayout
 import platform.darwin.sel_registerName
 
 class LayoutRootView : UIView {
@@ -23,6 +24,12 @@ class LayoutRootView : UIView {
     fun setup(layout: Layout<*, UIView>) {
         this.layout = layout
         layout.isAttached.alwaysOn = true
+        layout.x.onLayoutRequest = {
+            setNeedsLayout()
+        }
+        layout.y.onLayoutRequest = {
+            setNeedsLayout()
+        }
 
         addSubview(layout.viewAsBase)
     }

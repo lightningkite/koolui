@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.test
 
 import com.lightningkite.kommon.collection.*
+import com.lightningkite.koolui.builders.space
 import com.lightningkite.reacktive.list.observableListOf
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.property.transform
@@ -13,7 +14,7 @@ class SelectorVG<VIEW>(
 ) : MyViewGenerator<VIEW> {
     override val title: String = "KotlinX UI Test"
 
-    val tests = observableListOf(
+    val tests = observableListOf<Pair<String, () -> MyViewGenerator<VIEW>>>(
             "GeolocationTest" to { GeolocationTestVG<VIEW>() },
             "OpenUriTest" to { OpenUriTestVG<VIEW>() },
             "FilesTest" to { FilesTestVG<VIEW>() },
@@ -42,6 +43,8 @@ class SelectorVG<VIEW>(
                         stack.push(itemObs.value.second.invoke())
                     }
             )
-        }).margin(8f)
+        }).margin(8f).clickable {
+            space(2f)
+        }
     }
 }

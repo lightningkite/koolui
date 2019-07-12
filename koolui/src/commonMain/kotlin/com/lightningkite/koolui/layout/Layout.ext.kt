@@ -73,9 +73,10 @@ inline fun <S : V, V> Layout.Companion.swap(
 
             ApplicationAccess.post {
                 val old = currentChild
+                currentChild = null
                 if (old != null) {
                     applyExitTransition(old.viewAsBase, it.second) {
-                        if (old != child.value.first) {
+                        if (old != currentChild) {
                             removeChild(old)
                         }
                     }
@@ -120,9 +121,10 @@ inline fun <S : V, V> Layout.Companion.swapStatic(
 
             ApplicationAccess.post {
                 val old = currentChild
+                currentChild = null
                 if (old != null) {
                     applyExitTransition(old.viewAsBase, it.second) {
-                        if (old != child.value.first) {
+                        if (old != currentChild) {
                             removeChild(old)
                         }
                     }

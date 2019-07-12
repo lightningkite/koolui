@@ -48,6 +48,9 @@ class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
             })
             -work(text("Done"), progress.transform { it < 1f })
             -progress(text("Done"), progress)
+            -button(label = "Debug Info", onClick = {
+                space(2f)
+            })
             -button(label = ConstantObservableProperty("Button"), onClick = {
                 stack.value = {
                     num++
@@ -58,7 +61,7 @@ class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
             +swap(stack.transform {
                 val animValues = Animation.values()
                 it.invoke(dependency) to animValues[num % animValues.size]
-            })
+            }, staticViewForSizing = text("asdf"))
 
         }
     }

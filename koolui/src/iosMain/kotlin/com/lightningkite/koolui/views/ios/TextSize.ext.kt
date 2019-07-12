@@ -10,6 +10,6 @@ val TextSize.ios
     get() = when(this){
         TextSize.Tiny -> UIFont.labelFontSize * .75
         TextSize.Body -> UIFont.labelFontSize
-        TextSize.Subheader -> UIFont.labelFontSize * 2
-        TextSize.Header -> UIFont.labelFontSize * 4
+        TextSize.Subheader -> UIFont.labelFontSize * 1.25
+        TextSize.Header -> UIFont.labelFontSize * 1.5
     }

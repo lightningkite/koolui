@@ -8,9 +8,8 @@ import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.recktangle.Rectangle
-import kotlinx.cinterop.CValue
-import kotlinx.cinterop.ObjCAction
-import kotlinx.cinterop.useContents
+import kotlinx.cinterop.*
+import platform.CoreGraphics.CGFloat
 import platform.CoreGraphics.CGRect
 import platform.Foundation.NSCoder
 import platform.Foundation.NSIndexPath
@@ -18,21 +17,24 @@ import platform.UIKit.*
 import platform.darwin.NSInteger
 import platform.darwin.NSObject
 import platform.darwin.sel_registerName
+import platform.objc.object_getClass
 
 class ListDataSource<T>(
+        val parentLayout: Layout<*, UIView>,
         val data: List<T>,
         val makeLayout: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> Layout<*, UIView>
-) : NSObject(), UITableViewDataSourceProtocol {
+) : NSObject(), UITableViewDataSourceProtocol, UITableViewDelegateProtocol {
     val cellId = "cell"
     val holdingValueObsId = "valueObs"
     val holdingIndexObsId = "indexObs"
     override fun tableView(tableView: UITableView, cellForRowAtIndexPath: NSIndexPath): UITableViewCell {
         val index = cellForRowAtIndexPath.row.toInt()
         val cell = tableView.dequeueReusableCellWithIdentifier(cellId) as? LayoutCellView
-                ?: LayoutCellView(CGRect.zeroVal).apply {
+                ?: LayoutCellView(UITableViewCellStyle.UITableViewCellStyleDefault, cellId).apply {
                     val valueObs = StandardObservableProperty<T>(data[index])
                     val indexObs = StandardObservableProperty(index)
                     val layout = makeLayout(valueObs, indexObs)
+                    parentLayout.addSemiChild(layout)
                     (layout.viewAdapter as UIViewAdapter<*>).holding[holdingValueObsId] = valueObs
                     (layout.viewAdapter as UIViewAdapter<*>).holding[holdingIndexObsId] = indexObs
                     setup(layout)
@@ -41,17 +43,23 @@ class ListDataSource<T>(
         val indexObs = (cell.layout.viewAdapter as UIViewAdapter<*>).holding[holdingIndexObsId] as MutableObservableProperty<Int>
         valueObs.value = data[index]
         indexObs.value = index
+        cell.layoutSubviews()
         return cell
     }
 
     override fun tableView(tableView: UITableView, numberOfRowsInSection: NSInteger): NSInteger {
         return data.size.toLong()
     }
+
+//    override fun tableView(tableView: UITableView, heightForRowAtIndexPath: NSIndexPath): CGFloat {
+//
+//    }
 }
 
 class LayoutCellView : UITableViewCell {
+
     @OverrideInit
-    constructor(frame: CValue<CGRect>) : super(frame)
+    constructor(style: UITableViewCellStyle, reuseIdentifier: String?) : super(style, reuseIdentifier)
 
     @OverrideInit
     constructor(coder: NSCoder) : super(coder)
@@ -60,9 +68,15 @@ class LayoutCellView : UITableViewCell {
 
     fun setup(layout: Layout<*, UIView>) {
         this.layout = layout
-        layout.isAttached.alwaysOn = true
+        backgroundColor = UIColor.clearColor
+        layout.x.onLayoutRequest = {
+            setNeedsLayout()
+        }
+        layout.y.onLayoutRequest = {
+            setNeedsLayout()
+        }
 
-        addSubview(layout.viewAsBase)
+        contentView.addSubview(layout.viewAsBase)
     }
 
     val rect = Rectangle()
@@ -70,10 +84,10 @@ class LayoutCellView : UITableViewCell {
     @ObjCAction
     fun layoutSubviews() {
         frame.useContents {
-            rect.left = (origin.x).toFloat()
-            rect.top = (origin.y).toFloat()
-            rect.right = (origin.x + size.width).toFloat()
-            rect.bottom = (origin.y + size.height).toFloat()
+            rect.left = 0f
+            rect.top = 0f
+            rect.right = size.width.toFloat()
+            rect.bottom = size.height.toFloat()
         }
         println("Laying out subviews in rect $rect")
         layout.layout(rect)

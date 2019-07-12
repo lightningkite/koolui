@@ -33,6 +33,16 @@ class Layout<S : V, V>(
         private set
     val isAttached = TreeObservableProperty()
 
+    fun addSemiChild(layout: Layout<*, V>) {
+        layout.parent = this
+        layout.isAttached.parent = this.isAttached
+    }
+
+    fun removeSemiChild(layout: Layout<*, V>) {
+        layout.parent = null
+        layout.isAttached.parent = null
+    }
+
     fun addChild(layout: Layout<*, V>) {
         layout.parent = this
         layout.isAttached.parent = this.isAttached

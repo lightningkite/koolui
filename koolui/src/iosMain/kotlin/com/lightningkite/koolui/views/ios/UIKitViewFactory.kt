@@ -23,6 +23,8 @@ import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.reacktive.property.transform
+import com.lightningkite.recktangle.Point
+import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGAffineTransformMakeScale
 import platform.CoreGraphics.CGAffineTransformMakeTranslation
@@ -32,16 +34,26 @@ import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
 import platform.UIKit.*
 import platform.darwin.NSObject
+import platform.darwin.object_getClassName
 import kotlin.math.max
 import kotlin.math.round
 
-class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSet, root: Layout<*, UIView>? = null) : LayoutViewFactory<UIView>(root) {
+class UIKitViewFactory(
+        val closureSleeveProvider: (() -> Unit) -> NSObject,
+        override val theme: Theme,
+        override val colorSet: ColorSet,
+        root: Layout<*, UIView>? = null
+) : LayoutViewFactory<UIView>(root) {
 
-    override fun withColorSet(colorSet: ColorSet): UIKitViewFactory = UIKitViewFactory(theme, colorSet, root)
+    override fun withColorSet(colorSet: ColorSet): UIKitViewFactory = UIKitViewFactory(closureSleeveProvider, theme, colorSet, root)
 
-    override fun defaultViewContainer(): UIView = UIView(frame = CGRect.zeroVal)
+    override fun defaultViewContainer(): UIView = UIView(frame = CGRect.zeroVal).apply {
+        clipsToBounds = true
+    }
 
     override fun <SPECIFIC : UIView> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, UIView> = UIViewAdapter(this)
+
+    val duration = .25
 
     override fun applyEntranceTransition(view: UIView, animation: Animation) {
         when (animation) {
@@ -50,30 +62,50 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
             Animation.Push -> {
                 val width = view.superview?.frame?.useContents { size.width } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(width, 0.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
+                        },
+                        completion = {
+                        }
+                )
             }
             Animation.Pop -> {
                 val width = view.superview?.frame?.useContents { size.width } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(-width, 0.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
+                        },
+                        completion = {
+                        }
+                )
             }
             Animation.MoveUp -> {
                 val height = view.superview?.frame?.useContents { size.height } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(0.0, -height)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
+                        },
+                        completion = {
+                        }
+                )
             }
             Animation.MoveDown -> {
                 val height = view.superview?.frame?.useContents { size.height } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(0.0, height)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
+                        },
+                        completion = {
+                        }
+                )
             }
             Animation.Fade -> {
                 view.alpha = 0.0
@@ -82,7 +114,7 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                 }
             }
             Animation.Flip -> {
-                view.transform = CGAffineTransformMakeScale(1.0, 0.0)
+                view.transform = CGAffineTransformMakeScale(1.0, 0.001)
                 UIView.animateWithDuration(.5) {
                     view.transform = CGAffineTransformMakeScale(1.0, 1.0)
                 }
@@ -93,46 +125,83 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
     override fun applyExitTransition(view: UIView, animation: Animation, onComplete: () -> Unit) {
         when (animation) {
             Animation.None -> {
+                onComplete()
             }
             Animation.Push -> {
                 val width = view.superview?.frame?.useContents { size.width } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(-width, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(-width, 0.0)
+                        },
+                        completion = {
+                            onComplete()
+                        }
+                )
             }
             Animation.Pop -> {
                 val width = view.superview?.frame?.useContents { size.width } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(width, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(width, 0.0)
+                        },
+                        completion = {
+                            onComplete()
+                        }
+                )
             }
             Animation.MoveUp -> {
                 val height = view.superview?.frame?.useContents { size.height } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(0.0, height)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(0.0, height)
+                        },
+                        completion = {
+                            onComplete()
+                        }
+                )
             }
             Animation.MoveDown -> {
                 val height = view.superview?.frame?.useContents { size.height } ?: 0.0
                 view.transform = CGAffineTransformMakeTranslation(0.0, 0.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeTranslation(0.0, -height)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeTranslation(0.0, -height)
+                        },
+                        completion = {
+                            onComplete()
+                        }
+                )
             }
             Animation.Fade -> {
                 view.alpha = 1.0
-                UIView.animateWithDuration(.5) {
-                    view.alpha = 0.0
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.alpha = 0.0
+                        },
+                        completion = {
+                            onComplete()
+                        }
+                )
             }
             Animation.Flip -> {
                 view.transform = CGAffineTransformMakeScale(1.0, 1.0)
-                UIView.animateWithDuration(.5) {
-                    view.transform = CGAffineTransformMakeScale(1.0, 0.0)
-                }
+                UIView.animateWithDuration(
+                        duration = duration,
+                        animations = {
+                            view.transform = CGAffineTransformMakeScale(1.0, 0.001)
+                        },
+                        completion = {
+                            onComplete()
+                        }
+                )
             }
         }
     }
@@ -195,7 +264,7 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
     ): Layout<UIButton, UIView> = UIButton(CGRect.zeroVal).intrinsic { layout ->
 
         this.setTitleColor(colorSet.importance(importance).ios, UIControlStateNormal)
-        layout.viewAdapter.addAction(UIControlEventTouchUpInside, onClick)
+        layout.viewAdapter.addAction(UIControlEventTouchUpInside, closureSleeveProvider(onClick))
 
         layout.isAttached.bind(label) {
             this.setTitle(it, UIControlStateNormal)
@@ -273,12 +342,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                 this.text = it
             }
         }
-        adapter.addAction(UIControlEventValueChanged) {
+        adapter.addAction(UIControlEventValueChanged, closureSleeveProvider {
             val newValue = this.text ?: ""
             if (newValue != text.value) {
                 text.value = newValue
             }
-        }
+        })
     }
 
     override fun numberField(
@@ -301,12 +370,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                 this.text = it.toString()
             }
         }
-        adapter.addAction(UIControlEventValueChanged) {
+        adapter.addAction(UIControlEventValueChanged, closureSleeveProvider {
             val newValue = this.text?.toDoubleOrNull()
             if (newValue != value.value) {
                 value.value = newValue
             }
-        }
+        })
     }
 
     override fun integerField(value: MutableObservableProperty<Long?>, placeholder: String, allowNegatives: Boolean): Layout<*, UIView> = UITextField(CGRect.zeroVal).intrinsic { layout ->
@@ -324,12 +393,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                 this.text = it.toString()
             }
         }
-        adapter.addAction(UIControlEventValueChanged) {
+        adapter.addAction(UIControlEventValueChanged, closureSleeveProvider {
             val newValue = this.text?.toLongOrNull()
             if (newValue != value.value) {
                 value.value = newValue
             }
-        }
+        })
     }
 
     override fun toggle(observable: MutableObservableProperty<Boolean>): Layout<UISwitch, UIView> = UISwitch(CGRect.zeroVal).intrinsic { layout ->
@@ -342,11 +411,11 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                 this.on = it
             }
         }
-        layout.viewAdapter.addAction(UIControlEventValueChanged) {
+        layout.viewAdapter.addAction(UIControlEventValueChanged, closureSleeveProvider {
             if (this.on != observable.value) {
                 observable.value = this.on
             }
-        }
+        })
     }
 
     override fun imageButton(
@@ -369,12 +438,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
     }
 
     override fun Layout<*, UIView>.altClickable(onAltClick: () -> Unit): Layout<*, UIView> {
-        viewAdapter.addGestureRecognizer(UILongPressGestureRecognizer(), onAltClick)
+        viewAdapter.addGestureRecognizer(UILongPressGestureRecognizer(), closureSleeveProvider(onAltClick))
         return this
     }
 
     override fun Layout<*, UIView>.clickable(onClick: () -> Unit): Layout<*, UIView> {
-        viewAdapter.addGestureRecognizer(UITapGestureRecognizer(), onClick)
+        viewAdapter.addGestureRecognizer(UITapGestureRecognizer(), closureSleeveProvider(onClick))
         return this
     }
 
@@ -399,7 +468,7 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
         this.textColor = colorSet.foreground.ios
         this.placeholder = placeholder
 
-        adapter.addAction(UIControlEventTouchDown) { becomeFirstResponder() }
+        adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         inputView = makeUIPickerView(toString, options, selected, adapter)
         inputAccessoryView = adapter.toolbarWithDoneButton()
@@ -417,10 +486,10 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
 
         val picker = UIDatePicker(CGRect.zeroVal)
         picker.datePickerMode = UIDatePickerMode.UIDatePickerModeTime
-        adapter.addAction(picker, UIControlEventValueChanged) {
+        adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().time()
-        }
-        adapter.addAction(UIControlEventTouchDown) { becomeFirstResponder() }
+        })
+        adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         inputView = picker
         inputAccessoryView = adapter.toolbarWithDoneButton()
@@ -437,11 +506,10 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
 
         val picker = UIDatePicker(CGRect.zeroVal)
         picker.datePickerMode = UIDatePickerMode.UIDatePickerModeDate
-        adapter.addAction(picker, UIControlEventValueChanged) {
+        adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().date()
-        }
-
-        adapter.addAction(UIControlEventTouchDown) { becomeFirstResponder() }
+        })
+        adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         inputView = picker
         inputAccessoryView = adapter.toolbarWithDoneButton()
@@ -458,11 +526,10 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
 
         val picker = UIDatePicker(CGRect.zeroVal)
         picker.datePickerMode = UIDatePickerMode.UIDatePickerModeDateAndTime
-        adapter.addAction(picker, UIControlEventValueChanged) {
+        adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().dateTime()
-        }
-
-        adapter.addAction(UIControlEventTouchDown) { becomeFirstResponder() }
+        })
+        adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         inputView = picker
         inputAccessoryView = adapter.toolbarWithDoneButton()
@@ -564,12 +631,12 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                 this.value = it.toFloat()
             }
         }
-        layout.viewAdapter.addAction(UIControlEventValueChanged) {
+        layout.viewAdapter.addAction(UIControlEventValueChanged, closureSleeveProvider {
             val intValue = round(this.value).toInt()
             if (intValue != observable.value) {
                 observable.value = intValue
             }
-        }
+        })
     }
 
     class ScrollDimensionLayout(val subview: DimensionLayout) : BaseDimensionLayout() {
@@ -623,7 +690,9 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
         this.allowsSelection = false
         this.allowsMultipleSelection = false
 
-        val source = ListDataSource(data = data, makeLayout = makeView)
+        backgroundColor = UIColor.clearColor
+
+        val source = ListDataSource(parentLayout = layout, data = data, makeLayout = makeView)
         this.dataSource = source
         (adapter as UIViewAdapter<*>).holding["dataSource"] = source
 
@@ -669,7 +738,7 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
                         endRefreshing()
                     }
                 }
-                (contains.viewAdapter as UIViewAdapter<*>).addAction(this, UIControlEventValueChanged, onRefresh)
+                (contains.viewAdapter as UIViewAdapter<*>).addAction(this, UIControlEventValueChanged, closureSleeveProvider(onRefresh))
             }
             return contains
         }
@@ -713,6 +782,22 @@ class UIKitViewFactory(override val theme: Theme, override val colorSet: ColorSe
     }
 
     override fun work(): Layout<*, UIView> = UIActivityIndicatorView(CGRect.zeroVal).intrinsic { layout -> this.startAnimating() }
+
+    override fun space(size: Point): Layout<*, UIView> {
+        if (size.x == 2f && size.y == 2f) {
+            fun UIView.print(prefix: String = "") {
+                println(prefix + object_getClassName(this)?.toKString() + this.frame.useContents { " (${this.origin.x} ${this.origin.y} ${this.size.width} ${this.size.height})" })
+                for (child in subviews) {
+                    if (child is UIView) {
+                        child.print(prefix + "  ")
+                    }
+                }
+            }
+            println("View Hierarchy:")
+            root?.viewAsBase?.print()
+        }
+        return super.space(size)
+    }
 }
 
 

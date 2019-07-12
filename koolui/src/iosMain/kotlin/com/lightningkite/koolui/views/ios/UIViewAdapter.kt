@@ -3,10 +3,12 @@ package com.lightningkite.koolui.views.ios
 import com.lightningkite.koolui.geometry.Measurement
 import com.lightningkite.koolui.layout.*
 import com.lightningkite.reacktive.invokeAll
+import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.UIKit.*
+import platform.darwin.object_getClassName
 
 class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
 
@@ -25,6 +27,10 @@ class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
         view.setFrame(newRect)
         onResize.invokeAll(view.frame.useContents { this })
         view.setNeedsLayout()
+        if (view is UILabel) {
+            println("Label: ${view.text}")
+        }
+        println("updatePlacementX on ${object_getClassName(view)?.toKString()} $start - $end")
     }
 
     override fun updatePlacementY(start: Float, end: Float) {
@@ -39,6 +45,10 @@ class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
         view.setFrame(newRect)
         onResize.invokeAll(view.frame.useContents { this })
         view.setNeedsLayout()
+        if (view is UILabel) {
+            println("Label: ${view.text}")
+        }
+        println("updatePlacementY on ${object_getClassName(view)?.toKString()} $start - $end")
     }
 
     override fun onAddChild(layout: Layout<*, UIView>) {

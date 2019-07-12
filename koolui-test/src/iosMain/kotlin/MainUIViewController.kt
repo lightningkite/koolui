@@ -25,7 +25,7 @@ import platform.UIKit.layoutSubviews
 
 class MainUIViewController : UIViewController {
 
-    class Factory(theme: Theme, colorSet: ColorSet) : MyViewFactory<Layout<*, UIView>>, ViewFactory<Layout<*, UIView>> by UIKitViewFactory(theme, colorSet) {
+    class Factory(theme: Theme, colorSet: ColorSet) : MyViewFactory<Layout<*, UIView>>, ViewFactory<Layout<*, UIView>> by UIKitViewFactory(::MyClosureSleeve, theme, colorSet) {
         override fun withColorSet(colorSet: ColorSet): ViewFactory<Layout<*, UIView>> = Factory(theme, colorSet)
     }
 
@@ -39,9 +39,11 @@ class MainUIViewController : UIViewController {
         commonInit()
     }
 
+    val main = MainVG<Layout<*, UIView>>()
+
     fun commonInit() {
         view = LayoutRootView(CGRect.zeroVal).apply {
-            setup(Factory(theme, theme.main).contentRoot(OriginalTestVG()))
+            setup(Factory(theme, theme.main).contentRoot(main))
         }
     }
 
