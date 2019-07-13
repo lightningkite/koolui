@@ -31,5 +31,11 @@ expect object ApplicationAccess {
      */
     val onDeepLink: MutableList<(url: String) -> Boolean>
 
+    /**
+     * Called before the application dies due to an uncaught error.
+     * Use this to send an error report.
+     */
+    val onException: MutableList<(throwable: Throwable) -> Unit>
+
     //Potential additions: clipboard access
 }

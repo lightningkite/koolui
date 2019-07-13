@@ -21,6 +21,13 @@ actual object ApplicationAccess {
 
     fun init(appPath: String) {
         ApplicationAccess.appPath = appPath
+        window.onerror = { msg, url, line, col, error ->
+            if(error is Throwable){
+                onException.invokeAll(error)
+            } else {
+                onException.invokeAll(Exception("$url: Line $line column $col - $msg"))
+            }
+        }
     }
 
     lateinit var appPath: String
@@ -44,4 +51,10 @@ actual object ApplicationAccess {
 
     //TODO - use the functions here
     actual val onDeepLink: MutableList<(url: String) -> Boolean> = ArrayList()
+
+    /**
+     * Called before the application dies due to an uncaught error.
+     * Use this to send an error report.
+     */
+    actual val onException: MutableList<(throwable: Throwable) -> Unit> = ArrayList()
 }

@@ -3,6 +3,7 @@ package com.lightningkite.koolui
 import com.lightningkite.kommon.string.Uri
 import com.lightningkite.koolui.notification.Notification
 import com.lightningkite.koolui.resources.Resources
+import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.recktangle.Point
@@ -20,6 +21,9 @@ actual object ApplicationAccess {
         Resources.classLoader = classLoader
         this.stage = stage
         MousePosition.init(stage)
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            onException.invokeAll(throwable)
+        }
     }
 
     //TODO: Listen
@@ -56,4 +60,10 @@ actual object ApplicationAccess {
 
     //TODO: Use functions here
     actual val onDeepLink: MutableList<(url: String) -> Boolean> = ArrayList()
+
+    /**
+     * Called before the application dies due to an uncaught error.
+     * Use this to send an error report.
+     */
+    actual val onException: MutableList<(throwable: Throwable) -> Unit> = ArrayList()
 }

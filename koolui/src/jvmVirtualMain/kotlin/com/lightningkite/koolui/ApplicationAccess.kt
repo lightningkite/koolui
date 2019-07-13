@@ -11,6 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.lightningkite.koolui.notification.Notification
+import com.lightningkite.reacktive.invokeAll
 import kotlinx.coroutines.Dispatchers
 
 actual object ApplicationAccess {
@@ -24,6 +25,9 @@ actual object ApplicationAccess {
 
     fun init(classLoader: ClassLoader) {
         Resources.classLoader = classLoader
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            onException.invokeAll(throwable)
+        }
     }
 
     actual val displaySize: ObservableProperty<Point> = StandardObservableProperty(Point())
@@ -42,4 +46,10 @@ actual object ApplicationAccess {
      * You'll have to register to catch it in the manifests of each platform separately.
      */
     actual val onDeepLink: MutableList<(url: String) -> Boolean> = ArrayList()
+
+    /**
+     * Called before the application dies due to an uncaught error.
+     * Use this to send an error report.
+     */
+    actual val onException: MutableList<(throwable: Throwable) -> Unit> = java.util.ArrayList()
 }

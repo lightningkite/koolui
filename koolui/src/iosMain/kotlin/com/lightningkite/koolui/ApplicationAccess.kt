@@ -18,6 +18,12 @@ import platform.darwin.dispatch_get_main_queue
 @ThreadLocal
 actual object ApplicationAccess {
 
+    fun init(){
+//        NSSetUncaughtExceptionHandler(staticCFunction { pointer: COpaquePointer ->
+//
+//        })
+    }
+
     var baseVC: UIViewController? = null
 
     val mutableDisplaySize = StandardObservableProperty<Point>(UIScreen.mainScreen.bounds.useContents { Point(x = size.width.toFloat(), y = size.height.toFloat()) })
@@ -57,4 +63,10 @@ actual object ApplicationAccess {
             action()
         }
     }
+
+    /**
+     * Called before the application dies due to an uncaught error.
+     * Use this to send an error report.
+     */
+    actual val onException: MutableList<(throwable: Throwable) -> Unit> = ArrayList()
 }
