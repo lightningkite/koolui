@@ -64,6 +64,7 @@ kotlin {
         setOf(
                 android,
                 javafx,
+                lanterna,
                 jvmVirtual,
                 js,
                 iosArm64,
@@ -128,6 +129,13 @@ kotlin {
 
                     api("org.apache.xmlgraphics:xmlgraphics-commons:2.2")
                     api("org.apache.logging.log4j:log4j-core:2.5")
+                }
+            }
+        }
+        KTarget.lanterna.sources {
+            main {
+                dependencies {
+                    api("com.googlecode.lanterna:lanterna:3.0.1")
                 }
             }
         }

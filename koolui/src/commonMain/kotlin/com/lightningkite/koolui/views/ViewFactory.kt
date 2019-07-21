@@ -8,15 +8,18 @@ import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
+import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
+import com.lightningkite.reacktive.Event0
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
+import com.lightningkite.recktangle.Rectangle
 import kotlinx.coroutines.*
 
 /**
@@ -515,4 +518,29 @@ interface ViewFactory<VIEW> {
             title: String? = null,
             options: List<Pair<String, () -> Unit>>
     ): Unit = defaultLaunchSelector(title, options)
+
+
+    fun canvas(
+            updateEvent: Event0,
+            draw: Canvas.()->Unit
+    ): VIEW
 }
+
+interface Canvas {
+    val size: Point
+
+    val matrix: Matrix
+
+    fun move(x: Float, y: Float)
+    fun line(x: Float, y: Float)
+    fun curve(controlX: Float, controlY: Float, x: Float, y:Float)
+    fun setPaint(paint: Paint)
+    fun clearRect(rectangle: Rectangle)
+    fun drawImage(image: Image)
+}
+
+data class Paint(
+        val fill: Color,
+        val stroke: Color,
+        val strokeSize: Float
+)

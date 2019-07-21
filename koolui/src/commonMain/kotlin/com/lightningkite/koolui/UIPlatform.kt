@@ -5,6 +5,7 @@ enum class UIPlatform {
     Javascript,
     IOS,
     JavaFX,
+    Lanterna,
     Virtual;
 
     companion object
