@@ -520,27 +520,27 @@ interface ViewFactory<VIEW> {
     ): Unit = defaultLaunchSelector(title, options)
 
 
-    fun canvas(
-            updateEvent: Event0,
-            draw: Canvas.()->Unit
-    ): VIEW
+//    fun canvas(
+//            updateEvent: Event0,
+//            draw: Canvas.()->Unit
+//    ): VIEW
 }
 
-interface Canvas {
-    val size: Point
-
-    val matrix: Matrix
-
-    fun move(x: Float, y: Float)
-    fun line(x: Float, y: Float)
-    fun curve(controlX: Float, controlY: Float, x: Float, y:Float)
-    fun setPaint(paint: Paint)
-    fun clearRect(rectangle: Rectangle)
-    fun drawImage(image: Image)
-}
-
-data class Paint(
-        val fill: Color,
-        val stroke: Color,
-        val strokeSize: Float
-)
+//interface Canvas {
+//    val size: Point
+//
+//    val matrix: Matrix
+//
+//    fun move(x: Float, y: Float)
+//    fun line(x: Float, y: Float)
+//    fun curve(controlX: Float, controlY: Float, x: Float, y:Float)
+//    fun setPaint(paint: Paint)
+//    fun clearRect(rectangle: Rectangle)
+//    fun drawImage(image: Image)
+//}
+//
+//data class Paint(
+//        val fill: Color,
+//        val stroke: Color,
+//        val strokeSize: Float
+//)
