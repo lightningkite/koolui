@@ -3,6 +3,7 @@ package com.lightningkite.koolui.views.ios
 import com.lightningkite.koolui.geometry.Measurement
 import com.lightningkite.koolui.layout.*
 import com.lightningkite.reacktive.invokeAll
+import com.lightningkite.recktangle.Rectangle
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRect
@@ -13,7 +14,8 @@ import platform.darwin.object_getClassName
 class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
 
     val holding = HashMap<String, Any?>()
-    val onResize = ArrayList<(CGRect)->Unit>(0)
+    val onResize = ArrayList<(Rectangle) -> Unit>(0)
+    val myFrame = Rectangle()
 
     override fun updatePlacementX(start: Float, end: Float) {
         val newRect = view.frame.useContents {
@@ -24,8 +26,10 @@ class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
                     height = size.height
             )
         }
+        myFrame.left = start
+        myFrame.right = end
         view.setFrame(newRect)
-        onResize.invokeAll(view.frame.useContents { this })
+        onResize.invokeAll(myFrame)
         view.setNeedsLayout()
         if (view is UILabel) {
             println("Label: ${view.text}")
@@ -42,8 +46,10 @@ class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
                     height = (end - start).toDouble()
             )
         }
+        myFrame.top = start
+        myFrame.bottom = end
         view.setFrame(newRect)
-        onResize.invokeAll(view.frame.useContents { this })
+        onResize.invokeAll(myFrame)
         view.setNeedsLayout()
         if (view is UILabel) {
             println("Label: ${view.text}")

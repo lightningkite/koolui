@@ -2,8 +2,19 @@ package com.lightningkite.koolui
 
 import com.lightningkite.lokalize.location.Geohash
 import com.lightningkite.reacktive.property.ObservableProperty
+import platform.CoreLocation.CLAuthorizationStatus
+import platform.CoreLocation.CLLocationManager
+import platform.CoreLocation.CLLocationManagerDelegateProtocol
+import platform.darwin.NSObject
 
 actual object Location {
+
+//    val delegate: CLLocationManagerDelegateProtocol = object : NSObject(), CLLocationManagerDelegateProtocol {
+//        override fun locationManager(manager: CLLocationManager, didChangeAuthorizationStatus: CLAuthorizationStatus) {
+//
+//        }
+//    }
+
     actual val available: Boolean
         get() = false
 

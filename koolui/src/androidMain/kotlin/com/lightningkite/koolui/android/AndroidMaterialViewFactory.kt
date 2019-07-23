@@ -157,7 +157,7 @@ open class AndroidMaterialViewFactory(
         }
 
         +swap(stack.lastOrNullObservableWithAnimations().transform {
-            (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second
+            (it.first?.generate(dependency) ?: space(Point.zero)) to it.second
         })
                 .background(theme.main.background)
 

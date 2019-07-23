@@ -10,6 +10,11 @@ import platform.objc.*
 import platform.posix.uintVar
 import kotlin.native.concurrent.ThreadLocal
 
+class ClosureSleeve(val closure: () -> Unit) : NSObject() {
+    @ObjCAction
+    fun runContainedClosure() = closure()
+}
+
 fun <S : UIControl> ViewAdapter<S, UIView>.addAction(events: UIControlEvents, sleeve: NSObject) = addAction(this.view, events, sleeve)
 
 fun ViewAdapter<*, UIView>.addAction(view: UIControl, events: UIControlEvents, sleeve: NSObject) {

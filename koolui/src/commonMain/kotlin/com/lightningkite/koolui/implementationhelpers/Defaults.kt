@@ -234,7 +234,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
 
     if (tabs.isEmpty()) {
         +swap(stack.lastOrNullObservableWithAnimations().transform {
-            (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second
+            (it.first?.generate(dependency) ?: space(Point.zero)) to it.second
         })
                 .background(theme.main.background)
     } else {
@@ -247,7 +247,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultLargeWindow(
                 }
             }).background(theme.main.backgroundHighlighted)
             +swap(stack.lastOrNullObservableWithAnimations().transform {
-                (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second
+                (it.first?.generate(dependency) ?: space(Point.zero)) to it.second
             })
                     .background(theme.main.background)
 
@@ -289,7 +289,7 @@ fun <DEPENDENCY, VIEW> ViewFactory<VIEW>.defaultSmallWindow(
     }
 
     +frame(swap(stack.lastOrNullObservableWithAnimations().transform {
-        (it.first?.generate(dependency) ?: space(Point.Zero)) to it.second
+        (it.first?.generate(dependency) ?: space(Point.zero)) to it.second
     })
     ).background(theme.main.background)
 

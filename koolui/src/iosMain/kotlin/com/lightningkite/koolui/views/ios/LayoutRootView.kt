@@ -44,11 +44,6 @@ class LayoutRootView : UIView {
             rect.right = (origin.x + size.width).toFloat()
             rect.bottom = (origin.y + size.height).toFloat()
         }
-        println("Laying out subviews in rect $rect")
         layout.layout(rect)
-    }
-
-    init {
-        sel_registerName("layoutSubviews")
     }
 }

@@ -1,5 +1,11 @@
 package com.lightningkite.koolui.views.ios
 
+import com.lightningkite.kommon.collection.pop
+import com.lightningkite.kommon.collection.reset
+import com.lightningkite.koolui.builders.button
+import com.lightningkite.koolui.builders.horizontal
+import com.lightningkite.koolui.builders.space
+import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -8,15 +14,17 @@ import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.Measurement
-import com.lightningkite.koolui.image.ImageScaleType
-import com.lightningkite.koolui.image.ImageWithSizing
+import com.lightningkite.koolui.image.*
+import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.layout.*
 import com.lightningkite.koolui.toTimeStamp
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
+import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
+import com.lightningkite.reacktive.list.lastOrNullObservable
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.MutableObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty
@@ -26,15 +34,16 @@ import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.useContents
+import platform.CoreFoundation.CFNotificationCenterAddObserver
 import platform.CoreGraphics.CGAffineTransformMakeScale
 import platform.CoreGraphics.CGAffineTransformMakeTranslation
 import platform.CoreGraphics.CGRect
-import platform.Foundation.NSIndexPath
-import platform.Foundation.NSURL
-import platform.Foundation.NSURLRequest
+import platform.CoreGraphics.CGSizeMake
+import platform.Foundation.*
 import platform.UIKit.*
 import platform.darwin.NSObject
 import platform.darwin.object_getClassName
+import kotlin.collections.setValue
 import kotlin.math.max
 import kotlin.math.round
 
@@ -51,9 +60,67 @@ class UIKitViewFactory(
         clipsToBounds = true
     }
 
-    override fun <SPECIFIC : UIView> SPECIFIC.adapter(): ViewAdapter<SPECIFIC, UIView> = UIViewAdapter(this)
+    override fun <SPECIFIC : UIView> SPECIFIC.adapter(): UIViewAdapter<SPECIFIC> = UIViewAdapter(this)
 
     val duration = .25
+
+    override fun <DEPENDENCY> window(
+            dependency: DEPENDENCY,
+            stack: MutableObservableList<ViewGenerator<DEPENDENCY, Layout<*, UIView>>>,
+            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Layout<*, UIView>>>>
+    ): Layout<*, UIView> = vertical {
+
+        -space(
+                width = 4f,
+                height = UIApplication.sharedApplication.statusBarFrame.useContents { size.height }.toFloat()
+        ).background(theme.bar.background)
+
+        -with(withColorSet(theme.bar)) {
+            frame(horizontal {
+                defaultAlign = Align.Center
+                -button(
+                        label = "< Back",
+                        importance = Importance.Low,
+                        onClick = { if (stack.size > 1) stack.pop() }
+                ).alpha(stack.onListUpdate.transform { if (it.size > 1) 1f else 0f })
+//                -imageButton(
+//                        imageWithSizing = ConstantObservableProperty(
+//                                MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
+//                                        Point(
+//                                                24f,
+//                                                24f
+//                                        )
+//                                )
+//                        ),
+//                        importance = Importance.Low,
+//                        onClick = { if (stack.size > 1) stack.pop() }
+//                ).alpha(stack.onListUpdate.transform { if (it.size > 1) 1f else 0f })
+
+                -text(text = stack.onListUpdate.transform { it.lastOrNull()?.title ?: "" }, size = TextSize.Header)
+
+                +space(Point(5f, 5f))
+
+                -swap(stack.lastOrNullObservable().transform {
+                    (it?.generateActions(dependency) ?: space(1f)) to Animation.Fade
+                })
+            }).background(theme.bar.background)
+        }
+
+        +frame(swap(stack.lastOrNullObservableWithAnimations().transform {
+            (it.first?.generate(dependency) ?: space(Point.zero)) to it.second
+        })
+        ).background(theme.main.background)
+
+        if (!tabs.isEmpty()) {
+            -frame(horizontal {
+                for (tab in tabs) {
+                    +button(tab.first.text, tab.first.imageWithSizing) {
+                        stack.reset(tab.second)
+                    }
+                }
+            }).background(theme.bar.background)
+        }
+    }
 
     override fun applyEntranceTransition(view: UIView, animation: Animation) {
         when (animation) {
@@ -470,9 +537,17 @@ class UIKitViewFactory(
 
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
-        inputView = makeUIPickerView(toString, options, selected, adapter)
-        inputAccessoryView = adapter.toolbarWithDoneButton()
+        inputView = makeUIPickerView({
+            val base = toString(it)
+            NSAttributedString.create(string = base, attributes = mapOf<Any?, Any?>(NSForegroundColorAttributeName to colorSet.foreground.ios))
+        }, options, selected, adapter).apply {
+            backgroundColor = colorSet.background.ios
+        }
+        inputAccessoryView = adapter.toolbarWithDoneButton(closureSleeveProvider)
 
+        layout.isAttached.bind(selected) {
+            this.text = toString(it)
+        }
     }
 
     override fun timePicker(observable: MutableObservableProperty<Time>): Layout<*, UIView> = UITextField(CGRect.zeroVal).intrinsic { layout ->
@@ -485,14 +560,20 @@ class UIKitViewFactory(
         this.placeholder = placeholder
 
         val picker = UIDatePicker(CGRect.zeroVal)
+        picker.backgroundColor = colorSet.background.ios
+        picker.setValue(value = colorSet.foreground.ios, forKeyPath = "textColor")
         picker.datePickerMode = UIDatePickerMode.UIDatePickerModeTime
         adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().time()
         })
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
+        layout.isAttached.bind(observable) {
+            this.text = it.toString()
+        }
+
         inputView = picker
-        inputAccessoryView = adapter.toolbarWithDoneButton()
+        inputAccessoryView = adapter.toolbarWithDoneButton(closureSleeveProvider)
     }
 
     override fun datePicker(observable: MutableObservableProperty<Date>): Layout<*, UIView> = UITextField(CGRect.zeroVal).intrinsic { layout ->
@@ -505,14 +586,20 @@ class UIKitViewFactory(
         this.placeholder = placeholder
 
         val picker = UIDatePicker(CGRect.zeroVal)
+        picker.backgroundColor = colorSet.background.ios
+        picker.setValue(value = colorSet.foreground.ios, forKeyPath = "textColor")
         picker.datePickerMode = UIDatePickerMode.UIDatePickerModeDate
         adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().date()
         })
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
+        layout.isAttached.bind(observable) {
+            this.text = it.toString()
+        }
+
         inputView = picker
-        inputAccessoryView = adapter.toolbarWithDoneButton()
+        inputAccessoryView = adapter.toolbarWithDoneButton(closureSleeveProvider)
     }
 
     override fun dateTimePicker(observable: MutableObservableProperty<DateTime>): Layout<*, UIView> = UITextField(CGRect.zeroVal).intrinsic { layout ->
@@ -525,14 +612,20 @@ class UIKitViewFactory(
         this.placeholder = placeholder
 
         val picker = UIDatePicker(CGRect.zeroVal)
+        picker.backgroundColor = colorSet.background.ios
+        picker.setValue(value = colorSet.foreground.ios, forKeyPath = "textColor")
         picker.datePickerMode = UIDatePickerMode.UIDatePickerModeDateAndTime
         adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().dateTime()
         })
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
+        layout.isAttached.bind(observable) {
+            this.text = it.toString()
+        }
+
         inputView = picker
-        inputAccessoryView = adapter.toolbarWithDoneButton()
+        inputAccessoryView = adapter.toolbarWithDoneButton(closureSleeveProvider)
     }
 
     override fun card(view: Layout<*, UIView>): Layout<*, UIView> {
@@ -556,70 +649,81 @@ class UIKitViewFactory(
         }
     }
 
-    override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Layout<*, UIView> = UITextView(CGRect.zeroVal).intrinsic { layout ->
-        this.textColor = colorSet.foreground.ios
-        this.secureTextEntry = type == TextInputType.Password
-        this.keyboardType = when (type) {
-            TextInputType.Paragraph,
-            TextInputType.Sentence,
-            TextInputType.Name,
-            TextInputType.CapitalizedIdentifier,
-            TextInputType.Address -> UIKeyboardTypeDefault
-            TextInputType.Password -> UIKeyboardTypeDefault
-            TextInputType.URL -> UIKeyboardTypeURL
-            TextInputType.Email -> UIKeyboardTypeEmailAddress
-            TextInputType.Phone -> UIKeyboardTypePhonePad
-        }
-        this.autocapitalizationType = when (type) {
-            TextInputType.Paragraph,
-            TextInputType.Sentence -> UITextAutocapitalizationType.UITextAutocapitalizationTypeSentences
-            TextInputType.Name, TextInputType.Address -> UITextAutocapitalizationType.UITextAutocapitalizationTypeWords
-            TextInputType.CapitalizedIdentifier,
-            TextInputType.Phone -> UITextAutocapitalizationType.UITextAutocapitalizationTypeAllCharacters
-            TextInputType.Password,
-            TextInputType.URL,
-            TextInputType.Email -> UITextAutocapitalizationType.UITextAutocapitalizationTypeNone
-        }
-        this.smartQuotesType = UITextSmartQuotesType.UITextSmartQuotesTypeNo
-        this.textContentType = when (type) {
-            TextInputType.Paragraph,
-            TextInputType.Sentence -> null
-            TextInputType.Name -> UITextContentTypeName
-            TextInputType.Password -> UITextContentTypePassword
-            TextInputType.CapitalizedIdentifier -> null
-            TextInputType.URL -> UITextContentTypeURL
-            TextInputType.Email -> UITextContentTypeEmailAddress
-            TextInputType.Phone -> UITextContentTypeTelephoneNumber
-            TextInputType.Address -> UITextContentTypeFullStreetAddress
-        }
-        this.spellCheckingType = when (type) {
-            TextInputType.Paragraph,
-            TextInputType.Sentence -> UITextSpellCheckingType.UITextSpellCheckingTypeYes
-            TextInputType.Address,
-            TextInputType.Name -> UITextSpellCheckingType.UITextSpellCheckingTypeDefault
-            TextInputType.Password,
-            TextInputType.CapitalizedIdentifier,
-            TextInputType.URL,
-            TextInputType.Email,
-            TextInputType.Phone -> UITextSpellCheckingType.UITextSpellCheckingTypeNo
-        }
-
-        layout.isAttached.bind(text) {
-            if (it != this.text) {
-                this.text = it
+    override fun textArea(text: MutableObservableProperty<String>, placeholder: String, type: TextInputType): Layout<*, UIView> {
+        val view = UITextView(CGRect.zeroVal)
+        val layout = Layout(
+                viewAdapter = view.adapter(),
+                x = LeafDimensionLayout(8f, 80f, 8f),
+                y = LeafDimensionLayout(8f, 80f, 8f)
+        )
+        with(view) {
+            this.inputAccessoryView = adapter.toolbarWithDoneButton(closureSleeveProvider)
+            this.backgroundColor = colorSet.background.ios
+            this.textColor = colorSet.foreground.ios
+            this.secureTextEntry = type == TextInputType.Password
+            this.keyboardType = when (type) {
+                TextInputType.Paragraph,
+                TextInputType.Sentence,
+                TextInputType.Name,
+                TextInputType.CapitalizedIdentifier,
+                TextInputType.Address -> UIKeyboardTypeDefault
+                TextInputType.Password -> UIKeyboardTypeDefault
+                TextInputType.URL -> UIKeyboardTypeURL
+                TextInputType.Email -> UIKeyboardTypeEmailAddress
+                TextInputType.Phone -> UIKeyboardTypePhonePad
             }
-        }
-        val adapter = layout.viewAdapter as UIViewAdapter<UITextView>
-        val dg: UITextViewDelegateProtocol = object : NSObject(), UITextViewDelegateProtocol {
-            override fun textViewDidChange(textView: UITextView) {
-                val newValue = this@intrinsic.text
-                if (newValue != text.value) {
-                    text.value = newValue
+            this.autocapitalizationType = when (type) {
+                TextInputType.Paragraph,
+                TextInputType.Sentence -> UITextAutocapitalizationType.UITextAutocapitalizationTypeSentences
+                TextInputType.Name, TextInputType.Address -> UITextAutocapitalizationType.UITextAutocapitalizationTypeWords
+                TextInputType.CapitalizedIdentifier,
+                TextInputType.Phone -> UITextAutocapitalizationType.UITextAutocapitalizationTypeAllCharacters
+                TextInputType.Password,
+                TextInputType.URL,
+                TextInputType.Email -> UITextAutocapitalizationType.UITextAutocapitalizationTypeNone
+            }
+            this.smartQuotesType = UITextSmartQuotesType.UITextSmartQuotesTypeNo
+            this.textContentType = when (type) {
+                TextInputType.Paragraph,
+                TextInputType.Sentence -> null
+                TextInputType.Name -> UITextContentTypeName
+                TextInputType.Password -> UITextContentTypePassword
+                TextInputType.CapitalizedIdentifier -> null
+                TextInputType.URL -> UITextContentTypeURL
+                TextInputType.Email -> UITextContentTypeEmailAddress
+                TextInputType.Phone -> UITextContentTypeTelephoneNumber
+                TextInputType.Address -> UITextContentTypeFullStreetAddress
+            }
+            this.spellCheckingType = when (type) {
+                TextInputType.Paragraph,
+                TextInputType.Sentence -> UITextSpellCheckingType.UITextSpellCheckingTypeYes
+                TextInputType.Address,
+                TextInputType.Name -> UITextSpellCheckingType.UITextSpellCheckingTypeDefault
+                TextInputType.Password,
+                TextInputType.CapitalizedIdentifier,
+                TextInputType.URL,
+                TextInputType.Email,
+                TextInputType.Phone -> UITextSpellCheckingType.UITextSpellCheckingTypeNo
+            }
+
+            layout.isAttached.bind(text) {
+                if (it != this.text) {
+                    this.text = it
                 }
             }
+            val adapter = layout.viewAdapter as UIViewAdapter<UITextView>
+            val dg: UITextViewDelegateProtocol = object : NSObject(), UITextViewDelegateProtocol {
+                override fun textViewDidChange(textView: UITextView) {
+                    val newValue = this@with.text
+                    if (newValue != text.value) {
+                        text.value = newValue
+                    }
+                }
+            }
+            adapter.holding["delegate"] = dg
+            this.delegate = dg
         }
-        adapter.holding["delegate"] = dg
-        this.delegate = dg
+        return layout
     }
 
     override fun slider(range: IntRange, observable: MutableObservableProperty<Int>): Layout<*, UIView> = UISlider(CGRect.zeroVal).intrinsic { layout ->
@@ -654,30 +758,57 @@ class UIKitViewFactory(
     }
 
     override fun scrollBoth(view: Layout<*, UIView>, amountX: MutableObservableProperty<Float>, amountY: MutableObservableProperty<Float>): Layout<*, UIView> {
-        val adapter = UIScrollView().adapter()
-        return Layout(
+        val scroll = UIScrollView()
+        val adapter = scroll.adapter()
+        val layout = Layout(
                 viewAdapter = adapter,
                 x = ScrollDimensionLayout(view.x),
                 y = ScrollDimensionLayout(view.y)
         )
+        (view.viewAdapter as UIViewAdapter<*>).onResize.add {
+            scroll.setContentSize(CGSizeMake(
+                    width = it.width.toDouble(),
+                    height = it.height.toDouble()
+            ))
+        }
+        layout.addChild(view)
+        return layout
     }
 
     override fun scrollHorizontal(view: Layout<*, UIView>, amount: MutableObservableProperty<Float>): Layout<*, UIView> {
-        val adapter = UIScrollView().adapter()
-        return Layout(
+        val scroll = UIScrollView()
+        val adapter = scroll.adapter()
+        val layout = Layout(
                 viewAdapter = adapter,
                 x = ScrollDimensionLayout(view.x),
                 y = AlignDimensionLayout(listOf(Align.Fill to view.y))
         )
+        (view.viewAdapter as UIViewAdapter<*>).onResize.add {
+            scroll.setContentSize(CGSizeMake(
+                    width = it.width.toDouble(),
+                    height = it.height.toDouble()
+            ))
+        }
+        layout.addChild(view)
+        return layout
     }
 
     override fun scrollVertical(view: Layout<*, UIView>, amount: MutableObservableProperty<Float>): Layout<*, UIView> {
-        val adapter = UIScrollView().adapter()
-        return Layout(
+        val scroll = UIScrollView()
+        val adapter = scroll.adapter()
+        val layout = Layout(
                 viewAdapter = adapter,
                 x = AlignDimensionLayout(listOf(Align.Fill to view.x)),
                 y = ScrollDimensionLayout(view.y)
         )
+        (view.viewAdapter as UIViewAdapter<*>).onResize.add {
+            scroll.setContentSize(CGSizeMake(
+                    width = it.width.toDouble(),
+                    height = it.height.toDouble()
+            ))
+        }
+        layout.addChild(view)
+        return layout
     }
 
     override fun <T> list(
@@ -689,6 +820,7 @@ class UIKitViewFactory(
     ): Layout<*, UIView> = UITableView(CGRect.zeroVal).intrinsic { layout ->
         this.allowsSelection = false
         this.allowsMultipleSelection = false
+        this.separatorStyle = UITableViewCellSeparatorStyleNone
 
         backgroundColor = UIColor.clearColor
 
@@ -785,18 +917,22 @@ class UIKitViewFactory(
 
     override fun space(size: Point): Layout<*, UIView> {
         if (size.x == 2f && size.y == 2f) {
-            fun UIView.print(prefix: String = "") {
-                println(prefix + object_getClassName(this)?.toKString() + this.frame.useContents { " (${this.origin.x} ${this.origin.y} ${this.size.width} ${this.size.height})" })
-                for (child in subviews) {
-                    if (child is UIView) {
-                        child.print(prefix + "  ")
-                    }
-                }
-            }
-            println("View Hierarchy:")
-            root?.viewAsBase?.print()
+            debugHierarchy()
         }
         return super.space(size)
+    }
+
+    private fun debugHierarchy(from: UIView? = this.root?.viewAsBase) {
+        fun UIView.print(prefix: String = "") {
+            println(prefix + object_getClassName(this)?.toKString() + this.frame.useContents { " (${this.origin.x} ${this.origin.y} ${this.size.width} ${this.size.height})" })
+            for (child in subviews) {
+                if (child is UIView) {
+                    child.print(prefix + "  ")
+                }
+            }
+        }
+        println("View Hierarchy:")
+        from?.print()
     }
 }
 

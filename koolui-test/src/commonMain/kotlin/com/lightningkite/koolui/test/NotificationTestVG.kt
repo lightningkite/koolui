@@ -8,10 +8,12 @@ import com.lightningkite.koolui.builders.button
 import com.lightningkite.koolui.builders.text
 import com.lightningkite.koolui.builders.vertical
 import com.lightningkite.koolui.notification.Notification
+import kotlin.native.concurrent.ThreadLocal
 
 class NotificationTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Notifications"
 
+    @ThreadLocal
     companion object {
         val lastActionObs = StandardObservableProperty("No actions taken yet.")
 

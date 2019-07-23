@@ -22,4 +22,7 @@ class ViewController: UIViewController {
         helloWorldLabel.text = UIPlatform.ios.name
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return UIStatusBarStyle.lightContent
+    }
 }
