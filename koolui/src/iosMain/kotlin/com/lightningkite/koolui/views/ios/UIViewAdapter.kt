@@ -65,5 +65,3 @@ class UIViewAdapter<S: UIView>(override val view: S): ViewAdapter<S, UIView> {
         layout.viewAsBase.removeFromSuperview()
     }
 }
-
-val <S: UIView> S.adapter get() = UIViewAdapter(this)

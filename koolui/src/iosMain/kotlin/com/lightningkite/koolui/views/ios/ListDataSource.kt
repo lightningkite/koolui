@@ -1,5 +1,6 @@
 package com.lightningkite.koolui.views.ios
 
+import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.layout.Layout
 import com.lightningkite.reacktive.Lifecycle
 import com.lightningkite.reacktive.list.ObservableList
@@ -44,6 +45,9 @@ class ListDataSource<T>(
         valueObs.value = data[index]
         indexObs.value = index
         cell.layoutSubviews()
+        ApplicationAccess.post {
+            cell.layoutSubviews()
+        }
         return cell
     }
 

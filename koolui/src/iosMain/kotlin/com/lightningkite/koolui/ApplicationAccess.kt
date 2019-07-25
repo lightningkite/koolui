@@ -10,6 +10,10 @@ import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
 import platform.Foundation.*
 import platform.UIKit.*
+import platform.UserNotifications.UNMutableNotificationContent
+import platform.UserNotifications.UNNotificationRequest
+import platform.UserNotifications.UNTimeIntervalNotificationTrigger
+import platform.UserNotifications.UNUserNotificationCenter
 import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_global_queue
@@ -19,7 +23,7 @@ import kotlin.native.concurrent.ThreadLocal
 @ThreadLocal
 actual object ApplicationAccess {
 
-    fun init(){
+    fun init() {
         NSSetUncaughtExceptionHandler(staticCFunction { exception: NSException? ->
             dispatch_async(dispatch_get_main_queue()) {
                 onException.invokeAll(Exception(
@@ -43,17 +47,28 @@ actual object ApplicationAccess {
     actual val onAnimationFrame: MutableCollection<() -> Unit> = ArrayList<() -> Unit>()
 
     actual fun showNotification(notification: Notification) {
-        UIApplication.sharedApplication.scheduleLocalNotification(UILocalNotification().apply {
-            fireDate = NSDate.dateWithTimeIntervalSinceNow(0.0)
-            alertTitle = notification.title
-            alertBody = notification.content
-            notification.actions.values.firstOrNull()?.let {
-                this.alertAction
-            }
-            //TODO: Handle priority
-            //TODO: Handle image
-            //TODO: Handle actions
-        })
+//        val uiNotification = UILocalNotification().apply {
+//            fireDate = NSDate.dateWithTimeIntervalSinceNow(0.0)
+//            alertTitle = notification.title
+//            alertBody = notification.content
+//            notification.actions.values.firstOrNull()?.let {
+//                this.alertAction
+//            }
+//            //TODO: Handle priority
+//            //TODO: Handle image
+//            //TODO: Handle actions
+//        }
+        UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(
+                request = UNNotificationRequest.requestWithIdentifier(
+                        identifier = notification.id.toString(),
+                        content = UNMutableNotificationContent().apply {
+                            setTitle(notification.title)
+                            setBody(notification.content)
+                        },
+                        trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(1.0, false)
+                ),
+                withCompletionHandler = null
+        )
     }
 
     //TODO: Handle action invocations

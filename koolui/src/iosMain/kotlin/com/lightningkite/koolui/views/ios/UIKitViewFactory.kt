@@ -17,11 +17,10 @@ import com.lightningkite.koolui.geometry.Measurement
 import com.lightningkite.koolui.image.*
 import com.lightningkite.koolui.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.layout.*
+import com.lightningkite.koolui.toNSDate
 import com.lightningkite.koolui.toTimeStamp
 import com.lightningkite.koolui.views.ViewGenerator
-import com.lightningkite.lokalize.time.Date
-import com.lightningkite.lokalize.time.DateTime
-import com.lightningkite.lokalize.time.Time
+import com.lightningkite.lokalize.time.*
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.list.lastOrNullObservable
@@ -278,7 +277,7 @@ class UIKitViewFactory(
     fun <S : UIView> S.intrinsic(config: S.(Layout<S, UIView>) -> Unit): Layout<S, UIView> {
         val intrinsicLayoutDimensions = IntrinsicLayoutDimensions(this)
         val l = Layout(
-                this.adapter,
+                this.adapter(),
                 intrinsicLayoutDimensions.x,
                 intrinsicLayoutDimensions.y
         )
@@ -329,7 +328,6 @@ class UIKitViewFactory(
             importance: Importance,
             onClick: () -> Unit
     ): Layout<UIButton, UIView> = UIButton(CGRect.zeroVal).intrinsic { layout ->
-
         this.setTitleColor(colorSet.importance(importance).ios, UIControlStateNormal)
         layout.viewAdapter.addAction(UIControlEventTouchUpInside, closureSleeveProvider(onClick))
 
@@ -566,6 +564,9 @@ class UIKitViewFactory(
         adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().time()
         })
+        layout.isAttached.bind(observable) {
+            picker.date = DateTime(TimeStamp.now().date(), it).toTimeStamp().toNSDate()
+        }
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         layout.isAttached.bind(observable) {
@@ -592,6 +593,9 @@ class UIKitViewFactory(
         adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().date()
         })
+        layout.isAttached.bind(observable) {
+            picker.date = DateTime(it, Time(0)).toTimeStamp().toNSDate()
+        }
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         layout.isAttached.bind(observable) {
@@ -618,6 +622,9 @@ class UIKitViewFactory(
         adapter.addAction(picker, UIControlEventValueChanged, closureSleeveProvider {
             observable.value = picker.date.toTimeStamp().dateTime()
         })
+        layout.isAttached.bind(observable) {
+            picker.date = it.toTimeStamp().toNSDate()
+        }
         adapter.addAction(UIControlEventTouchDown, closureSleeveProvider { becomeFirstResponder() })
 
         layout.isAttached.bind(observable) {
@@ -657,7 +664,7 @@ class UIKitViewFactory(
                 y = LeafDimensionLayout(8f, 80f, 8f)
         )
         with(view) {
-            this.inputAccessoryView = adapter.toolbarWithDoneButton(closureSleeveProvider)
+            this.inputAccessoryView = (layout.viewAdapter as UIViewAdapter<*>).toolbarWithDoneButton(closureSleeveProvider)
             this.backgroundColor = colorSet.background.ios
             this.textColor = colorSet.foreground.ios
             this.secureTextEntry = type == TextInputType.Password
@@ -820,13 +827,14 @@ class UIKitViewFactory(
     ): Layout<*, UIView> = UITableView(CGRect.zeroVal).intrinsic { layout ->
         this.allowsSelection = false
         this.allowsMultipleSelection = false
+        this.rowHeight = UITableViewAutomaticDimension
         this.separatorStyle = UITableViewCellSeparatorStyleNone
 
         backgroundColor = UIColor.clearColor
 
         val source = ListDataSource(parentLayout = layout, data = data, makeLayout = makeView)
         this.dataSource = source
-        (adapter as UIViewAdapter<*>).holding["dataSource"] = source
+        (layout.viewAdapter as UIViewAdapter<*>).holding["dataSource"] = source
 
         layout.isAttached.listen(data.onListAdd) { _, index ->
             this.insertRowsAtIndexPaths(
