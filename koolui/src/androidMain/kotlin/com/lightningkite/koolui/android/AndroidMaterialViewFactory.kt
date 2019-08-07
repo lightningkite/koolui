@@ -34,6 +34,8 @@ import com.lightningkite.koolui.builders.align
 import com.lightningkite.koolui.builders.horizontal
 import com.lightningkite.koolui.builders.space
 import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.canvas.AndroidCanvas
+import com.lightningkite.koolui.canvas.Canvas
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -45,6 +47,7 @@ import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.*
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.koolui.lastOrNullObservableWithAnimations
+import com.lightningkite.koolui.views.Touch
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.time.*
@@ -64,6 +67,7 @@ import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -77,6 +81,15 @@ open class AndroidMaterialViewFactory(
     val context = access.context
 
     val frameId = 0x00EFFFFF
+
+    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): View {
+        return CanvasView(access.context).apply {
+            val c = AndroidCanvas()
+            lifecycle.bind(draw){
+                this.render = { c.canvas = this; c.it() }
+            }
+        }
+    }
 
     init {
         dip = context.resources.displayMetrics.density
@@ -308,7 +321,7 @@ open class AndroidMaterialViewFactory(
     ): View = RecyclerView(context).apply {
         layoutManager = LinearLayoutManager(
                 context,
-                if (direction.vertical) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL,
+                if (direction.vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL,
                 !direction.uiPositive
         )
         val newAdapter = object : RecyclerView.Adapter<ListViewHolder<T>>() {
@@ -1147,6 +1160,11 @@ open class AndroidMaterialViewFactory(
         lifecycle.bind(alpha) {
             this.alpha = it
         }
+    }
+
+    override fun View.touchable(onNewTouch: (Touch) -> Unit): View {
+        this.onNewTouch(onNewTouch)
+        return this
     }
 
     override fun View.clickable(onClick: () -> Unit): View = this.apply {

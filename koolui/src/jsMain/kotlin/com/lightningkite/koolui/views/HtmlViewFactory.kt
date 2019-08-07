@@ -4,6 +4,8 @@ import com.lightningkite.kommon.asInt8Array
 import com.lightningkite.koolui.appendLifecycled
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.*
+import com.lightningkite.koolui.canvas.Canvas
+import com.lightningkite.koolui.canvas.HtmlCanvas
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -22,12 +24,9 @@ import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
-import com.lightningkite.reacktive.property.MutableObservableProperty
-import com.lightningkite.reacktive.property.ObservableProperty
-import com.lightningkite.reacktive.property.StandardObservableProperty
+import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
-import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,6 +51,15 @@ class HtmlViewFactory(
         override val theme: Theme,
         override val colorSet: ColorSet = theme.main
 ) : ViewFactory<HTMLElement> {
+
+    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): HTMLElement {
+        return makeElement<HTMLCanvasElement>("canvas") {
+            val c = HtmlCanvas(this)
+            lifecycle.bind(draw) {
+                it(c)
+            }
+        }
+    }
 
     /*
     LISTING OF CSS SELECTORS THAT WILL BE GENERATED
@@ -902,6 +910,10 @@ class HtmlViewFactory(
         }
     }
 
+    override fun HTMLElement.touchable(onNewTouch: (Touch) -> Unit): HTMLElement = this.apply {
+        this.onNewTouch(onNewTouch)
+    }
+
     override fun HTMLElement.altClickable(onAltClick: () -> Unit): HTMLElement = this.apply {
         oncontextmenu = {
             it.preventDefault()
@@ -936,7 +948,7 @@ class HtmlViewFactory(
             appendLifecycled(newView)
             var stillActive = true
             dialogDismisser = {
-                if(stillActive) {
+                if (stillActive) {
                     stillActive = false
                     onDismiss()
                     removeLifecycled(newView)

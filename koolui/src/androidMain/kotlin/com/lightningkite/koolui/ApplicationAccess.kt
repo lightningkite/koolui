@@ -154,8 +154,6 @@ actual object ApplicationAccess {
 
     //TODO - use the functions here
     actual val onDeepLink: MutableList<(url: String) -> Boolean> = ArrayList()
-    actual val displaySize: ObservableProperty<com.lightningkite.recktangle.Point>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
     /**
      * Called before the application dies due to an uncaught error.

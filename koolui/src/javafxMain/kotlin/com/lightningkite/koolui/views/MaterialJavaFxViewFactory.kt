@@ -4,7 +4,9 @@ import com.jfoenix.controls.*
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.MousePosition
 import com.lightningkite.koolui.async.UI
-
+import com.lightningkite.koolui.canvas.Canvas
+import com.lightningkite.koolui.canvas.JavaFXCanvas
+import com.lightningkite.koolui.canvas.Paint
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -20,11 +22,13 @@ import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.list.mapping
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
+import com.lightningkite.recktangle.Matrix2D
 import com.lightningkite.recktangle.Point
 import javafx.beans.property.Property
 import javafx.beans.property.ReadOnlyProperty
 import javafx.event.EventHandler
 import javafx.geometry.Insets
+import javafx.geometry.VPos
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.Scene
@@ -35,6 +39,8 @@ import javafx.scene.input.MouseButton
 import javafx.scene.layout.*
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Font
+import javafx.scene.text.Text
+import javafx.scene.text.TextAlignment
 import javafx.scene.web.WebView
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
@@ -52,6 +58,14 @@ data class MaterialJavaFxViewFactory(
         override val colorSet: ColorSet = theme.main,
         val scale: Double = 1.0
 ) : ViewFactory<Node> {
+    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): Node {
+        return javafx.scene.canvas.Canvas().apply {
+            val c = JavaFXCanvas(this, scale)
+            lifecycle.bind(draw){
+                it(c)
+            }
+        }
+    }
 
     var Node.desiredMargins: DesiredMargins
         get() = AnyDesiredMargins.getOrPut(this) {
@@ -786,6 +800,11 @@ data class MaterialJavaFxViewFactory(
                 onClick.invoke()
             }
         }
+    }
+
+    override fun Node.touchable(onNewTouch: (Touch) -> Unit): Node {
+        setOnNewTouch(onNewTouch)
+        return this
     }
 
     override fun Node.altClickable(onAltClick: () -> Unit): Node = this.apply {

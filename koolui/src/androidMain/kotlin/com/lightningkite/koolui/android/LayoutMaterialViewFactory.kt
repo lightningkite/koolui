@@ -30,6 +30,8 @@ import android.widget.*
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.align
+import com.lightningkite.koolui.canvas.AndroidCanvas
+import com.lightningkite.koolui.canvas.Canvas
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -40,6 +42,7 @@ import com.lightningkite.koolui.implementationhelpers.TreeObservableProperty
 import com.lightningkite.koolui.implementationhelpers.defaultEntryContext
 import com.lightningkite.koolui.implementationhelpers.defaultSmallWindow
 import com.lightningkite.koolui.layout.*
+import com.lightningkite.koolui.views.Touch
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.time.*
 import com.lightningkite.lokalize.time.Date
@@ -69,6 +72,12 @@ open class LayoutMaterialViewFactory(
     override fun withColorSet(colorSet: ColorSet) =
             LayoutMaterialViewFactory(access = access, theme = theme, colorSet = colorSet, root = root)
 
+    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): Layout<*, View> = intrinsicLayout(CanvasView(access.context)){ layout ->
+        val c = AndroidCanvas()
+        layout.isAttached.bind(draw){
+            this.render = { c.canvas = this; c.it() }
+        }
+    }
 
     val context = access.context
 
@@ -814,6 +823,11 @@ open class LayoutMaterialViewFactory(
         isAttached.bind(alpha) {
             viewAdapter.viewAsBase.alpha = it
         }
+        return this
+    }
+
+    override fun Layout<*, View>.touchable(onNewTouch: (Touch) -> Unit): Layout<*, View> {
+        this.viewAsBase.onNewTouch(onNewTouch)
         return this
     }
 

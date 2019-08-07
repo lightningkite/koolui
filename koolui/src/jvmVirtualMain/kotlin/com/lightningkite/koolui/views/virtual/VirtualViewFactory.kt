@@ -2,6 +2,7 @@
 
 package com.lightningkite.koolui.views.virtual
 
+import com.lightningkite.koolui.canvas.Canvas
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -10,6 +11,7 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.ImageWithSizing
+import com.lightningkite.koolui.views.Touch
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.time.Date
@@ -249,6 +251,12 @@ open class VirtualViewFactory(
         init{ listViews().forEach { it.attached.parent = attached } }
     }
 
+    override fun View.touchable(onNewTouch: (Touch) -> Unit): View = TouchableView(this, onNewTouch)
+    class TouchableView(var receiver: View, var onNewTouch: (Touch) -> Unit): ContainerView(){
+        override fun listViews(): List<View> = listOf(receiver)
+        init{ listViews().forEach { it.attached.parent = attached } }
+    }
+
     override fun View.margin(left: Float, top: Float, right: Float, bottom: Float): MarginView = MarginView(this, left, top, right, bottom)
     class MarginView(var receiver: View, var left: Float, var top: Float, var right: Float, var bottom: Float): ContainerView(){
         override fun listViews(): List<View> = listOf(receiver)
@@ -266,4 +274,7 @@ open class VirtualViewFactory(
         override fun listViews(): List<View> = listOf(receiver)
         init{ listViews().forEach { it.attached.parent = attached } }
     }
+
+    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): View = CanvasView(draw)
+    class CanvasView(var draw: ObservableProperty<Canvas.() -> Unit>): View()
 }

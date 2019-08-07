@@ -25,6 +25,8 @@ repositories {
     google()
     jcenter()
     mavenCentral()
+    maven("https://dl.bintray.com/kotlin/kotlin-eap")
+    maven("https://dl.bintray.com/kotlin/kotlin-dev")
     maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     maven("https://kotlin.bintray.com/kotlinx")
     maven("https://dl.bintray.com/pixplicity/android")
@@ -99,9 +101,11 @@ kotlin {
                     api("com.pixplicity.sharp:library:1.1.0")
                     api("com.squareup.picasso:picasso:2.71828")
 
-//                    api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
-//                    api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")
-//                    api("com.lightningkite:recktangle-jvm:${versions.getProperty("recktangle")}")
+                    if(isSyncingIntelliJ) {
+                        api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
+                        api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")
+                        api("com.lightningkite:recktangle-jvm:${versions.getProperty("recktangle")}")
+                    }
 
                     api("com.google.firebase:firebase-messaging:18.0.0")
                 }

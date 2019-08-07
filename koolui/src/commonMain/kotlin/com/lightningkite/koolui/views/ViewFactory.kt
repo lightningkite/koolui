@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.views
 
 import com.lightningkite.koolui.async.UI
+import com.lightningkite.koolui.canvas.Canvas
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
@@ -8,18 +9,15 @@ import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
-import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.image.ImageWithSizing
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
-import com.lightningkite.reacktive.Event0
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
-import com.lightningkite.recktangle.Rectangle
 import kotlinx.coroutines.*
 
 /**
@@ -447,6 +445,13 @@ interface ViewFactory<VIEW> {
     ): VIEW = alpha(ConstantObservableProperty(alpha))
 
     /**
+     * Detect and use touches/clicks on the view directly, overriding any other touch functionality.
+     */
+    fun VIEW.touchable(
+            onNewTouch: (Touch)->Unit
+    ): VIEW
+
+    /**
      * Makes a normally non-clickable element clickable.
      */
     fun VIEW.clickable(
@@ -519,28 +524,11 @@ interface ViewFactory<VIEW> {
             options: List<Pair<String, () -> Unit>>
     ): Unit = defaultLaunchSelector(title, options)
 
-
-//    fun canvas(
-//            updateEvent: Event0,
-//            draw: Canvas.()->Unit
-//    ): VIEW
+    /**
+     * A canvas you can draw on.
+     */
+    fun canvas(
+            draw: ObservableProperty<Canvas.()->Unit>
+    ): VIEW
 }
 
-//interface Canvas {
-//    val size: Point
-//
-//    val matrix: Matrix
-//
-//    fun move(x: Float, y: Float)
-//    fun line(x: Float, y: Float)
-//    fun curve(controlX: Float, controlY: Float, x: Float, y:Float)
-//    fun setPaint(paint: Paint)
-//    fun clearRect(rectangle: Rectangle)
-//    fun drawImage(image: Image)
-//}
-//
-//data class Paint(
-//        val fill: Color,
-//        val stroke: Color,
-//        val strokeSize: Float
-//)

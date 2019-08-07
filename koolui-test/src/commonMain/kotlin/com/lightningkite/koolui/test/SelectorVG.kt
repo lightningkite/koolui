@@ -15,6 +15,7 @@ class SelectorVG<VIEW>(
     override val title: String = "KotlinX UI Test"
 
     val tests = observableListOf<Pair<String, () -> MyViewGenerator<VIEW>>>(
+            "Canvas" to { CanvasTestVG<VIEW>() },
             "GeolocationTest" to { GeolocationTestVG<VIEW>() },
             "OpenUriTest" to { OpenUriTestVG<VIEW>() },
             "FilesTest" to { FilesTestVG<VIEW>() },
