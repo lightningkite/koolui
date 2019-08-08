@@ -53,6 +53,10 @@ class UIKitViewFactory(
         root: Layout<*, UIView>? = null
 ) : LayoutViewFactory<UIView>(root) {
 
+    override fun canvas(
+            draw: ObservableProperty<Canvas.()->Unit>
+    ): Layout<*, UIView>
+
     override fun withColorSet(colorSet: ColorSet): UIKitViewFactory = UIKitViewFactory(closureSleeveProvider, theme, colorSet, root)
 
     override fun defaultViewContainer(): UIView = UIView(frame = CGRect.zeroVal).apply {

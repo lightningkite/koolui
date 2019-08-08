@@ -27,6 +27,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.WebView
 import android.widget.*
+import com.lightningkite.kommon.collection.pop
 import com.lightningkite.koolui.android.access.ActivityAccess
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.builders.align
@@ -72,9 +73,9 @@ open class LayoutMaterialViewFactory(
     override fun withColorSet(colorSet: ColorSet) =
             LayoutMaterialViewFactory(access = access, theme = theme, colorSet = colorSet, root = root)
 
-    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): Layout<*, View> = intrinsicLayout(CanvasView(access.context)){ layout ->
+    override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): Layout<*, View> = intrinsicLayout(CanvasView(access.context)) { layout ->
         val c = AndroidCanvas()
-        layout.isAttached.bind(draw){
+        layout.isAttached.bind(draw) {
             this.render = { c.canvas = this; c.it() }
         }
     }
@@ -141,7 +142,14 @@ open class LayoutMaterialViewFactory(
             dependency = dependency,
             stack = stack,
             tabs = tabs
-    )
+    ).also {
+        access.onBackPressed += {
+            if (stack.size > 1) {
+                stack.pop()
+                true
+            } else false
+        }
+    }
 
     override fun <DEPENDENCY> pages(dependency: DEPENDENCY, page: MutableObservableProperty<Int>, vararg pageGenerator: ViewGenerator<DEPENDENCY, Layout<*, View>>): Layout<*, View> = align {
         AlignPair.FillFill + Layout(
@@ -961,6 +969,8 @@ open class LayoutMaterialViewFactory(
                 val newLayout = text(
                         text = newObs.transform(toString)
                 )
+                val p = (8 * dip).toInt()
+                newLayout.viewAsBase.setPadding(0, p, 0, p)
                 newLayout.isAttached.parent = this.parent
                 val newView = newLayout.viewAdapter.view
                 newView.tag = newObs

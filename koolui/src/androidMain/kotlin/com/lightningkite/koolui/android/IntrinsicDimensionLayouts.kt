@@ -24,7 +24,7 @@ class IntrinsicDimensionLayouts(val view: View): LeafDimensionLayouts() {
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
-        output.size = view.measuredWidth.toFloat() / dip
+        output.size = view.measuredWidth.toFloat() / dip + .1f
     }
 
     override fun measureY(xSize: Float, output: Measurement) {
@@ -32,7 +32,7 @@ class IntrinsicDimensionLayouts(val view: View): LeafDimensionLayouts() {
                 View.MeasureSpec.makeMeasureSpec(ceil(xSize * dip).toInt(), View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
-        output.size = view.measuredHeight.toFloat() / dip
+        output.size = view.measuredHeight.toFloat() / dip + .1f
     }
 
 }
