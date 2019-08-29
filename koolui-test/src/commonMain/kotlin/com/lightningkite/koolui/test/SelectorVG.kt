@@ -1,13 +1,13 @@
 package com.lightningkite.koolui.test
 
 import com.lightningkite.kommon.collection.*
-import com.lightningkite.koolui.builders.space
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.navigation.*
 import com.lightningkite.reacktive.list.observableListOf
 import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.property.transform
 import com.lightningkite.koolui.concepts.Importance
-import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
+import com.lightningkite.koolui.views.layout.space
 
 class SelectorVG<VIEW>(
         val stack: MutableObservableList<MyViewGenerator<VIEW>>

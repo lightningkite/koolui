@@ -1,6 +1,6 @@
 package com.lightningkite.koolui.test
 
-import com.lightningkite.koolui.builders.text
+import com.lightningkite.koolui.views.basic.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement

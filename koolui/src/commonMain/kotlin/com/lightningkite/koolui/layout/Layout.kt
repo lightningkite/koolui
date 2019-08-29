@@ -57,9 +57,7 @@ class Layout<S : V, V>(
 
     fun layout(rectangle: Rectangle){
         for(i in 1..3){
-            println("--Layout iteration $i X--")
             val xDone = !x.layout(rectangle.left, rectangle.right)
-            println("--Layout iteration $i Y--")
             val yDone = !y.layout(rectangle.top, rectangle.bottom)
             if(xDone && yDone) break
         }
@@ -67,9 +65,7 @@ class Layout<S : V, V>(
 
     fun refresh(){
         for(i in 1..3){
-            println("--Layout iteration $i X--")
             val xDone = !x.refresh()
-            println("--Layout iteration $i Y--")
             val yDone = !y.refresh()
             if(xDone && yDone) break
         }

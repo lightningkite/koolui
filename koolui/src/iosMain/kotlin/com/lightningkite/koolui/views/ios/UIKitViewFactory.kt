@@ -15,10 +15,9 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.Measurement
 import com.lightningkite.koolui.image.*
-import com.lightningkite.koolui.lastOrNullObservableWithAnimations
+import com.lightningkite.koolui.concepts.lastOrNullObservableWithAnimations
 import com.lightningkite.koolui.layout.*
 import com.lightningkite.koolui.toNSDate
-import com.lightningkite.koolui.toTimeStamp
 import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.lokalize.time.*
 import com.lightningkite.reacktive.list.MutableObservableList
@@ -28,7 +27,6 @@ import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.MutableObservableProperty
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.lifecycle.bind
-import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.reacktive.property.transform
 import com.lightningkite.recktangle.Point
 import kotlinx.cinterop.toKString
@@ -42,7 +40,6 @@ import platform.Foundation.*
 import platform.UIKit.*
 import platform.darwin.NSObject
 import platform.darwin.object_getClassName
-import kotlin.collections.setValue
 import kotlin.math.max
 import kotlin.math.round
 
@@ -117,7 +114,7 @@ class UIKitViewFactory(
         if (!tabs.isEmpty()) {
             -frame(horizontal {
                 for (tab in tabs) {
-                    +button(tab.first.text, tab.first.imageWithSizing) {
+                    +button(tab.first.text, tab.first.imageWithOptions) {
                         stack.reset(tab.second)
                     }
                 }
@@ -313,9 +310,9 @@ class UIKitViewFactory(
                 }
             }
 
-    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>): Layout<UIImageView, UIView> =
+    override fun image(imageWithOptions: ObservableProperty<ImageWithOptions>): Layout<UIImageView, UIView> =
             UIImageView(CGRect.zeroVal).intrinsic { layout ->
-                layout.isAttached.bind(imageWithSizing) {
+                layout.isAttached.bind(imageWithOptions) {
                     this.image = it.image.image
                     when (it.scaleType) {
                         ImageScaleType.Crop -> this.contentMode = UIViewContentMode.UIViewContentModeScaleAspectFit
@@ -328,7 +325,7 @@ class UIKitViewFactory(
 
     override fun button(
             label: ObservableProperty<String>,
-            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            imageWithOptions: ObservableProperty<ImageWithOptions?>,
             importance: Importance,
             onClick: () -> Unit
     ): Layout<UIButton, UIView> = UIButton(CGRect.zeroVal).intrinsic { layout ->
@@ -338,7 +335,7 @@ class UIKitViewFactory(
         layout.isAttached.bind(label) {
             this.setTitle(it, UIControlStateNormal)
         }
-        layout.isAttached.bind(imageWithSizing) {
+        layout.isAttached.bind(imageWithOptions) {
             this.setImage(it?.image?.image, UIControlStateNormal)
             when (it?.scaleType) {
                 ImageScaleType.Crop -> this.contentMode = UIViewContentMode.UIViewContentModeScaleAspectFit
@@ -488,13 +485,13 @@ class UIKitViewFactory(
     }
 
     override fun imageButton(
-            imageWithSizing: ObservableProperty<ImageWithSizing>,
+            imageWithOptions: ObservableProperty<ImageWithOptions>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
     ): Layout<*, UIView> = button(
             label = ConstantObservableProperty(""),
-            imageWithSizing = imageWithSizing.transform { it },
+            imageWithOptions = imageWithOptions.transform { it },
             importance = importance,
             onClick = onClick
     )

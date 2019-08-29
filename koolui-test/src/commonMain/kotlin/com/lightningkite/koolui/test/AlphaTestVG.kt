@@ -2,8 +2,10 @@ package com.lightningkite.koolui.test
 
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
-import com.lightningkite.koolui.builders.text
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.views.*
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
 import com.lightningkite.koolui.concepts.TextSize
 
 class AlphaTestVG<VIEW>() : MyViewGenerator<VIEW> {

@@ -14,13 +14,13 @@ import androidx.viewpager.widget.ViewPager
 import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.android.*
 import com.lightningkite.koolui.android.access.AccessibleActivity
-import com.lightningkite.koolui.builders.contentRoot
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
 import com.lightningkite.koolui.test.MainVG
 import com.lightningkite.koolui.test.MyViewFactory
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.layout.Layout
+import com.lightningkite.koolui.view.MaterialAndroidViewFactory
 import com.lightningkite.recktangle.Rectangle
 
 class MainActivity : AccessibleActivity() {
@@ -32,9 +32,7 @@ class MainActivity : AccessibleActivity() {
     class Factory(
             val activity: AccessibleActivity,
             colorSet: ColorSet = theme.main
-    ) : MyViewFactory<Layout<*, View>>, ViewFactory<Layout<*, View>> by LayoutMaterialViewFactory(activity, theme, colorSet) {
-        override fun withColorSet(colorSet: ColorSet): ViewFactory<Layout<*, View>> = Factory(activity, colorSet)
-    }
+    ) : MyViewFactory<Layout<*, View>>, ViewFactory<Layout<*, View>> by MaterialAndroidViewFactory(activity, theme, colorSet)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +40,8 @@ class MainActivity : AccessibleActivity() {
         ApplicationAccess.init(this, R.drawable.ic_notifications)
 
 //        val rootLayout = Factory(this).contentRoot(OriginalTestVG())
-        val rootLayout = Factory(this).contentRoot(main)
+        val factory = Factory(this)
+        val rootLayout = factory.contentRoot(main.generate(factory))
         setContentView(LayoutToAndroidView(this).apply { layout = rootLayout })
         println("Laid out")
 //        rootLayout.layout(Rectangle(0f,0f,400f,400f))

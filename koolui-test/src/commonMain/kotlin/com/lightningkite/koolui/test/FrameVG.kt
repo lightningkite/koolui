@@ -1,6 +1,8 @@
 package com.lightningkite.koolui.test
 
-import com.lightningkite.koolui.builders.text
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
 

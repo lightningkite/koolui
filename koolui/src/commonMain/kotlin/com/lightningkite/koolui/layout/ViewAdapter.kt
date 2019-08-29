@@ -8,3 +8,4 @@ interface ViewAdapter<S: V, V> {
     fun onAddChild(layout: Layout<*, V>){}
     fun onRemoveChild(layout: Layout<*, V>){}
 }
+

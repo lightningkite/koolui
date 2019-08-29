@@ -1,8 +1,8 @@
 package com.lightningkite.koolui.test
 
-import com.lightningkite.koolui.builders.button
-import com.lightningkite.koolui.builders.text
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
 
 class DialogTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Dialogs"

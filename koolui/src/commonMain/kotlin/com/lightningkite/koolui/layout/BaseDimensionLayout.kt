@@ -46,21 +46,19 @@ abstract class BaseDimensionLayout: DimensionLayout {
         if(_needsLayout) return
         _needsLayout = true
         _childNeedsLayout = true
-        parent?.childNeedsLayout(this)
+        parent?.childNeedsLayout(this) ?: onLayoutRequest()
     }
 
     private var previousSize: Float = end - start
     override fun refresh(): Boolean {
         val newSize = size
         if (_needsLayout || abs(previousSize - newSize) > .001) {
-            println("Laying out children for ${this::class}")
             _needsLayout = false
             _childNeedsLayout = false
             previousSize = newSize
             layoutChildren(newSize)
             return true
         } else if (_childNeedsLayout) {
-            println("Passing through ${this::class}")
             var result = false
             for (child in childSequence) {
                 result = child.refresh() || result

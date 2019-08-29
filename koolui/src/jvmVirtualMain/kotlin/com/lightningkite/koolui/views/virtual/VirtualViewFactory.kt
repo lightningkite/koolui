@@ -10,7 +10,7 @@ import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
-import com.lightningkite.koolui.image.ImageWithSizing
+import com.lightningkite.koolui.image.ImageWithOptions
 import com.lightningkite.koolui.views.Touch
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
@@ -51,8 +51,8 @@ open class VirtualViewFactory(
 
     //GENERATED
 
-    override fun button(label: ObservableProperty<String>, imageWithSizing: ObservableProperty<ImageWithSizing?>, importance: Importance, onClick: () -> Unit): ButtonView = ButtonView(label, imageWithSizing, importance, onClick)
-    class ButtonView(var label: ObservableProperty<String>, var imageWithSizing: ObservableProperty<ImageWithSizing?>, var importance: Importance, var onClick: () -> Unit) : View()
+    override fun button(label: ObservableProperty<String>, imageWithOptions: ObservableProperty<ImageWithOptions?>, importance: Importance, onClick: () -> Unit): ButtonView = ButtonView(label, imageWithOptions, importance, onClick)
+    class ButtonView(var label: ObservableProperty<String>, var imageWithOptions: ObservableProperty<ImageWithOptions?>, var importance: Importance, var onClick: () -> Unit) : View()
 
     override fun card(view: View): CardView = CardView(view)
     class CardView(var view: View) : ContainerView(){
@@ -66,8 +66,8 @@ open class VirtualViewFactory(
     override fun dateTimePicker(observable: MutableObservableProperty<DateTime>): DateTimePickerView = DateTimePickerView(observable)
     class DateTimePickerView(var observable: MutableObservableProperty<DateTime>) : View()
 
-    override fun entryContext(label: String, help: String?, icon: ImageWithSizing?, feedback: ObservableProperty<Pair<Importance, String>?>, field: View): EntryContextView = EntryContextView(label, help, icon, feedback, field)
-    class EntryContextView(var label: String, var help: String?, var icon: ImageWithSizing?, var feedback: ObservableProperty<Pair<Importance, String>?>, var field: View)  : ContainerView(){
+    override fun entryContext(label: String, help: String?, icon: ImageWithOptions?, feedback: ObservableProperty<Pair<Importance, String>?>, field: View): EntryContextView = EntryContextView(label, help, icon, feedback, field)
+    class EntryContextView(var label: String, var help: String?, var icon: ImageWithOptions?, var feedback: ObservableProperty<Pair<Importance, String>?>, var field: View)  : ContainerView(){
         override fun listViews(): List<View> = listOf(field)
         init{ listViews().forEach { it.attached.parent = attached } }
     }
@@ -84,11 +84,11 @@ open class VirtualViewFactory(
         init{ listViews().forEach { it.attached.parent = attached } }
     }
 
-    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>): ImageView = ImageView(imageWithSizing)
-    class ImageView(var imageWithSizing: ObservableProperty<ImageWithSizing>) : View()
+    override fun image(imageWithOptions: ObservableProperty<ImageWithOptions>): ImageView = ImageView(imageWithOptions)
+    class ImageView(var imageWithOptions: ObservableProperty<ImageWithOptions>) : View()
 
-    override fun imageButton(imageWithSizing: ObservableProperty<ImageWithSizing>, label: ObservableProperty<String?>, importance: Importance, onClick: () -> Unit): ImageButtonView = ImageButtonView(imageWithSizing, label, importance, onClick)
-    class ImageButtonView(var imageWithSizing: ObservableProperty<ImageWithSizing>, var label: ObservableProperty<String?>, var importance: Importance, var onClick: () -> Unit) : View()
+    override fun imageButton(imageWithOptions: ObservableProperty<ImageWithOptions>, label: ObservableProperty<String?>, importance: Importance, onClick: () -> Unit): ImageButtonView = ImageButtonView(imageWithOptions, label, importance, onClick)
+    class ImageButtonView(var imageWithOptions: ObservableProperty<ImageWithOptions>, var label: ObservableProperty<String?>, var importance: Importance, var onClick: () -> Unit) : View()
 
     override fun <T> list(data: ObservableList<T>, firstIndex: MutableObservableProperty<Int>, lastIndex: MutableObservableProperty<Int>, direction: Direction, makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> View): ListView<T> = ListView(data, firstIndex, lastIndex, direction, makeView)
     class ListView<T>(var data: ObservableList<T>, var firstIndex: MutableObservableProperty<Int>, var lastIndex: MutableObservableProperty<Int>, var direction: Direction, var makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> View)  : ContainerView(){

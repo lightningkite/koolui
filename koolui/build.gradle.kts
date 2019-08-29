@@ -101,11 +101,12 @@ kotlin {
                     api("com.pixplicity.sharp:library:1.1.0")
                     api("com.squareup.picasso:picasso:2.71828")
 
-//                    if(isSyncingIntelliJ) {
-//                        api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
-//                        api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")
-//                        api("com.lightningkite:recktangle-jvm:${versions.getProperty("recktangle")}")
-//                    }
+                    if(isSyncingIntelliJ) {
+                        api("com.lightningkite:kommon-jvm:${versions.getProperty("lokalize")}")
+                        api("com.lightningkite:lokalize-jvm:${versions.getProperty("lokalize")}")
+                        api("com.lightningkite:reacktive-jvm:${versions.getProperty("reacktive")}")
+                        api("com.lightningkite:recktangle-jvm:${versions.getProperty("recktangle")}")
+                    }
 
                     api("com.google.firebase:firebase-messaging:18.0.0")
                 }

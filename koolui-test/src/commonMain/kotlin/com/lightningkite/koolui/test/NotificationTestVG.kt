@@ -4,9 +4,9 @@ import com.lightningkite.lokalize.*
 import com.lightningkite.lokalize.time.*
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.koolui.ApplicationAccess
-import com.lightningkite.koolui.builders.button
-import com.lightningkite.koolui.builders.text
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
 import com.lightningkite.koolui.notification.Notification
 import kotlin.native.concurrent.ThreadLocal
 

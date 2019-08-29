@@ -5,30 +5,27 @@ import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.MousePosition
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.canvas.Canvas
-import com.lightningkite.koolui.canvas.JavaFXCanvas
-import com.lightningkite.koolui.canvas.Paint
+import com.lightningkite.koolui.views.graphics.JavaFXCanvas
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.*
-import com.lightningkite.koolui.image.ImageWithSizing
+import com.lightningkite.koolui.image.ImageWithOptions
 import com.lightningkite.koolui.implementationhelpers.*
+import com.lightningkite.koolui.views.interactive.KeyboardType
+import com.lightningkite.koolui.views.web.ViewFactoryWeb
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
-import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.list.mapping
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
-import com.lightningkite.recktangle.Matrix2D
 import com.lightningkite.recktangle.Point
 import javafx.beans.property.Property
 import javafx.beans.property.ReadOnlyProperty
-import javafx.event.EventHandler
 import javafx.geometry.Insets
-import javafx.geometry.VPos
 import javafx.scene.Node
 import javafx.scene.Parent
 import javafx.scene.Scene
@@ -39,25 +36,22 @@ import javafx.scene.input.MouseButton
 import javafx.scene.layout.*
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Font
-import javafx.scene.text.Text
-import javafx.scene.text.TextAlignment
 import javafx.scene.web.WebView
 import javafx.stage.PopupWindow
 import javafx.stage.Stage
 import javafx.util.StringConverter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.collections.set
 
-data class MaterialJavaFxViewFactory(
-        override val theme: Theme,
-        override val colorSet: ColorSet = theme.main,
+class MaterialJavaFxViewFactory(
+        theme: Theme,
+        colorSet: ColorSet = theme.main,
         val scale: Double = 1.0
-) : ViewFactory<Node> {
+) : ViewFactory<Node>, ViewFactoryWeb<Node>, Themed by Themed.impl(theme, colorSet) {
     override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): Node {
         return javafx.scene.canvas.Canvas().apply {
             val c = JavaFXCanvas(this, scale)
@@ -84,8 +78,6 @@ data class MaterialJavaFxViewFactory(
         set(value) {
             AnyLifecycles[this] = value
         }
-
-    override fun withColorSet(colorSet: ColorSet) = copy(colorSet = colorSet)
 
     val TextSize.javafx
         get() = when (this) {
@@ -244,44 +236,20 @@ data class MaterialJavaFxViewFactory(
     }
 
     override fun imageButton(
-            imageWithSizing: ObservableProperty<ImageWithSizing>,
+            imageWithOptions: ObservableProperty<ImageWithOptions>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
     ) = JFXButton().apply {
         val parent = this
         contentDisplay = ContentDisplay.GRAPHIC_ONLY
-        graphic = image(imageWithSizing).apply {
+        graphic = image(imageWithOptions).apply {
             this.lifecycle.parent = parent.lifecycle
         }
         setOnAction {
             onClick.invoke()
         }
     }
-
-
-    override fun <DEPENDENCY> window(
-            dependency: DEPENDENCY,
-            stack: MutableObservableList<ViewGenerator<DEPENDENCY, Node>>,
-            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, Node>>>
-    ): Node = defaultLargeWindow(
-            theme = theme,
-            barBuilder = withColorSet(theme.bar),
-            dependency = dependency,
-            stack = stack,
-            tabs = tabs
-    )
-
-    override fun <DEPENDENCY> pages(
-            dependency: DEPENDENCY,
-            page: MutableObservableProperty<Int>,
-            vararg pageGenerator: ViewGenerator<DEPENDENCY, Node>
-    ): Node = defaultPages(
-            buttonColor = theme.main.foreground,
-            dependency = dependency,
-            page = page,
-            pageGenerator = *pageGenerator
-    )
 
     override fun tabs(
             options: ObservableList<TabItem>,
@@ -295,7 +263,7 @@ data class MaterialJavaFxViewFactory(
             Tab(
                     it.text,
                     image(
-                            ConstantObservableProperty(it.imageWithSizing)
+                            ConstantObservableProperty(it.imageWithOptions)
                     )
             )
         }.bindToJavaFX(lifecycle, tabs)
@@ -310,22 +278,6 @@ data class MaterialJavaFxViewFactory(
             selectionModel.select(it)
         }
     }
-
-    override fun <T> list(
-            data: ObservableList<T>,
-            firstIndex: MutableObservableProperty<Int>,
-            lastIndex: MutableObservableProperty<Int>,
-            direction: Direction,
-            makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> Node
-    ): Node = defaultList(
-            pageSize = 20,
-            buttonColor = colorSet.foreground,
-            data = data,
-            firstIndex = firstIndex,
-            lastIndex = lastIndex,
-            direction = direction,
-            makeView = makeView
-    )
 
     override fun work(): Node {
         val spinner = JFXSpinner().apply {
@@ -349,8 +301,8 @@ data class MaterialJavaFxViewFactory(
         return bar
     }
 
-    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>) = ImageView().apply {
-        lifecycle.bind(imageWithSizing) {
+    override fun image(imageWithOptions: ObservableProperty<ImageWithOptions>) = ImageView().apply {
+        lifecycle.bind(imageWithOptions) {
             scope.launch(Dispatchers.UI) {
                 it.defaultSize?.x?.times(scale)?.let { this@apply.fitWidth = it }
                 it.defaultSize?.y?.times(scale)?.let { this@apply.fitHeight = it }
@@ -362,7 +314,7 @@ data class MaterialJavaFxViewFactory(
 
     override fun button(
             label: ObservableProperty<String>,
-            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            imageWithOptions: ObservableProperty<ImageWithOptions?>,
             importance: Importance,
             onClick: () -> Unit
     ) = JFXButton().apply {
@@ -381,16 +333,8 @@ data class MaterialJavaFxViewFactory(
         }
     }
 
-    override fun entryContext(
-            label: String,
-            help: String?,
-            icon: ImageWithSizing?,
-            feedback: ObservableProperty<Pair<Importance, String>?>,
-            field: Node
-    ): Node = defaultEntryContext(label, help, icon, feedback, field)
-
     fun toggleButton(
-            imageWithSizing: ObservableProperty<ImageWithSizing?>,
+            imageWithOptions: ObservableProperty<ImageWithOptions?>,
             label: ObservableProperty<String?>,
             value: MutableObservableProperty<Boolean>
     ) = JFXButton().apply {
@@ -811,6 +755,12 @@ data class MaterialJavaFxViewFactory(
         setOnContextMenuRequested {
             onAltClick.invoke()
         }
+    }
+
+    override fun Node.acceptCharacterInput(onCharacter: (Char) -> Unit, keyboardType: KeyboardType): Node {
+        this.isFocusTraversable = true
+        setOnKeyPressed { it.character.firstOrNull()?.let(onCharacter) }
+        return this
     }
 
     override fun launchDialog(

@@ -3,8 +3,12 @@ package com.lightningkite.koolui.views
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.concepts.Animation
 import com.lightningkite.koolui.geometry.AlignPair
+import com.lightningkite.reacktive.property.MutableObservableProperty
+import com.lightningkite.reacktive.property.ObservableProperty
+import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.recktangle.Point
 import javafx.animation.*
+import javafx.beans.property.Property
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.util.Duration
@@ -115,5 +119,20 @@ fun Animation.javaFxIn(node: Node, containerSize: Point): Transition = when (thi
         duration = Duration.millis(animationDuration.toMillis() / 2)
         fromY = 0.0
         toY = 1.0
+    }
+}
+fun <T> ObservableProperty<Boolean>.bindBidirectional(
+        kotlinx: MutableObservableProperty<T>,
+        property: Property<T>
+) {
+    bind(kotlinx) {
+        if (it != property.value) {
+            property.value = it
+        }
+    }
+    property.addListener { observable, oldValue, newValue ->
+        if (newValue != kotlinx.value) {
+            kotlinx.value = newValue
+        }
     }
 }

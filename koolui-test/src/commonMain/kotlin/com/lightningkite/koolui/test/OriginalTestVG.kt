@@ -1,17 +1,17 @@
 package com.lightningkite.koolui.test
 
-import com.lightningkite.koolui.builders.*
 import com.lightningkite.reacktive.property.ConstantObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.reacktive.property.transform
-import com.lightningkite.koolui.builders.image
-import com.lightningkite.koolui.builders.text
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
+import com.lightningkite.koolui.views.graphics.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.image.MaterialIcon
-import com.lightningkite.koolui.image.withSizing
+import com.lightningkite.koolui.image.withOptions
 import com.lightningkite.koolui.image.color
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.reacktive.property.DebugObservableProperty
@@ -30,12 +30,11 @@ class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
 
         vertical {
-
             -text(text = "Header", size = TextSize.Header)
             -text(text = "Subheader", size = TextSize.Subheader)
             -text(text = "Body", size = TextSize.Body)
             -text(text = "Tiny", size = TextSize.Tiny)
-            -image(MaterialIcon.chevronLeft.color(Color.blue).withSizing(Point(48f, 48f)))
+            -image(MaterialIcon.chevronLeft.color(Color.blue).withOptions(Point(48f, 48f)))
             -frame(text(text = "Framed text"))
             -button(label = progress.transform { "Progress: $it" }, onClick = {
                 val currentValue = progress.value
@@ -45,15 +44,16 @@ class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
                     0f
                 }).coerceIn(0f, 1f)
                 progress.value = newValue
-            })
+            }).background(Color.blue)
             -work(text("Done"), progress.transform { it < 1f })
             -progress(text("Done"), progress)
             -button(label = "Debug Info", onClick = {
                 space(2f)
             })
             -button(label = ConstantObservableProperty("Button"), onClick = {
+                println("Number $num")
+                num++
                 stack.value = {
-                    num++
                     text(text = "Number $num", size = TextSize.Header, align = AlignPair.CenterCenter)
                 }
             })
@@ -61,7 +61,7 @@ class OriginalTestVG<VIEW>() : MyViewGenerator<VIEW> {
             +swap(stack.transform {
                 val animValues = Animation.values()
                 it.invoke(dependency) to animValues[num % animValues.size]
-            }, staticViewForSizing = text("asdf"))
+            })
 
         }
     }

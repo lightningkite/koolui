@@ -2,9 +2,9 @@ package com.lightningkite.koolui.test
 
 import com.lightningkite.kommon.string.Uri
 import com.lightningkite.koolui.ExternalAccess
-import com.lightningkite.koolui.builders.button
-import com.lightningkite.koolui.builders.text
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
 
 class OpenUriTestVG<VIEW>() : MyViewGenerator<VIEW> {
     override val title: String = "Open URI Test"

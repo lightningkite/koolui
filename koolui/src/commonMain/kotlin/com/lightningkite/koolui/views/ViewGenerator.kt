@@ -1,6 +1,6 @@
 package com.lightningkite.koolui.views
 
-import com.lightningkite.koolui.builders.space
+import com.lightningkite.koolui.views.layout.space
 
 interface ViewGenerator<in DEPENDENCY, out VIEW> {
     val title: String get() = ""
@@ -18,7 +18,7 @@ interface ViewGenerator<in DEPENDENCY, out VIEW> {
         }
 
         object Empty : ViewGenerator<ViewFactory<Any?>, Any?> {
-            override fun generate(dependency: ViewFactory<Any?>): Any? = dependency.space(0f)
+            override fun generate(dependency: ViewFactory<Any?>): Any? = dependency.space()
         }
 
         @Suppress("UNCHECKED_CAST")

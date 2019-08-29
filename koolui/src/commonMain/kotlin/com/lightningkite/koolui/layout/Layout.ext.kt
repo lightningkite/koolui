@@ -8,6 +8,7 @@ import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.lifecycle.bind
 import com.lightningkite.reacktive.property.lifecycle.listen
+import com.lightningkite.reacktive.property.lifecycle.openCloseBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay

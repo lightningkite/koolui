@@ -107,7 +107,7 @@ actual object ApplicationAccess {
             setIntValues(0, 100)
             duration = 10000L
             repeatCount = ValueAnimator.INFINITE
-            repeatCount = ValueAnimator.RESTART
+            repeatMode = ValueAnimator.RESTART
             addUpdateListener { onAnimationFrame.invokeAll() }
             start()
         }

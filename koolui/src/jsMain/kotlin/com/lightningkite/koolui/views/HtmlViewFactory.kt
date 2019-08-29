@@ -19,6 +19,9 @@ import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.koolui.removeLifecycled
 import com.lightningkite.koolui.toWeb
+import com.lightningkite.koolui.views.interactive.button
+import com.lightningkite.koolui.views.layout.horizontal
+import com.lightningkite.koolui.views.layout.vertical
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
@@ -26,11 +29,9 @@ import com.lightningkite.reacktive.list.MutableObservableList
 import com.lightningkite.reacktive.list.ObservableList
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.reacktive.property.lifecycle.bind
-import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.recktangle.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
@@ -207,7 +208,7 @@ class HtmlViewFactory(
         return swap(options.onListUpdate.transform {
             horizontal {
                 for (option in it) {
-                    +button(label = option.text, imageWithSizing = option.imageWithSizing) {
+                    +button(label = option.text, imageWithSizing = option.imageWithOptions) {
                         selected.value = option
                     }
                 }
@@ -299,8 +300,8 @@ class HtmlViewFactory(
         }
     }
 
-    override fun image(imageWithSizing: ObservableProperty<ImageWithSizing>): HTMLImageElement = makeElement<HTMLImageElement>("img") {
-        lifecycle.bind(imageWithSizing) {
+    override fun image(imageWithOptions: ObservableProperty<ImageWithOptions>): HTMLImageElement = makeElement<HTMLImageElement>("img") {
+        lifecycle.bind(imageWithOptions) {
             it.image.url?.let { url ->
                 src = url
             } ?: it.image.data?.let { data ->
@@ -332,7 +333,7 @@ class HtmlViewFactory(
 
     override fun button(
             label: ObservableProperty<String>,
-            image: ObservableProperty<ImageWithSizing?>,
+            image: ObservableProperty<ImageWithOptions?>,
             importance: Importance,
             onClick: () -> Unit
     ): HTMLButtonElement = makeElement<HTMLButtonElement>("button") {
@@ -346,7 +347,7 @@ class HtmlViewFactory(
 
         val imageNode: HTMLElement by lazy {
             image(image.transform {
-                it ?: MaterialIcon.android.color(Color.white).withSizing()
+                it ?: MaterialIcon.android.color(Color.white).withOptions()
             })
         }
         var isImageAdded = false
@@ -369,7 +370,7 @@ class HtmlViewFactory(
     }
 
     override fun imageButton(
-            image: ObservableProperty<ImageWithSizing>,
+            image: ObservableProperty<ImageWithOptions>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
@@ -410,7 +411,7 @@ class HtmlViewFactory(
     override fun entryContext(
             label: String,
             help: String?,
-            icon: ImageWithSizing?,
+            icon: ImageWithOptions?,
             feedback: ObservableProperty<Pair<Importance, String>?>,
             field: HTMLElement
     ): HTMLElement = defaultEntryContext(label, help, icon, feedback, field)
@@ -654,7 +655,7 @@ class HtmlViewFactory(
             AlignPair.FillFill to contains,
             AlignPair.TopRight to work(
                     imageButton(
-                            imageWithSizing = MaterialIcon.refresh.color(theme.main.foreground).withSizing(
+                            imageWithSizing = MaterialIcon.refresh.color(theme.main.foreground).withOptions(
                                     Point(
                                             24f,
                                             24f
@@ -686,7 +687,7 @@ class HtmlViewFactory(
         </g>
     </g>
 </svg>"""
-            ).withSizing(defaultSize = Point(24f, 24f))
+            ).withOptions(defaultSize = Point(24f, 24f))
     )
 
     override fun scrollVertical(view: HTMLElement, amount: MutableObservableProperty<Float>): HTMLElement =

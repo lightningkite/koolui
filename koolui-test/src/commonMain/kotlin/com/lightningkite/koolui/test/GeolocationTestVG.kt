@@ -2,9 +2,9 @@ package com.lightningkite.koolui.test
 
 import com.lightningkite.koolui.Location
 import com.lightningkite.koolui.async.UI
-import com.lightningkite.koolui.builders.button
-import com.lightningkite.koolui.builders.text
-import com.lightningkite.koolui.builders.vertical
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.interactive.*
+import com.lightningkite.koolui.views.layout.*
 import com.lightningkite.lokalize.location.Geohash
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.reacktive.property.transform

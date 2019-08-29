@@ -1,11 +1,11 @@
 package com.lightningkite.koolui.layout
 
-import com.lightningkite.koolui.builders.space
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.Align
 import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.views.ViewFactory
+import com.lightningkite.koolui.views.layout.space
 import com.lightningkite.reacktive.property.*
 import com.lightningkite.recktangle.Point
 

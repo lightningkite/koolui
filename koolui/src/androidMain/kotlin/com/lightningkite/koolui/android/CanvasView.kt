@@ -5,49 +5,64 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PorterDuff
 import android.view.View
-import com.lightningkite.koolui.async.UI
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-class CanvasView(context: Context): View(context){
+class CanvasView(context: Context) : View(context) {
+
+    companion object {
+        val renderingThreads = ThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors(),
+                Runtime.getRuntime().availableProcessors(),
+                1,
+                TimeUnit.SECONDS,
+                LinkedBlockingQueue<Runnable>()
+        )
+    }
 
     var back: Bitmap? = null
     var front: Bitmap? = null
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        if (front?.width != w || front?.height != h) {
-            front?.recycle()
-            back?.recycle()
-            front = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            back = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            startRender()
-        }
+        startRender()
     }
 
     val canvas = Canvas()
     val stage = AtomicInteger(0)
-    var render: Canvas.()->Unit = {}
-        set(value){
+    var render: Canvas.() -> Unit = {}
+        set(value) {
             field = value
             startRender()
         }
 
+    var renderRequested = false
     fun startRender() {
-        invalidate()
-        val bitmap = back ?: return
+        renderRequested = true
+        if(width == 0 || height == 0) return
         if (stage.compareAndSet(0, 1)) {
-            GlobalScope.launch(Dispatchers.Default) {
+            renderRequested = false
+            renderingThreads.execute {
+                val existingBack = back
+                val bitmap = if(existingBack != null && existingBack.width == width && existingBack.height == height){
+                    existingBack
+                } else {
+                    existingBack?.recycle()
+                    val updated = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    back = updated
+                    updated
+                }
+                back = null
                 canvas.setBitmap(bitmap)
                 canvas.drawColor(0x0, PorterDuff.Mode.CLEAR)
                 canvas.render()
                 canvas.setBitmap(null)
-                launch(Dispatchers.UI){
-                    val swap = front
-                    front = back
-                    back = swap
+                post {
+                    back = front
+                    front = bitmap
                     stage.compareAndSet(1, 2)
+                    invalidate()
                 }
             }
         }
@@ -57,5 +72,8 @@ class CanvasView(context: Context): View(context){
         val front = front ?: return
         canvas.drawBitmap(front, 0f, 0f, null)
         stage.compareAndSet(2, 0)
+        if(renderRequested){
+            startRender()
+        }
     }
 }

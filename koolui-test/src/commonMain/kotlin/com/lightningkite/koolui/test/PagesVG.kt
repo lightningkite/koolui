@@ -1,8 +1,8 @@
 package com.lightningkite.koolui.test
 
 import com.lightningkite.reacktive.property.StandardObservableProperty
-import com.lightningkite.koolui.builders.pagesEmbedded
-import com.lightningkite.koolui.builders.text
+import com.lightningkite.koolui.views.basic.*
+import com.lightningkite.koolui.views.navigation.*
 import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.concepts.TextSize
 import com.lightningkite.koolui.geometry.AlignPair
