@@ -29,3 +29,7 @@ fun <T : HTMLElement> HTMLElement.appendLifecycled(name: String, setup: T.() -> 
 @Suppress("UNCHECKED_CAST")
 fun <T : HTMLElement> makeElement(name: String, setup: T.() -> Unit): T =
     document.createElement(name).let { it as T }.apply(setup)
+
+@Suppress("UNCHECKED_CAST")
+fun <T : HTMLElement> makeElement(name: String): T =
+    document.createElement(name).let { it as T }

@@ -3,7 +3,6 @@ package com.lightningkite.koolui.views
 import com.lightningkite.kommon.asInt8Array
 import com.lightningkite.koolui.appendLifecycled
 import com.lightningkite.koolui.async.UI
-import com.lightningkite.koolui.builders.*
 import com.lightningkite.koolui.canvas.Canvas
 import com.lightningkite.koolui.canvas.HtmlCanvas
 import com.lightningkite.koolui.color.Color
@@ -19,9 +18,16 @@ import com.lightningkite.koolui.image.Image
 import com.lightningkite.koolui.implementationhelpers.*
 import com.lightningkite.koolui.removeLifecycled
 import com.lightningkite.koolui.toWeb
+import com.lightningkite.koolui.views.basic.image
+import com.lightningkite.koolui.views.basic.text
+import com.lightningkite.koolui.views.basic.work
+import com.lightningkite.koolui.views.interactive.KeyboardType
+import com.lightningkite.koolui.views.interactive.ViewFactoryInteractiveDefault
 import com.lightningkite.koolui.views.interactive.button
+import com.lightningkite.koolui.views.interactive.imageButton
 import com.lightningkite.koolui.views.layout.horizontal
 import com.lightningkite.koolui.views.layout.vertical
+import com.lightningkite.koolui.views.navigation.ViewFactoryNavigationDefault
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
@@ -49,9 +55,16 @@ import kotlin.dom.addClass
  * If you don't have external CSS, you can have it auto inserted using TODO.
  */
 class HtmlViewFactory(
-        override val theme: Theme,
-        override val colorSet: ColorSet = theme.main
-) : ViewFactory<HTMLElement> {
+        theme: Theme,
+        colorSet: ColorSet = theme.main
+) : ViewFactory<HTMLElement>,
+        ViewFactoryNavigationDefault<HTMLElement>,
+        ViewFactoryInteractiveDefault<HTMLElement>,
+        Themed by Themed.impl(theme, colorSet) {
+
+    override fun HTMLElement.acceptCharacterInput(onCharacter: (Char) -> Unit, keyboardType: KeyboardType): HTMLElement {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun canvas(draw: ObservableProperty<Canvas.() -> Unit>): HTMLElement {
         return makeElement<HTMLCanvasElement>("canvas") {
@@ -164,8 +177,6 @@ class HtmlViewFactory(
             AnyLifecycles[this] = value
         }
 
-    override fun withColorSet(colorSet: ColorSet) = HtmlViewFactory(theme, colorSet)
-
     fun <T : HTMLElement> makeElement(name: String, setup: T.() -> Unit): T {
         return document.createElement(name).let { it as T }.apply(setup).also { it.addClass(colorSetClass) }
     }
@@ -186,51 +197,6 @@ class HtmlViewFactory(
         this.lifecycle.alwaysOn = true
     }
 
-
-    override fun <DEPENDENCY> window(
-            dependency: DEPENDENCY,
-            stack: MutableObservableList<ViewGenerator<DEPENDENCY, HTMLElement>>,
-            tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, HTMLElement>>>
-    ): HTMLElement = defaultLargeWindow(theme, withColorSet(theme.bar), dependency, stack, tabs)
-
-    override fun <DEPENDENCY> pages(
-            dependency: DEPENDENCY,
-            page: MutableObservableProperty<Int>,
-            vararg pageGenerator: ViewGenerator<DEPENDENCY, HTMLElement>
-    ): HTMLElement = defaultPages(
-            buttonColor = theme.main.foreground,
-            dependency = dependency,
-            page = page,
-            pageGenerator = *pageGenerator
-    )
-
-    override fun tabs(options: ObservableList<TabItem>, selected: MutableObservableProperty<TabItem>): HTMLElement {
-        return swap(options.onListUpdate.transform {
-            horizontal {
-                for (option in it) {
-                    +button(label = option.text, imageWithSizing = option.imageWithOptions) {
-                        selected.value = option
-                    }
-                }
-            } to Animation.Fade
-        })
-    }
-
-    override fun <T> list(
-            data: ObservableList<T>,
-            firstIndex: MutableObservableProperty<Int>,
-            lastIndex: MutableObservableProperty<Int>,
-            direction: Direction,
-            makeView: (item: ObservableProperty<T>, index: ObservableProperty<Int>) -> HTMLElement
-    ): HTMLElement = defaultList(
-            pageSize = 20,
-            buttonColor = colorSet.foreground,
-            data = data,
-            firstIndex = firstIndex,
-            lastIndex = lastIndex,
-            direction = direction,
-            makeView = makeView
-    )
 
     override fun text(
             text: ObservableProperty<String>,
@@ -324,8 +290,6 @@ class HtmlViewFactory(
         }
     }
 
-    override fun web(content: ObservableProperty<String>): HTMLElement = TODO()
-
     override fun space(size: Point): HTMLElement = makeElement<HTMLDivElement>("div") {
         style.width = size.x.toString() + "px"
         style.height = size.y.toString() + "px"
@@ -341,8 +305,9 @@ class HtmlViewFactory(
         addClass(importance.toCssClass())
         type = "button"
 
-        val textNode: HTMLElement =
-                with(withColorSet(theme.importance(importance))) { text(label, importance, align = AlignPair.CenterCenter) }
+        val textNode: HTMLElement = usingColorSet(theme.importance(importance)){
+            text(label, importance, align = AlignPair.CenterCenter)
+        }
         appendLifecycled(textNode)
 
         val imageNode: HTMLElement by lazy {
@@ -382,7 +347,7 @@ class HtmlViewFactory(
         appendLifecycled(imageNode)
 
         val textNode: HTMLElement by lazy {
-            with(withColorSet(theme.importance(importance))) {
+            usingColorSet(theme.importance(importance)) {
                 text(label.transform {
                     it ?: ""
                 }, importance, align = AlignPair.CenterCenter)
@@ -407,14 +372,6 @@ class HtmlViewFactory(
             onClick.invoke()
         }
     }
-
-    override fun entryContext(
-            label: String,
-            help: String?,
-            icon: ImageWithOptions?,
-            feedback: ObservableProperty<Pair<Importance, String>?>,
-            field: HTMLElement
-    ): HTMLElement = defaultEntryContext(label, help, icon, feedback, field)
 
     override fun <T> picker(
             options: ObservableList<T>,
@@ -655,7 +612,7 @@ class HtmlViewFactory(
             AlignPair.FillFill to contains,
             AlignPair.TopRight to work(
                     imageButton(
-                            imageWithSizing = MaterialIcon.refresh.color(theme.main.foreground).withOptions(
+                            imageWithOptions = MaterialIcon.refresh.color(theme.main.foreground).withOptions(
                                     Point(
                                             24f,
                                             24f
