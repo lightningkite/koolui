@@ -63,10 +63,10 @@ interface LayoutJavaFxBasic: ViewFactoryBasic<Layout<*, Node>>, LayoutViewWrappe
     override fun image(imageWithOptions: ObservableProperty<ImageWithOptions>): Layout<*, Node> = intrinsicLayout(ImageView()) { layout ->
         layout.isAttached.bind(imageWithOptions) {
             layout.isAttached.scope.launch(Dispatchers.UI) {
-                it.defaultSize?.x?.times(scale)?.let { this@wrapWithLayout.fitWidth = it }
-                it.defaultSize?.y?.times(scale)?.let { this@wrapWithLayout.fitHeight = it }
+                it.defaultSize?.x?.times(scale)?.let { this@intrinsicLayout.fitWidth = it }
+                it.defaultSize?.y?.times(scale)?.let { this@intrinsicLayout.fitHeight = it }
                 //TODO: Scale type
-                this@wrapWithLayout.image = it.image.get(scale.toFloat(), it.defaultSize)
+                this@intrinsicLayout.image = it.image.get(scale.toFloat(), it.defaultSize)
 
                 layout.requestMeasurement()
             }

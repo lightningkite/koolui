@@ -17,7 +17,7 @@
 //import com.lightningkite.koolui.geometry.AlignPair
 //import com.lightningkite.koolui.geometry.Direction
 //import com.lightningkite.koolui.geometry.LinearPlacement
-//import com.lightningkite.koolui.image.ImageWithSizing
+//import com.lightningkite.koolui.image.imageWithOptions
 //import com.lightningkite.koolui.views.ViewFactory
 //import com.lightningkite.koolui.views.ViewGenerator
 //import com.lightningkite.koolui.views.virtual.View

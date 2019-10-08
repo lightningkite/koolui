@@ -297,7 +297,7 @@ class HtmlViewFactory(
 
     override fun button(
             label: ObservableProperty<String>,
-            image: ObservableProperty<ImageWithOptions?>,
+            imageWithOptions: ObservableProperty<ImageWithOptions?>,
             importance: Importance,
             onClick: () -> Unit
     ): HTMLButtonElement = makeElement<HTMLButtonElement>("button") {
@@ -311,12 +311,12 @@ class HtmlViewFactory(
         appendLifecycled(textNode)
 
         val imageNode: HTMLElement by lazy {
-            image(image.transform {
+            image(imageWithOptions.transform {
                 it ?: MaterialIcon.android.color(Color.white).withOptions()
             })
         }
         var isImageAdded = false
-        lifecycle.bind(image) {
+        lifecycle.bind(imageWithOptions) {
             if (it == null) {
                 if (isImageAdded) {
                     removeLifecycled(imageNode)
@@ -335,7 +335,7 @@ class HtmlViewFactory(
     }
 
     override fun imageButton(
-            image: ObservableProperty<ImageWithOptions>,
+            imageWithOptions: ObservableProperty<ImageWithOptions>,
             label: ObservableProperty<String?>,
             importance: Importance,
             onClick: () -> Unit
@@ -343,7 +343,7 @@ class HtmlViewFactory(
         addClass(importance.toCssClass(), "ImageFocused")
         type = "button"
 
-        val imageNode: HTMLElement = image(image)
+        val imageNode: HTMLElement = image(imageWithOptions)
         appendLifecycled(imageNode)
 
         val textNode: HTMLElement by lazy {

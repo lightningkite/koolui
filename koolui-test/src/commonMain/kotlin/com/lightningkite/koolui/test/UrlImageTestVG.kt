@@ -10,11 +10,11 @@ import io.ktor.client.call.call
 import io.ktor.client.response.readBytes
 
 class UrlImageTestVG<VIEW>() : MyViewGenerator<VIEW> {
-    override val title: String = "URL ImageWithSizing Test"
+    override val title: String = "URL imageWithOptions Test"
 
     override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
         vertical {
-            -text(text = "An imageWithSizing will be loaded here from 'https://picsum.photos/200/300'.")
+            -text(text = "An imageWithOptions will be loaded here from 'https://picsum.photos/200/300'.")
             -loadingImage { Image.fromByteArray(HttpClient().call("https://picsum.photos/200/300").response.readBytes()).withOptions() }
         }
     }

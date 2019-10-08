@@ -11,9 +11,11 @@ import com.lightningkite.koolui.geometry.AlignPair
 import com.lightningkite.koolui.geometry.Direction
 import com.lightningkite.koolui.geometry.LinearPlacement
 import com.lightningkite.koolui.image.ImageWithOptions
+import com.lightningkite.koolui.views.Themed
 import com.lightningkite.koolui.views.Touch
 import com.lightningkite.koolui.views.ViewFactory
 import com.lightningkite.koolui.views.ViewGenerator
+import com.lightningkite.koolui.views.interactive.KeyboardType
 import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.time.DateTime
 import com.lightningkite.lokalize.time.Time
@@ -28,10 +30,12 @@ import com.lightningkite.reacktive.property.lifecycle.listen
 import com.lightningkite.recktangle.Point
 
 open class VirtualViewFactory(
-        override val theme: Theme = Theme(),
-        override val colorSet: ColorSet = theme.main
-) : ViewFactory<View> {
-    override fun withColorSet(colorSet: ColorSet): VirtualViewFactory = VirtualViewFactory(theme, colorSet)
+        theme: Theme = Theme(),
+        colorSet: ColorSet = theme.main
+) : ViewFactory<View>, Themed by Themed.impl(theme, colorSet) {
+    override fun View.acceptCharacterInput(onCharacter: (Char) -> Unit, keyboardType: KeyboardType): View = AcceptCharacterInputView(this, onCharacter, keyboardType)
+    class AcceptCharacterInputView(var receiver: View, var onCharacter: (Char) -> Unit, var keyboardType: KeyboardType) : View()
+
 
     override val View.lifecycle: ObservableProperty<Boolean> get() = this.attached
 
@@ -205,9 +209,6 @@ open class VirtualViewFactory(
         override fun listViews(): List<View> = views.map { it.second }
         init{ listViews().forEach { it.attached.parent = attached } }
     }
-
-    override fun web(content: ObservableProperty<String>): WebView = WebView(content)
-    class WebView(var content: ObservableProperty<String>) : View()
 
     override fun <DEPENDENCY> window(dependency: DEPENDENCY, stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>, tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>): WindowView<DEPENDENCY> = WindowView(dependency, stack, tabs)
     class WindowView<DEPENDENCY>(var dependency: DEPENDENCY, var stack: MutableObservableList<ViewGenerator<DEPENDENCY, View>>, var tabs: List<Pair<TabItem, ViewGenerator<DEPENDENCY, View>>>): ContainerView(){

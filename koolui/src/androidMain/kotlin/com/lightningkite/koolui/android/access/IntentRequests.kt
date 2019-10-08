@@ -46,7 +46,7 @@ fun ActivityAccess.intentCamera(
 ) {
 
     val file = folder
-        .let { File.createTempFile("imageWithSizing", ".jpg", it) }
+        .let { File.createTempFile("imageWithOptions", ".jpg", it) }
         .let { FileProvider.getUriForFile(context, fileProviderAuthority, it) }
     intentCameraRaw(file, callback)
 }

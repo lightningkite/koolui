@@ -12,7 +12,7 @@
 //import com.lightningkite.koolui.geometry.Align
 //import com.lightningkite.koolui.geometry.AlignPair
 //import com.lightningkite.koolui.geometry.Direction
-//import com.lightningkite.koolui.image.ImageWithSizing
+//import com.lightningkite.koolui.image.imageWithOptions
 //import com.lightningkite.koolui.image.MaterialIcon
 //import com.lightningkite.koolui.image.withSizing
 //import com.lightningkite.koolui.image.color
@@ -31,7 +31,7 @@
 //fun <VIEW> ViewFactory<VIEW>.defaultEntryContext(
 //        label: String,
 //        help: String?,
-//        icon: ImageWithSizing?,
+//        icon: imageWithOptions?,
 //        feedback: ObservableProperty<Pair<Importance, String>?>,
 //        field: VIEW
 //) = horizontal {
@@ -151,7 +151,7 @@
 //        })
 //        -align {
 //            AlignPair.BottomLeft - imageButton(
-//                    imageWithSizing = ConstantObservableProperty(
+//                    imageWithOptions = ConstantObservableProperty(
 //                            MaterialIcon.chevronLeft.color(buttonColor).withSizing(
 //                                    Point(
 //                                            24f,
@@ -177,7 +177,7 @@
 //                    size = TextSize.Tiny
 //            )
 //            AlignPair.BottomRight - imageButton(
-//                    imageWithSizing = ConstantObservableProperty(
+//                    imageWithOptions = ConstantObservableProperty(
 //                            MaterialIcon.chevronRight.color(buttonColor).withSizing(
 //                                    Point(
 //                                            24f,
@@ -210,7 +210,7 @@
 //        horizontal {
 //            defaultAlign = Align.Center
 //            -imageButton(
-//                    imageWithSizing = ConstantObservableProperty(
+//                    imageWithOptions = ConstantObservableProperty(
 //                            MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
 //                                    Point(
 //                                            24f,
@@ -241,7 +241,7 @@
 //        +horizontal {
 //            -scrollVertical(vertical {
 //                for (tab in tabs) {
-//                    -button(tab.first.text, tab.first.imageWithSizing, importance = Importance.Low) {
+//                    -button(tab.first.text, tab.first.imageWithOptions, importance = Importance.Low) {
 //                        stack.reset(tab.second)
 //                    }
 //                }
@@ -266,7 +266,7 @@
 //        frame(horizontal {
 //            defaultAlign = Align.Center
 //            -imageButton(
-//                    imageWithSizing = ConstantObservableProperty(
+//                    imageWithOptions = ConstantObservableProperty(
 //                            MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
 //                                    Point(
 //                                            24f,
@@ -296,7 +296,7 @@
 //    if (!tabs.isEmpty()) {
 //        -frame(horizontal {
 //            for (tab in tabs) {
-//                +button(tab.first.text, tab.first.imageWithSizing) {
+//                +button(tab.first.text, tab.first.imageWithOptions) {
 //                    stack.reset(tab.second)
 //                }
 //            }
@@ -353,7 +353,7 @@
 //fun <VIEW> ViewFactory<VIEW>.defaultRefresh(view: VIEW, working: ObservableProperty<Boolean>, onRefresh: () -> Unit) = align {
 //    AlignPair.FillFill - view
 //    AlignPair.TopRight - work(imageButton(
-//            imageWithSizing = MaterialIcon.refresh.color(colorSet.foreground).withSizing(),
+//            imageWithOptions = MaterialIcon.refresh.color(colorSet.foreground).withSizing(),
 //            onClick = onRefresh
 //    ), working)
 //}
@@ -377,7 +377,7 @@
 //    })
 //    -align {
 //        AlignPair.BottomLeft - imageButton(
-//                imageWithSizing = ConstantObservableProperty(
+//                imageWithOptions = ConstantObservableProperty(
 //                        MaterialIcon.chevronLeft.color(buttonColor).withSizing(
 //                                Point(24f, 24f)
 //                        )
@@ -389,7 +389,7 @@
 //                size = TextSize.Tiny
 //        )
 //        AlignPair.BottomRight - imageButton(
-//                imageWithSizing = ConstantObservableProperty(
+//                imageWithOptions = ConstantObservableProperty(
 //                        MaterialIcon.chevronRight.color(
 //                                buttonColor
 //                        ).withSizing(Point(24f, 24f))
@@ -406,7 +406,7 @@
 //) = swap(options.onListUpdate.transform {
 //    horizontal {
 //        for (option in it) {
-//            val view = imageButton(option.imageWithSizing, option.text, Importance.Low) {
+//            val view = imageButton(option.imageWithOptions, option.text, Importance.Low) {
 //                selected.value = option
 //            }.alpha(CombineObservableProperty2(selected, option.enabled) { selectedOption, isEnabled ->
 //                if (!isEnabled) .4f else if (option == selectedOption) 1f else 0.7f

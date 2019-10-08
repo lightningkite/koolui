@@ -84,7 +84,7 @@ class UIKitViewFactory(
                         onClick = { if (stack.size > 1) stack.pop() }
                 ).alpha(stack.onListUpdate.transform { if (it.size > 1) 1f else 0f })
 //                -imageButton(
-//                        imageWithSizing = ConstantObservableProperty(
+//                        imageWithOptions = ConstantObservableProperty(
 //                                MaterialIcon.arrowBack.color(theme.bar.foreground).withSizing(
 //                                        Point(
 //                                                24f,
@@ -895,8 +895,8 @@ class UIKitViewFactory(
             setItems(items = it.mapIndexed { index, it ->
                 UITabBarItem(
                         title = it.text,
-                        image = it.imageWithSizing.image.image,
-                        selectedImage = it.imageWithSizing.image.image
+                        image = it.imageWithOptions.image.image,
+                        selectedImage = it.imageWithOptions.image.image
                 ).apply {
                     this.tag = index.toLong()
                 }
