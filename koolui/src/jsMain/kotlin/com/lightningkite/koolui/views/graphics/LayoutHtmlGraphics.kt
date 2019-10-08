@@ -16,6 +16,7 @@ interface LayoutHtmlGraphics : ViewFactoryGraphics<Layout<*, HTMLElement>>, Layo
         return intrinsicLayout(makeElement<HTMLCanvasElement>("canvas")) { layout ->
             val c = HtmlCanvas(this)
             layout.isAttached.bind(draw) {
+                c.ctx.clearRect(0.0, 0.0, c.element.width.toDouble(), c.element.height.toDouble())
                 it(c)
             }
         }
