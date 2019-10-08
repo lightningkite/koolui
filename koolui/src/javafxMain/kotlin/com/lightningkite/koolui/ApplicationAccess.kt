@@ -7,8 +7,12 @@ import com.lightningkite.reacktive.invokeAll
 import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.reacktive.property.StandardObservableProperty
 import com.lightningkite.recktangle.Point
+import javafx.animation.AnimationTimer
+import javafx.animation.KeyFrame
+import javafx.animation.Timeline
 import javafx.application.Platform
 import javafx.stage.Stage
+import javafx.util.Duration
 import java.awt.Desktop
 import java.net.URI
 import java.util.*
@@ -24,6 +28,20 @@ actual object ApplicationAccess {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             onException.invokeAll(throwable)
         }
+        stage.widthProperty().addListener { _, _, it ->
+            displaySizePrivate.value = displaySizePrivate.value.copy(x = it.toFloat())
+        }
+        stage.heightProperty().addListener { _, _, it ->
+            displaySizePrivate.value = displaySizePrivate.value.copy(y = it.toFloat())
+        }
+    }
+
+    init {
+        object : AnimationTimer() {
+            override fun handle(now: Long) {
+                onAnimationFramePrivate.invokeAll()
+            }
+        }.start()
     }
 
     //TODO: Listen
@@ -49,7 +67,6 @@ actual object ApplicationAccess {
     val onBackPressedPrivate = ArrayList<() -> Boolean>()
     actual val onBackPressed: MutableList<() -> Boolean> get() = onBackPressedPrivate
 
-    //TODO: run every 60th of a second
     val onAnimationFramePrivate = ArrayList<() -> Unit>()
     actual val onAnimationFrame: MutableCollection<() -> Unit> get() = onAnimationFramePrivate
 

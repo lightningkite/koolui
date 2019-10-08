@@ -13,6 +13,7 @@ import com.lightningkite.recktangle.Point
 class CanvasTestVG<VIEW> : MyViewGenerator<VIEW> {
     val frameNumber = StandardObservableProperty(0)
     override fun generate(dependency: MyViewFactory<VIEW>): VIEW = with(dependency) {
+        println("Making canvas...")
         canvas(frameNumber.transform {
             fun Canvas.() {
                 val w = size.x / 100

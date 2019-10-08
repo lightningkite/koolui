@@ -41,6 +41,8 @@ interface LayoutJavaFxInteractive: ViewFactoryInteractiveDefault<Layout<*, Node>
             val colorSet = theme.importance(importance)
             background = Background(BackgroundFill(colorSet.background.toJavaFX(), CornerRadii.EMPTY, Insets.EMPTY))
             textFill = colorSet.foreground.toJavaFX()
+        } else {
+            textFill = colorSet.foreground.toJavaFX()
         }
         font = Font.font(TextSize.Body.javafx)
         layout.isAttached.bind(label) {
