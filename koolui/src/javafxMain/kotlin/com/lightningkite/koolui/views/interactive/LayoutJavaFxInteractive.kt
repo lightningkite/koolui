@@ -1,6 +1,7 @@
 package com.lightningkite.koolui.views.interactive
 
 import com.jfoenix.controls.*
+import com.lightningkite.koolui.ApplicationAccess
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.async.scope
 import com.lightningkite.koolui.concepts.Importance
@@ -68,7 +69,7 @@ interface LayoutJavaFxInteractive: ViewFactoryInteractiveDefault<Layout<*, Node>
         graphic = g
 
         layout.isAttached.bind(imageWithOptions) {
-            layout.isAttached.scope.launch(Dispatchers.UI) {
+            ApplicationAccess.post {
                 it.defaultSize?.x?.times(scale)?.let { g.fitWidth = it }
                 it.defaultSize?.y?.times(scale)?.let { g.fitHeight = it }
                 //TODO: Scale type

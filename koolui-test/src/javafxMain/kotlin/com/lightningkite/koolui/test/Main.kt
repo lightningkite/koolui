@@ -6,7 +6,13 @@ import com.lightningkite.koolui.*
 import com.lightningkite.koolui.async.UI
 import com.lightningkite.koolui.layout.Layout
 import com.lightningkite.koolui.layout.forceHeight
+import com.lightningkite.koolui.layout.views.LayoutVFRootAndDialogs
+import com.lightningkite.koolui.views.basic.LayoutJavaFxBasic
 import com.lightningkite.koolui.views.basic.text
+import com.lightningkite.koolui.views.graphics.LayoutJavaFxGraphics
+import com.lightningkite.koolui.views.interactive.LayoutJavaFxInteractive
+import com.lightningkite.koolui.views.layout.LayoutJavaFxLayout
+import com.lightningkite.koolui.views.navigation.ViewFactoryNavigationDefault
 import com.lightningkite.koolui.views.root.contentRoot
 import javafx.application.Application
 import javafx.scene.Node
@@ -26,30 +32,28 @@ class Main : Application() {
         val mainVg = MainVG<Layout<*, Node>>()
     }
 
-    class Factory(val basedOn: LayoutJavaFxViewFactory = LayoutJavaFxViewFactory(theme)) : MyViewFactory<Layout<*, Node>>, ViewFactory<Layout<*, Node>> by basedOn
+    //Here, you pick out what GUI modules you want to use
+    class Factory(
+            theme: Theme = myTheme,
+            colorSet: ColorSet = theme.main,
+            override val scale: Double = 1.0
+    ) : MyViewFactory<Layout<*, Node>>,
+            HasScale,
+            Themed by Themed.impl(theme, colorSet),
+            LayoutJavaFxBasic /*ViewFactoryBasic*/,
+            LayoutJavaFxInteractive /*ViewFactoryInteractive*/,
+            LayoutJavaFxGraphics /*ViewFactoryGraphics*/,
+            LayoutJavaFxLayout /*ViewFactoryLayout*/,
+            ViewFactoryNavigationDefault<Layout<*, Node>> /*ViewFactoryNavigation*/,
+            LayoutVFRootAndDialogs<Node> /*ViewFactoryDialogs*/,
+            JavaFxLayoutWrapper /*ViewLayoutWrapper*/ {
+        override var root: Layout<*, Node>? = null
+    }
 
     override fun start(primaryStage: Stage) {
         ApplicationAccess.init(Main::class.java.classLoader, primaryStage)
-        val root = with(Factory()) { basedOn.nativeViewAdapter(contentRoot(mainVg)) }
-//        val root = with(Factory()) { basedOn.nativeViewAdapter(scrollVertical(text("asdf").setHeight(800f))) }
+        val root = with(Factory()) { nativeViewAdapter(contentRoot(mainVg)) }
         primaryStage.scene = Scene(root)
-//        GlobalScope.launch(Dispatchers.UI) {
-//            while (true) {
-//                delay(3000)
-//                fun Node.asdf(spaces: Int = 0) {
-//                    println("${" ".repeat(spaces)}${this::class.java.simpleName} - ${(this as? Region)?.layoutX} ${(this as? Region)?.layoutY} ${(this as? Region)?.width} ${(this as? Region)?.height}")
-//                    if (this is Label) {
-//                        println("${" ".repeat(spaces)} Label text: ${this.text}")
-//                    }
-//                    if (this is Parent) {
-//                        for (child in this.childrenUnmodifiable) {
-//                            child.asdf(spaces = spaces + 1)
-//                        }
-//                    }
-//                }
-//                root.asdf()
-//            }
-//        }
         primaryStage.show()
     }
 }

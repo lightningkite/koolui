@@ -22,7 +22,11 @@ class LinearDimensionLayout(
     }
 
     override fun layoutChildren(size: Float) {
-        val spaceToDistribute = size - measurement.size
+        val measurementWithoutWeighted = children.zipWithNext().map {
+            max(it.first.second.measurement.endMargin, it.second.second.measurement.startMargin)
+        }.sum() + children.filter { it.first == 0f }.map { it.second.measurement.size }.sum()
+
+        val spaceToDistribute = size - measurementWithoutWeighted
         val distributionDivisor = children.map { it.first }.sum().coerceAtLeast(1f)
         var position = 0f
         var previousRequestedSpace = -1f
@@ -32,7 +36,11 @@ class LinearDimensionLayout(
                 position += max(previousRequestedSpace, child.measurement.startMargin)
             }
 
-            val subsize = (weight / distributionDivisor) * spaceToDistribute + child.measurement.size
+            val subsize = if (weight == 0f)
+                child.measurement.size
+            else
+                (weight / distributionDivisor) * spaceToDistribute
+
             child.layout(position, position + subsize)
             position += subsize
 

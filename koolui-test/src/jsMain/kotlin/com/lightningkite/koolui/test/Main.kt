@@ -15,7 +15,7 @@ class LayoutFactory(
 
 class Factory(
         colorSet: ColorSet = theme.main
-) : MyViewFactory<HTMLElement>, ViewFactory<HTMLElement> by HtmlViewFactory(theme, colorSet)
+) : MyViewFactory<HTMLElement>, ViewFactory<HTMLElement> by HtmlViewFactory(myTheme, colorSet)
 
 fun main(args: Array<String>) {
     window.onload = {

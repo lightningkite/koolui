@@ -1,6 +1,8 @@
 package com.lightningkite.koolui.views.layout
 
+import com.lightningkite.koolui.layout.FrameDimensionLayout
 import com.lightningkite.koolui.layout.Layout
+import com.lightningkite.koolui.layout.ScrollDimensionLayout
 import com.lightningkite.koolui.layout.views.LayoutVFLayout
 import com.lightningkite.koolui.layout.views.LayoutViewWrapper
 import com.lightningkite.koolui.layout.views.intrinsicLayout
@@ -10,7 +12,11 @@ import javafx.scene.Node
 import javafx.scene.control.ScrollPane
 
 interface LayoutJavaFxLayout : LayoutVFLayout<Node>, LayoutViewWrapper<Node> {
-    override fun scrollVertical(view: Layout<*, Node>, amount: MutableObservableProperty<Float>): Layout<*, Node> = intrinsicLayout(ScrollPane(nativeViewAdapter(view))) { layout ->
+
+    override fun scrollVertical(
+            view: Layout<*, Node>,
+            amount: MutableObservableProperty<Float>
+    ): Layout<*, Node> = intrinsicLayout(ScrollPane(nativeViewAdapter(view))) { layout ->
         hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
         vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
         style = "-fx-background-color: transparent; -fx-background: transparent;"

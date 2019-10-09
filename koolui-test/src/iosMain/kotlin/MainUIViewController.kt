@@ -6,12 +6,10 @@ import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.color.Theme
 import com.lightningkite.koolui.layout.Layout
 import com.lightningkite.koolui.views.ViewFactory
-import com.lightningkite.koolui.views.ViewGenerator
 import com.lightningkite.koolui.views.ios.ClosureSleeve
 import com.lightningkite.koolui.views.ios.LayoutRootView
 import com.lightningkite.koolui.views.ios.UIKitViewFactory
 import com.lightningkite.koolui.views.ios.zeroVal
-import com.lightningkite.reacktive.property.ObservableProperty
 import com.lightningkite.recktangle.Point
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.useContents
@@ -50,7 +48,7 @@ class MainUIViewController : UIViewController {
 
     fun commonInit() {
         view = LayoutRootView(CGRect.zeroVal).apply {
-            setup(Factory(theme, theme.main).contentRoot(main))
+            setup(Factory(myTheme, myTheme.main).contentRoot(main))
         }
     }
 

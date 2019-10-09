@@ -28,6 +28,13 @@ interface JavaFxLayoutWrapper : LayoutViewWrapper<Node> {
             wraps.y.onLayoutRequest = {
                 this.requestLayout()
             }
+
+            ApplicationAccess.post {
+                ApplicationAccess.post {
+                    this.requestLayout()
+                    wraps.requestMeasurement()
+                }
+            }
         }
 
         override fun layoutChildren() {
@@ -92,11 +99,11 @@ interface JavaFxLayoutWrapper : LayoutViewWrapper<Node> {
     override fun intrinsicDimensionLayouts(view: Node): LeafDimensionLayouts {
         return object : LeafDimensionLayouts() {
             override fun measureX(output: Measurement) {
-                output.size = view.prefWidth(0.0).toFloat()
+                output.size = view.prefWidth(10000.0).toFloat() + 1f
             }
 
             override fun measureY(xSize: Float, output: Measurement) {
-                output.size = view.prefHeight(xSize.toDouble()).toFloat()
+                output.size = view.prefHeight(xSize.toDouble()).toFloat() + 1f
             }
         }
     }

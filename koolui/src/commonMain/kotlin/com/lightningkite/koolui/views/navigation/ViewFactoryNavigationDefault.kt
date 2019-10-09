@@ -2,6 +2,7 @@ package com.lightningkite.koolui.views.navigation
 
 import com.lightningkite.kommon.collection.pop
 import com.lightningkite.kommon.collection.reset
+import com.lightningkite.koolui.color.Color
 import com.lightningkite.koolui.color.ColorSet
 import com.lightningkite.koolui.concepts.*
 import com.lightningkite.koolui.geometry.Align
@@ -186,7 +187,7 @@ interface ViewFactoryNavigationDefault<VIEW> :
                     scrollVertical(vertical {
                         for (pageOffset in progression) {
                             val index = page * pageSize + pageOffset
-                            val emptyView = space(24f)
+                            val emptyView = space()
                             var filledView: VIEW? = null
                             fun getFilledView(): VIEW {
                                 if (filledView != null) return filledView!!
@@ -208,7 +209,7 @@ interface ViewFactoryNavigationDefault<VIEW> :
                     scrollHorizontal(horizontal {
                         for (pageOffset in progression) {
                             val index = page * pageSize + pageOffset
-                            val emptyView = space(24f)
+                            val emptyView = space()
                             var filledView: VIEW? = null
                             fun getFilledView(): VIEW {
                                 if (filledView != null) return filledView!!
