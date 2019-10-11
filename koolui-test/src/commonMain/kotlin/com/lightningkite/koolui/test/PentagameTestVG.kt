@@ -51,7 +51,7 @@ class PentagameTestVG<VIEW>() : MyViewGenerator<VIEW> {
                                         field = text(itemObs.transform { it.toString() })
                                 )
                             }
-                    )//.setHeight(100f)
+                    ).setHeight(100f)
                 }
                 +horizontal {
                     -list(
@@ -69,7 +69,7 @@ class PentagameTestVG<VIEW>() : MyViewGenerator<VIEW> {
                                         )
                                 )
                             }
-                    )//.setWidth(100f)
+                    ).setWidth(100f)
                     +window(dependency, stack, listOf())
                 }
             }
